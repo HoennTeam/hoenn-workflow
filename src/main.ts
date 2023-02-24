@@ -23,6 +23,16 @@ async function bootstrap() {
     new LoggingInterceptor(app.get(Logger), app.get(Config))
   )
 
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: false,
+      whitelist: true,
+      forbidUnknownValues: true,
+      exceptionFactory: (errors: ValidationError[]) =>
+        new ValidationException(errors),
+    })
+  )
+
   await app.listen(process.env.PORT || 3000)
 }
 bootstrap()
