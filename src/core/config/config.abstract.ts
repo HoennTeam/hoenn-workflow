@@ -7,4 +7,8 @@ export abstract class Config {
     readonly level: string
     readonly logRequests: boolean
   }
+  readonly swagger: {
+    readonly enable: boolean
+    readonly path: string
+  }
 }

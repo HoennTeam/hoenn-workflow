@@ -10,6 +10,7 @@ import { ValidationException } from './common/exceptions/validation.exception'
 import LoggingInterceptor from './common/interceptors/logging.interceptor'
 import { Config } from './core/config'
 import { Logger } from './core/logger'
+import { setupSwagger } from './core/swagger'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
@@ -39,6 +40,8 @@ async function bootstrap() {
       crossOriginResourcePolicy: false,
     })
   )
+
+  setupSwagger(app)
 
   await app.listen(process.env.PORT || 3000)
 }

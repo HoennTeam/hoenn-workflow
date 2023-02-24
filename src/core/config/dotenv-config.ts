@@ -16,7 +16,11 @@ function load(): Config {
     },
     logging: {
       level: process.env.LOGGING_LEVEL || 'debug',
-      logRequests: getBoolean(process.env.APP_LOG_REQUESTS) || true,
+      logRequests: getBoolean(process.env.APP_LOG_REQUESTS) ?? true,
+    },
+    swagger: {
+      enable: getBoolean(process.env.SWAGGER_ENABLE) ?? true,
+      path: process.env.SWAGGER_PATH || 'swagger',
     },
   }
 }
