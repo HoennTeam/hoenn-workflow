@@ -31,14 +31,12 @@ const jsonFormat = winston.format.combine(
 
 @Injectable()
 export class WinstonLogger extends Logger {
-  constructor() {
-    // console.log(config)
+  constructor(private readonly config: Config) {
     super()
   }
 
   private readonly logger = winston.createLogger({
-    // format: this.config.app.development ? localFormat : jsonFormat,
-    format: localFormat,
+    format: this.config.app.development ? localFormat : jsonFormat,
     transports: [new winston.transports.Console({})],
   })
 
