@@ -15,6 +15,8 @@ import { setupSwagger } from './core/swagger'
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
 
+  app.setGlobalPrefix('api')
+
   app.useGlobalFilters(
     new GlobalExceptionFilter(app.get(Logger)),
     new AppExceptionFilter(),
