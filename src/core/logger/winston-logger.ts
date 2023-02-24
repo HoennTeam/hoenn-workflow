@@ -9,9 +9,9 @@ const localFormat = winston.format.combine(
   winston.format.prettyPrint(),
   winston.format.colorize(),
   winston.format.printf(({ timestamp, level, stack, message, ...meta }) => {
-    return `[${timestamp}] ${level}: ${stack || message} ${
+    return `[${timestamp}] ${level}: ${message} ${
       Object.keys(meta).length ? JSON.stringify(meta, null, 2) : ''
-    }`
+    } ${stack}`
   })
 )
 
