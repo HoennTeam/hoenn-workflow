@@ -11,7 +11,7 @@ const localFormat = winston.format.combine(
   winston.format.printf(({ timestamp, level, stack, message, ...meta }) => {
     return `[${timestamp}] ${level}: ${message} ${
       Object.keys(meta).length ? JSON.stringify(meta, null, 2) : ''
-    } ${stack}`
+    } ${stack || ''}`
   })
 )
 
@@ -38,18 +38,19 @@ export class WinstonLogger extends Logger {
   private readonly logger = winston.createLogger({
     format: this.config.app.development ? localFormat : jsonFormat,
     transports: [new winston.transports.Console({})],
+    level: this.config.logging.level,
   })
 
-  debug(message: string, context: object): void {
+  debug(message: string, context?: object): void {
     this.logger.debug(message, context)
   }
-  info(message: string, context: object): void {
+  info(message: string, context?: object): void {
     this.logger.info(message, context)
   }
-  warn(message: string, context: object): void {
+  warn(message: string, context?: object): void {
     this.logger.warn(message, context)
   }
-  error(message: string, context: object, originalError?: Error | undefined) {
+  error(message: string, context?: object) {
     this.logger.error(message, context)
   }
 }
