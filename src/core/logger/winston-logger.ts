@@ -1,0 +1,57 @@
+import { Injectable } from '@nestjs/common'
+import * as winston from 'winston'
+import { Config } from '../config/config.abstract'
+import { Logger } from './logger.abstract'
+
+const localFormat = winston.format.combine(
+  winston.format.errors({ stack: true }),
+  winston.format.timestamp(),
+  winston.format.prettyPrint(),
+  winston.format.colorize(),
+  winston.format.printf(({ timestamp, level, stack, message, ...meta }) => {
+    return `[${timestamp}] ${level}: ${stack || message} ${
+      Object.keys(meta).length ? JSON.stringify(meta, null, 2) : ''
+    }`
+  })
+)
+
+const jsonFormat = winston.format.combine(
+  winston.format.errors({ stack: true }),
+  winston.format.timestamp(),
+  winston.format.printf(({ timestamp, level, stack, message, ...meta }) =>
+    JSON.stringify({
+      level,
+      message,
+      stack,
+      timestamp,
+      meta,
+    })
+  )
+)
+
+@Injectable()
+export class WinstonLogger extends Logger {
+  constructor() {
+    // console.log(config)
+    super()
+  }
+
+  private readonly logger = winston.createLogger({
+    // format: this.config.app.development ? localFormat : jsonFormat,
+    format: localFormat,
+    transports: [new winston.transports.Console({})],
+  })
+
+  debug(message: string, context: object): void {
+    this.logger.debug(message, context)
+  }
+  info(message: string, context: object): void {
+    this.logger.info(message, context)
+  }
+  warn(message: string, context: object): void {
+    this.logger.warn(message, context)
+  }
+  error(message: string, context: object, originalError?: Error | undefined) {
+    this.logger.error(message, context)
+  }
+}

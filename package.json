@@ -18,12 +18,14 @@
     "@nestjs/core": "^9.3.9",
     "@nestjs/platform-express": "^9.3.9",
     "dotenv": "^16.0.3",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.2.0",
     "@nestjs/schematics": "^9.0.4",
     "@types/node": "^18.14.1",
+    "@types/winston": "^2.4.4",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.53.0",
     "eslint": "^8.34.0",
