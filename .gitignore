@@ -6,5 +6,6 @@ node_modules/
 [._]sw[a-p]
 
 dist/
+coverage/
 
 .env
