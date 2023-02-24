@@ -1,6 +1,7 @@
 import { ValidationError, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import type { NestExpressApplication } from '@nestjs/platform-express'
+import helmet from 'helmet'
 import { AppModule } from './app.module'
 import { AppExceptionFilter } from './common/exception-filters/app.exception-filter'
 import { GlobalExceptionFilter } from './common/exception-filters/global.exception-filter'
@@ -30,6 +31,12 @@ async function bootstrap() {
       forbidUnknownValues: true,
       exceptionFactory: (errors: ValidationError[]) =>
         new ValidationException(errors),
+    })
+  )
+
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: false,
     })
   )
 
