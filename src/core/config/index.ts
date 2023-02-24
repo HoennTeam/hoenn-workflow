@@ -1,3 +1,1 @@
-import { Config } from './config.abstract'
-
-export { Config }
+export { Config } from './config.abstract'

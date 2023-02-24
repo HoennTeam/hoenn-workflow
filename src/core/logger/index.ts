@@ -1,3 +1,1 @@
-import { Logger } from './logger.abstract'
-
-export { Logger }
+export { Logger } from './logger.abstract'
