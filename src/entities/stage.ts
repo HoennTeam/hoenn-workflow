@@ -1,4 +1,12 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm'
 import { Task } from './task'
 
 @Entity()
@@ -14,4 +22,15 @@ export class Stage {
 
   @OneToMany(() => Task, (tasks) => tasks.stage)
   tasks: Task
+
+  @CreateDateColumn()
+  createdAt: Date
+
+  @UpdateDateColumn()
+  updatedAt: Date
+
+  @DeleteDateColumn({
+    nullable: true,
+  })
+  deletedAt?: Date
 }
