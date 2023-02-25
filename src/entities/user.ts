@@ -16,7 +16,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column()
+  @Column({ unique: true })
   username: string
   @Column()
   password: string
@@ -26,7 +26,7 @@ export class User {
 
   @Column()
   fullName: string
-  @Column()
+  @Column({ unique: true })
   email: string
 
   @CreateDateColumn()
