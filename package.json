@@ -16,10 +16,10 @@
     "test:verbose": "jest --verbose --forceExit --maxWorkers=1 --detectOpenHandles",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage  --forceExit --maxWorkers=1 --detectOpenHandles",
-    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/core/typeorm/dataSource.ts",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/core/typeorm/scriptsDataSource.ts",
     "migration:create": "typeorm-ts-node-commonjs migration:create",
-    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/core/typeorm/dataSource.ts",
-    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/core/typeorm/dataSource.ts",
+    "migration:up": "typeorm-ts-node-commonjs migration:run -d src/core/typeorm/scriptsDataSource.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/core/typeorm/scriptsDataSource.ts",
     "entity:create": "typeorm-ts-node-commonjs entity:create"
   },
   "keywords": [],
