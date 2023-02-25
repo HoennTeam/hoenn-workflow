@@ -10,7 +10,6 @@ import { typeormDataSourceOptions } from './core/typeorm/dataSourceOptions'
   imports: [
     ConfigModule,
     LoggerModule,
-    InstanceModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule, LoggerModule],
       useFactory: (config: Config) => ({
@@ -18,6 +17,7 @@ import { typeormDataSourceOptions } from './core/typeorm/dataSourceOptions'
         logger: 'advanced-console',
       }),
     }),
+    InstanceModule,
   ],
 })
 export class AppModule {}
