@@ -5,10 +5,12 @@ import { User } from '../../entities/user'
 import { CreateUserDto, CreateUserOutDto } from './dto/create-user.dto'
 import { randomBytes } from 'crypto'
 import { Config } from '../../core/config'
+import { Logger } from '../../core/logger'
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly logger: Logger,
     private readonly config: Config,
     private readonly connection: DataSource
   ) {}
@@ -26,6 +28,11 @@ export class AuthService {
     })
 
     await this.connection.getRepository(User).save(user)
+
+    this.logger.info('User account successfully created', {
+      ...user,
+      password: undefined,
+    })
 
     return {
       username: user.username,
