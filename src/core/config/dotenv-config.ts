@@ -17,10 +17,20 @@ function load(): Config {
     logging: {
       level: process.env.LOGGING_LEVEL || 'debug',
       logRequests: getBoolean(process.env.APP_LOG_REQUESTS) ?? true,
+      logDatabaseQueries:
+        getBoolean(process.env.APP_LOG_DATABASE_QUERIES) ?? true,
     },
     swagger: {
       enable: getBoolean(process.env.SWAGGER_ENABLE) ?? true,
       path: process.env.SWAGGER_PATH || 'swagger',
+    },
+    database: {
+      host: process.env.DATABASE_HOST || 'localhost',
+      port: Number(process.env.DATABASE_PORT) || 5432,
+      username: process.env.DATABASE_USERNAME || 'workflow',
+      name: process.env.DATABASE_NAME || 'workflow',
+      password: process.env.DATABASE_PASSWORD || 'workflow',
+      timeoutMs: Number(process.env.DATABASE_TIMEOUT_MS) || 10000,
     },
   }
 }

@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/src/main",
+  "config": {
+    "foo": "bar"
+  },
   "scripts": {
     "build": "nest build",
     "start:dev": "nest start --watch",
@@ -12,7 +15,12 @@
     "test": "jest --forceExit --maxWorkers=1 --detectOpenHandles",
     "test:verbose": "jest --verbose --forceExit --maxWorkers=1 --detectOpenHandles",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage  --forceExit --maxWorkers=1 --detectOpenHandles"
+    "test:coverage": "jest --coverage  --forceExit --maxWorkers=1 --detectOpenHandles",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/core/typeorm/dataSource.ts",
+    "migration:create": "typeorm-ts-node-commonjs migration:create",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/core/typeorm/dataSource.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/core/typeorm/dataSource.ts",
+    "entity:create": "typeorm-ts-node-commonjs entity:create"
   },
   "keywords": [],
   "author": "",
@@ -22,12 +30,16 @@
     "@nestjs/core": "^9.3.9",
     "@nestjs/platform-express": "^9.3.9",
     "@nestjs/swagger": "^6.2.1",
+    "@nestjs/typeorm": "^9.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "dotenv": "^16.0.3",
     "helmet": "^6.0.1",
+    "pg": "^8.9.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
+    "typeorm": "^0.3.12",
+    "typeorm-naming-strategies": "^4.1.0",
     "winston": "^3.8.2"
   },
   "devDependencies": {
@@ -44,6 +56,7 @@
     "jest": "^29.4.3",
     "prettier": "^2.8.4",
     "ts-jest": "^29.0.5",
+    "ts-node": "^10.9.1",
     "typescript": "^4.9.5"
   },
   "jest": {

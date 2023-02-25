@@ -14,5 +14,8 @@
     "baseUrl": "./",
     "skipLibCheck": true,
     "incremental": true
+  },
+  "ts-node": {
+    "files": true
   }
 }
