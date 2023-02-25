@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { DataSource } from 'typeorm'
 import { ConfigModule } from '../../core/config/config.module'
 import { LoggerModule } from '../../core/logger/logger.module'
+import { UsersService } from '../users/users.service'
 import { InstanceService } from './instance.service'
 
 describe('InstanceService', () => {
@@ -10,7 +11,11 @@ describe('InstanceService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [ConfigModule, LoggerModule],
-      providers: [InstanceService, { provide: DataSource, useValue: {} }],
+      providers: [
+        InstanceService,
+        { provide: DataSource, useValue: {} },
+        { provide: UsersService, useValue: {} },
+      ],
     }).compile()
 
     service = module.get<InstanceService>(InstanceService)

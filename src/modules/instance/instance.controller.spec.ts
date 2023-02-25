@@ -12,7 +12,10 @@ describe('InstanceController', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [LoggerModule, ConfigModule],
       controllers: [InstanceController],
-      providers: [InstanceService, { provide: DataSource, useValue: {} }],
+      providers: [
+        { provide: InstanceService, useValue: {} },
+        { provide: DataSource, useValue: {} },
+      ],
     }).compile()
 
     controller = module.get<InstanceController>(InstanceController)

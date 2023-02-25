@@ -1,18 +1,22 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from './users.service';
+import { Test, TestingModule } from '@nestjs/testing'
+import { DataSource } from 'typeorm'
+import { ConfigModule } from '../../core/config/config.module'
+import { LoggerModule } from '../../core/logger/logger.module'
+import { UsersService } from './users.service'
 
 describe('UsersService', () => {
-  let service: UsersService;
+  let service: UsersService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UsersService],
-    }).compile();
+      imports: [LoggerModule, ConfigModule],
+      providers: [UsersService, { provide: DataSource, useValue: {} }],
+    }).compile()
 
-    service = module.get<UsersService>(UsersService);
-  });
+    service = module.get<UsersService>(UsersService)
+  })
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-});
+    expect(service).toBeDefined()
+  })
+})
