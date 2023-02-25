@@ -39,6 +39,11 @@ function load(): Config {
     passwords: {
       saltRounds: Number(process.env.PASSWORDS_SALT_ROUNDS) || 8,
     },
+    sessions: {
+      expiresSeconds:
+        Number(process.env.SESSIONS_EXPIRES_SECONDS) || 60 * 60 * 24,
+      idLength: 128,
+    },
   }
 }
 

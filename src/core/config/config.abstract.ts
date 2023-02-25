@@ -27,4 +27,8 @@ export abstract class Config {
   readonly passwords: {
     readonly saltRounds: number
   }
+  readonly sessions: {
+    readonly idLength: number
+    readonly expiresSeconds: number
+  }
 }
