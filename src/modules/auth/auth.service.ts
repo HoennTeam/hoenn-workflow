@@ -54,7 +54,7 @@ export class AuthService {
   }
 
   private generateRandomPassword(): string {
-    return randomBytes(this.config.password.minLength).toString('hex')
+    return randomBytes(this.config.users.passwordMinLength).toString('hex')
   }
 
   public async signIn() {}

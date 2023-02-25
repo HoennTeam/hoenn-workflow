@@ -32,8 +32,8 @@ function load(): Config {
       password: process.env.DATABASE_PASSWORD || 'workflow',
       timeoutMs: Number(process.env.DATABASE_TIMEOUT_MS) || 10000,
     },
-    password: {
-      minLength: Number(process.env.PASSWORD_MIN_LENGTH) || 8,
+    users: {
+      passwordMinLength: Number(process.env.USERS_PASSWORD_MIN_LENGTH) ?? 8,
     },
   }
 }
