@@ -8,6 +8,7 @@ import {
   ManyToOne,
   OneToMany,
 } from 'typeorm'
+import { Board } from './board'
 import { Stage } from './stage'
 
 @Entity()
@@ -26,6 +27,9 @@ export class Task {
 
   @ManyToOne(() => Stage, (stage) => stage.tasks)
   stage: Stage
+
+  @ManyToOne(() => Board, (board) => board.tasks)
+  board: Board
 
   @CreateDateColumn()
   createdAt: Date

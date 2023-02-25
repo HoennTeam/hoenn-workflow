@@ -4,6 +4,7 @@ import {
   DeleteDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
@@ -28,10 +29,10 @@ export class Board {
   @ManyToOne(() => Project, (project) => project.boards)
   project: Project
 
-  @Column()
+  @OneToMany(() => Task, (tasks) => tasks.board)
   tasks: Task[]
 
-  @Column()
+  @OneToMany(() => Stage, (stages) => stages.board)
   stages: Stage[]
 
   @CreateDateColumn()

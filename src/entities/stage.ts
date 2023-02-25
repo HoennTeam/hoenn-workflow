@@ -3,10 +3,13 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToMany,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
+import { Board } from './board'
 import { Task } from './task'
 
 @Entity()
@@ -22,6 +25,9 @@ export class Stage {
 
   @OneToMany(() => Task, (tasks) => tasks.stage)
   tasks: Task
+
+  @ManyToOne(() => Board, (board) => board.stages)
+  board: Board
 
   @CreateDateColumn()
   createdAt: Date
