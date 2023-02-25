@@ -36,6 +36,9 @@ function load(): Config {
       passwordMinLength: Number(process.env.USERS_PASSWORD_MIN_LENGTH) || 8,
       adminUsername: process.env.USERS_ADMIN_USERNAME ?? 'admin',
     },
+    passwords: {
+      saltRounds: Number(process.env.PASSWORDS_SALT_ROUNDS) || 8,
+    },
   }
 }
 

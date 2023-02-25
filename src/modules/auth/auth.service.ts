@@ -7,13 +7,15 @@ import { Logger } from '../../core/logger'
 import { SignInDto } from './dto/sign-in.dto'
 import { TokenDto } from './dto/token.dto'
 import { ChangeOneTimePasswordDto } from './dto/change-one-time-password.dto'
+import { PasswordsService } from './passwords.service'
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly logger: Logger,
     private readonly config: Config,
-    private readonly connection: DataSource
+    private readonly connection: DataSource,
+    private readonly passwordsService: PasswordsService
   ) {}
 
   public async signIn(dto: SignInDto): Promise<TokenDto> {
@@ -59,7 +61,8 @@ export class AuthService {
       )
     }
 
-    user.password = dto.newPassword
+    const password = await this.passwordsService.hashPassword(dto.newPassword)
+    user.password = password
     user.requiredPasswordChange = false
 
     await this.connection.getRepository(User).save(user)
@@ -86,7 +89,9 @@ export class AuthService {
       )
     }
 
-    if (user.password !== password) {
+    if (
+      !(await this.passwordsService.validatePassword(password, user.password))
+    ) {
       throw new AppException(
         HttpStatus.UNAUTHORIZED,
         'Provided credentials are incorrect'

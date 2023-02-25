@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm'
 import { ConfigModule } from '../../core/config/config.module'
 import { LoggerModule } from '../../core/logger/logger.module'
 import { AuthService } from './auth.service'
+import { PasswordsService } from './passwords.service'
 
 describe('AuthService', () => {
   let service: AuthService
@@ -16,6 +17,7 @@ describe('AuthService', () => {
           provide: DataSource,
           useValue: {},
         },
+        { provide: PasswordsService, useValue: {} },
       ],
     }).compile()
 

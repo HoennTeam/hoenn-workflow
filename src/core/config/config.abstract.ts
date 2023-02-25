@@ -24,4 +24,7 @@ export abstract class Config {
     readonly passwordMinLength: number
     readonly adminUsername: string
   }
+  readonly passwords: {
+    readonly saltRounds: number
+  }
 }
