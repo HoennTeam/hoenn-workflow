@@ -43,5 +43,5 @@ export class Board {
   @DeleteDateColumn({
     nullable: true,
   })
-  deletedAt: Date
+  deletedAt?: Date
 }

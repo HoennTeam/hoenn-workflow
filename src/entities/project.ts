@@ -36,5 +36,5 @@ export class Project {
   @DeleteDateColumn({
     nullable: true,
   })
-  deletedAt: Date
+  deletedAt?: Date
 }

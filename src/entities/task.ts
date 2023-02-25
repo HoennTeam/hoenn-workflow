@@ -36,5 +36,5 @@ export class Task {
   @DeleteDateColumn({
     nullable: true,
   })
-  deletedAt: Date
+  deletedAt?: Date
 }
