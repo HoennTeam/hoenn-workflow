@@ -9,6 +9,7 @@ import { ExceptionResponse } from '../../common/response/exception-response'
 import { CreateInstanceRequest } from './api/create-instance.api'
 import { InstanceResponse } from './api/instance.api'
 import { InstanceService } from './instance.service'
+
 @Controller('instance')
 export class InstanceController {
   constructor(private readonly instanceService: InstanceService) {}

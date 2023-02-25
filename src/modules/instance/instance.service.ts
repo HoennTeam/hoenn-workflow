@@ -9,7 +9,7 @@ import { InstanceDto } from './dto/instance.dto'
 @Injectable()
 export class InstanceService {
   constructor(
-    private logger: Logger,
+    private readonly logger: Logger,
     private readonly connection: DataSource
   ) {}
 
@@ -37,8 +37,6 @@ export class InstanceService {
     const [existingInstance] = await this.connection
       .createEntityManager()
       .find(Instance, { take: 1 })
-
-    this.logger.info('TEST', existingInstance)
 
     if (existingInstance) {
       throw new AppException(
