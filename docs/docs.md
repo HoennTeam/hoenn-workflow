@@ -46,6 +46,8 @@ class Project {
   name: string
   description: string
 
+  boards: Board[]
+
   createdAt: Date
   updatedAt: Date
   deletedAt?: Date
@@ -98,7 +100,40 @@ class ProjectUsers {
 
 ## Boards
 
+```ts
+class Board {
+  id: number
+  title: string
+  flag: boolean //default board have only one flag true
+  tasks: Task[]
+  stages: Stage[]
+  createdAt: Date
+  updatedAt: Date
+  deletedAt: Date?
+}
+```
+
 ## Stages
+
+```ts
+class Stage {
+  id: number
+  title: string
+  tasks: Task[]
+}
+```
 
 ## Tasks
 
+```ts
+class Task {
+  id: number
+  title: string
+  assignees: User[]
+  description: string
+  stage: Stage
+  createdAt: Date
+  updatedAt: Date
+  deletedAt: Date?
+}
+```
