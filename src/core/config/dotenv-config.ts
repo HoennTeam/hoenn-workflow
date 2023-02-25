@@ -33,7 +33,8 @@ function load(): Config {
       timeoutMs: Number(process.env.DATABASE_TIMEOUT_MS) || 10000,
     },
     users: {
-      passwordMinLength: Number(process.env.USERS_PASSWORD_MIN_LENGTH) ?? 8,
+      passwordMinLength: Number(process.env.USERS_PASSWORD_MIN_LENGTH) || 8,
+      adminUsername: process.env.USERS_ADMIN_USERNAME ?? 'admin',
     },
   }
 }
