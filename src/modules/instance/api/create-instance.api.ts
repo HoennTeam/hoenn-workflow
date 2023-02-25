@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsEmail, IsString, MinLength } from 'class-validator'
-import { CreateUserResponse } from '../../auth/api/create-user.api'
+import { CreateUserResponse } from '../../users/api/create-user.api'
 import { InstanceResponse } from './instance.api'
 
 export class CreateInstanceRequest {

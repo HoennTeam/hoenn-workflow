@@ -4,7 +4,7 @@ import { AppException } from '../../common/exceptions/app.exception'
 import { Config } from '../../core/config'
 import { Logger } from '../../core/logger'
 import { Instance } from '../../entities/Instance'
-import { AuthService } from '../auth/auth.service'
+import { UsersService } from '../users/users.service'
 import {
   CreateInstanceDto,
   CreateInstanceOutDto,
@@ -17,7 +17,7 @@ export class InstanceService {
     private readonly logger: Logger,
     private readonly config: Config,
     private readonly connection: DataSource,
-    private readonly authService: AuthService
+    private readonly usersService: UsersService
   ) {}
 
   public async getInstance(): Promise<InstanceDto> {
@@ -61,7 +61,7 @@ export class InstanceService {
 
     await this.connection.createEntityManager().save(newInstance)
 
-    const administrator = await this.authService.createUser({
+    const administrator = await this.usersService.createUser({
       username: this.config.users.adminUsername,
       fullName: this.config.users.adminUsername,
       email: dto.administratorEmail,

@@ -1,6 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common'
 import {
-  ApiConflictResponse,
   ApiOkResponse,
   ApiOperation,
   ApiResponse,
@@ -9,7 +8,6 @@ import {
 } from '@nestjs/swagger'
 import { ExceptionResponse } from '../../common/response/exception-response'
 import { ChangeOneTimePasswordRequest } from './api/change-one-time-password.api'
-import { CreateUserRequest, CreateUserResponse } from './api/create-user.api'
 import { SignInRequest } from './api/sign-in.dto'
 import { TokenResponse } from './api/token.api'
 import { AuthService } from './auth.service'
@@ -18,16 +16,6 @@ import { AuthService } from './auth.service'
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
-  @ApiOperation({ description: 'Add new user to the instance' })
-  @ApiOkResponse({ type: CreateUserResponse })
-  @ApiConflictResponse({ type: ExceptionResponse })
-  @Post('create-user')
-  public async createUser(
-    @Body() createUserRequest: CreateUserRequest
-  ): Promise<CreateUserResponse> {
-    return this.authService.createUser(createUserRequest)
-  }
 
   @Post('sign-in')
   @ApiOperation({ description: 'Sign In' })
