@@ -4,6 +4,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiTags,
 } from '@nestjs/swagger'
 import { ExceptionResponse } from '../../common/response/exception-response'
 import {
@@ -13,6 +14,7 @@ import {
 import { InstanceResponse } from './api/instance.api'
 import { InstanceService } from './instance.service'
 
+@ApiTags('Instance')
 @Controller('instance')
 export class InstanceController {
   constructor(private readonly instanceService: InstanceService) {}
