@@ -2,7 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common'
 import { DataSource } from 'typeorm'
 import { AppException } from '../../common/exceptions/app.exception'
 import { Logger } from '../../core/logger'
-import { Instance } from '../../entities/Instance'
+import { Instance } from '../../entities/instance'
 import { CreateInstanceDto } from './dto/create-instance.dto'
 import { InstanceDto } from './dto/instance.dto'
 
