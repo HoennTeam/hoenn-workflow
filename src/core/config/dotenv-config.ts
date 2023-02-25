@@ -16,9 +16,9 @@ function load(): Config {
     },
     logging: {
       level: process.env.LOGGING_LEVEL || 'debug',
-      logRequests: getBoolean(process.env.APP_LOG_REQUESTS) ?? true,
+      logRequests: getBoolean(process.env.LOGGING_LOG_REQUESTS) ?? true,
       logDatabaseQueries:
-        getBoolean(process.env.APP_LOG_DATABASE_QUERIES) ?? true,
+        getBoolean(process.env.LOGGING_LOG_DATABASE_QUERIES) ?? true,
     },
     swagger: {
       enable: getBoolean(process.env.SWAGGER_ENABLE) ?? true,
@@ -31,6 +31,13 @@ function load(): Config {
       name: process.env.DATABASE_NAME || 'workflow',
       password: process.env.DATABASE_PASSWORD || 'workflow',
       timeoutMs: Number(process.env.DATABASE_TIMEOUT_MS) || 10000,
+    },
+    users: {
+      passwordMinLength: Number(process.env.USERS_PASSWORD_MIN_LENGTH) || 8,
+      adminUsername: process.env.USERS_ADMIN_USERNAME ?? 'admin',
+    },
+    passwords: {
+      saltRounds: Number(process.env.PASSWORDS_SALT_ROUNDS) || 8,
     },
   }
 }

@@ -3,24 +3,22 @@ import { DataSource } from 'typeorm'
 import { ConfigModule } from '../../core/config/config.module'
 import { LoggerModule } from '../../core/logger/logger.module'
 import { PasswordsService } from '../auth/passwords.service'
-import { UsersService } from '../users/users.service'
-import { InstanceService } from './instance.service'
+import { UsersService } from './users.service'
 
-describe('InstanceService', () => {
-  let service: InstanceService
+describe('UsersService', () => {
+  let service: UsersService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule, LoggerModule],
+      imports: [LoggerModule, ConfigModule],
       providers: [
-        InstanceService,
+        UsersService,
         { provide: DataSource, useValue: {} },
-        { provide: UsersService, useValue: {} },
         { provide: PasswordsService, useValue: {} },
       ],
     }).compile()
 
-    service = module.get<InstanceService>(InstanceService)
+    service = module.get<UsersService>(UsersService)
   })
 
   it('should be defined', () => {
