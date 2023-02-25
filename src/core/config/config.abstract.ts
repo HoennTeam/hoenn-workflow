@@ -20,4 +20,7 @@ export abstract class Config {
     readonly name: string
     readonly timeoutMs: number
   }
+  readonly password: {
+    readonly minLength: number
+  }
 }

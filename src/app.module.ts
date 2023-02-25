@@ -5,6 +5,7 @@ import { LoggerModule } from './core/logger/logger.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Config } from './core/config'
 import { typeormDataSourceOptions } from './core/typeorm/dataSourceOptions'
+import { AuthModule } from './modules/auth/auth.module'
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { typeormDataSourceOptions } from './core/typeorm/dataSourceOptions'
       }),
     }),
     InstanceModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
