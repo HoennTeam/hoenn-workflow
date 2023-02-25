@@ -1,0 +1,21 @@
+version: "3"
+services:
+  app-prod:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    links:
+      - postgres
+    ports:
+      - 3000:3000
+
+  postgres:
+    image: postgres:14.5-alpine
+    volumes:
+      - ./.postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=workflow
+      - POSTGRES_PASSWORD=workflow
+      - POSTGRES_DB=workflow
+    ports:
+      - 5432:5432
