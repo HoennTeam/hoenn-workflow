@@ -1,18 +1,19 @@
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
   DeleteDateColumn,
-  OneToMany,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm'
-import { Board } from './board'
+import { Project } from './project'
+import { Stage } from './stage'
 import { Task } from './task'
 
 @Entity()
-export class Project {
-  constructor(data: Partial<Project>) {
+export class Board {
+  constructor(data: Partial<Board>) {
     Object.assign(this, data)
   }
   @PrimaryGeneratedColumn()
@@ -22,10 +23,16 @@ export class Project {
   title: string
 
   @Column()
-  description: string
+  flag: boolean
 
-  @OneToMany(() => Board, (boards) => boards.project)
-  boards: Board[]
+  @ManyToOne(() => Project, (project) => project.boards)
+  project: Project
+
+  @Column()
+  tasks: Task[]
+
+  @Column()
+  stages: Stage[]
 
   @CreateDateColumn()
   createdAt: Date

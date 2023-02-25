@@ -8,10 +8,13 @@ import {
   ManyToOne,
   OneToMany,
 } from 'typeorm'
-import { Stage } from './project'
+import { Stage } from './stage'
 
 @Entity()
 export class Task {
+  constructor(data: Partial<Task>) {
+    Object.assign(this, data)
+  }
   @PrimaryGeneratedColumn()
   id: number
 
