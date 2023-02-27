@@ -21,10 +21,10 @@ export class Board {
   id: number
 
   @Column()
-  title: string
+  name: string
 
   @Column()
-  flag: boolean
+  isDefault: boolean
 
   @ManyToOne(() => Project, (project) => project.boards)
   project: Project
