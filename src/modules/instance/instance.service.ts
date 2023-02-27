@@ -1,16 +1,23 @@
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { DataSource } from 'typeorm'
 import { AppException } from '../../common/exceptions/app.exception'
+import { Config } from '../../core/config'
 import { Logger } from '../../core/logger'
 import { Instance } from '../../entities/instance'
-import { CreateInstanceDto } from './dto/create-instance.dto'
+import { UsersService } from '../users/users.service'
+import {
+  CreateInstanceDto,
+  CreateInstanceOutDto,
+} from './dto/create-instance.dto'
 import { InstanceDto } from './dto/instance.dto'
 
 @Injectable()
 export class InstanceService {
   constructor(
     private readonly logger: Logger,
-    private readonly connection: DataSource
+    private readonly config: Config,
+    private readonly connection: DataSource,
+    private readonly usersService: UsersService
   ) {}
 
   public async getInstance(): Promise<InstanceDto> {
@@ -33,7 +40,9 @@ export class InstanceService {
     }
   }
 
-  public async createInstance(dto: CreateInstanceDto): Promise<InstanceDto> {
+  public async createInstance(
+    dto: CreateInstanceDto
+  ): Promise<CreateInstanceOutDto> {
     const [existingInstance] = await this.connection
       .createEntityManager()
       .find(Instance, { take: 1 })
@@ -52,15 +61,24 @@ export class InstanceService {
 
     await this.connection.createEntityManager().save(newInstance)
 
+    const administrator = await this.usersService.createUser({
+      username: this.config.users.adminUsername,
+      fullName: this.config.users.adminUsername,
+      email: dto.administratorEmail,
+    })
+
     this.logger.info('Organization instance successfully setup', {
       instance: newInstance,
     })
 
     return {
-      name: newInstance.name,
-      administratorEmail: newInstance.administratorEmail,
-      createdAt: newInstance.createdAt.toISOString(),
-      updatedAt: newInstance.updatedAt.toISOString(),
+      instance: {
+        name: newInstance.name,
+        administratorEmail: newInstance.administratorEmail,
+        createdAt: newInstance.createdAt.toISOString(),
+        updatedAt: newInstance.updatedAt.toISOString(),
+      },
+      administrator,
     }
   }
 }

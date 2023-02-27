@@ -24,4 +24,11 @@ export abstract class Config {
     readonly name: string
     readonly isDefault: boolean
   }
+  readonly users: {
+    readonly passwordMinLength: number
+    readonly adminUsername: string
+  }
+  readonly passwords: {
+    readonly saltRounds: number
+  }
 }

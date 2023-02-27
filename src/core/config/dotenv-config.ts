@@ -16,9 +16,9 @@ function load(): Config {
     },
     logging: {
       level: process.env.LOGGING_LEVEL || 'debug',
-      logRequests: getBoolean(process.env.APP_LOG_REQUESTS) ?? true,
+      logRequests: getBoolean(process.env.LOGGING_LOG_REQUESTS) ?? true,
       logDatabaseQueries:
-        getBoolean(process.env.APP_LOG_DATABASE_QUERIES) ?? true,
+        getBoolean(process.env.LOGGING_LOG_DATABASE_QUERIES) ?? true,
     },
     swagger: {
       enable: getBoolean(process.env.SWAGGER_ENABLE) ?? true,
@@ -35,6 +35,13 @@ function load(): Config {
     board: {
       name: process.env.BOARD_DEFAULT_NAME || "Default board's name",
       isDefault: getBoolean(process.env.DEFAULT_BOARD) ?? true,
+    },
+    users: {
+      passwordMinLength: Number(process.env.USERS_PASSWORD_MIN_LENGTH) || 8,
+      adminUsername: process.env.USERS_ADMIN_USERNAME ?? 'admin',
+    },
+    passwords: {
+      saltRounds: Number(process.env.PASSWORDS_SALT_ROUNDS) || 8,
     },
   }
 }

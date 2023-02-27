@@ -2,28 +2,31 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { DataSource } from 'typeorm'
 import { ConfigModule } from '../../core/config/config.module'
 import { LoggerModule } from '../../core/logger/logger.module'
-import { PasswordsService } from '../auth/passwords.service'
-import { UsersService } from '../users/users.service'
-import { InstanceService } from './instance.service'
+import { AuthService } from './auth.service'
+import { PasswordsService } from './passwords.service'
 
-describe('InstanceService', () => {
-  let service: InstanceService
+describe('AuthService', () => {
+  let service: AuthService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule, LoggerModule],
+      imports: [LoggerModule, ConfigModule],
       providers: [
-        InstanceService,
-        { provide: DataSource, useValue: {} },
-        { provide: UsersService, useValue: {} },
+        AuthService,
+        {
+          provide: DataSource,
+          useValue: {},
+        },
         { provide: PasswordsService, useValue: {} },
       ],
     }).compile()
 
-    service = module.get<InstanceService>(InstanceService)
+    service = module.get<AuthService>(AuthService)
   })
 
   it('should be defined', () => {
     expect(service).toBeDefined()
   })
+
+  describe('Create User', () => {})
 })

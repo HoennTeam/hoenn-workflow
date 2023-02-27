@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { Config } from './core/config'
 import { typeormDataSourceOptions } from './core/typeorm/dataSourceOptions'
 import { ProjectsModule } from './modules/projects/projects.module'
+import { AuthModule } from './modules/auth/auth.module'
+import { UsersModule } from './modules/users/users.module'
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { ProjectsModule } from './modules/projects/projects.module'
     }),
     InstanceModule,
     ProjectsModule,
+    AuthModule,
+    UsersModule,
   ],
 })
 export class AppModule {}
