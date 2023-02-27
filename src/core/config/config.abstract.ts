@@ -20,4 +20,8 @@ export abstract class Config {
     readonly name: string
     readonly timeoutMs: number
   }
+  readonly board: {
+    readonly name: string
+    readonly isDefault: boolean
+  }
 }

@@ -32,6 +32,10 @@ function load(): Config {
       password: process.env.DATABASE_PASSWORD || 'workflow',
       timeoutMs: Number(process.env.DATABASE_TIMEOUT_MS) || 10000,
     },
+    board: {
+      name: process.env.BOARD_DEFAULT_NAME || "Default board's name",
+      isDefault: getBoolean(process.env.DEFAULT_BOARD) ?? true,
+    },
   }
 }
 
