@@ -5,7 +5,9 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToOne,
 } from 'typeorm'
+import { Role } from './role'
 
 @Entity()
 export class User {
@@ -28,6 +30,12 @@ export class User {
   fullName: string
   @Column({ unique: true })
   email: string
+
+  @ManyToOne(() => Role, (role) => role.users, {
+    nullable: false,
+    cascade: true,
+  })
+  globalRole: Role
 
   @CreateDateColumn()
   createdAt: Date

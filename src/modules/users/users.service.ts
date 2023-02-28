@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm'
 import { AppException } from '../../common/exceptions/app.exception'
 import { Config } from '../../core/config'
 import { Logger } from '../../core/logger'
+import { Role } from '../../entities/role'
 import { User } from '../../entities/user'
 import { PasswordsService } from '../auth/passwords.service'
 import { CreateUserDto, CreateUserOutDto } from './dto/create-user.dto'
@@ -17,8 +18,36 @@ export class UsersService {
     private readonly passwordsService: PasswordsService
   ) {}
 
-  public async createUser(dto: CreateUserDto): Promise<CreateUserOutDto> {
+  public createUser(dto: CreateUserDto): Promise<CreateUserOutDto> {
+    return this.createUserWithRole(dto, this.config.users.defaultRole)
+  }
+
+  public createSystemAdmin(
+    administratorEmail: string
+  ): Promise<CreateUserOutDto> {
+    return this.createUserWithRole(
+      {
+        email: administratorEmail,
+        username: this.config.users.adminUsername,
+        fullName: this.config.users.adminUsername,
+      },
+      this.config.users.adminRole
+    )
+  }
+
+  private async createUserWithRole(
+    dto: CreateUserDto,
+    roleName: string
+  ): Promise<CreateUserOutDto> {
     await this.checkUserAlreadyExists(dto.username, dto.email)
+    const role = await this.connection.getRepository(Role).findOne({
+      select: {
+        id: true,
+      },
+      where: {
+        name: roleName,
+      },
+    })
 
     const plainPassword = this.generateRandomPassword()
     const password = await this.passwordsService.hashPassword(plainPassword)
@@ -28,6 +57,7 @@ export class UsersService {
       email: dto.email,
       fullName: dto.fullName,
       requiredPasswordChange: true,
+      globalRole: role!,
     })
 
     await this.connection.getRepository(User).save(user)
