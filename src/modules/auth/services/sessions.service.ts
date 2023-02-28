@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { randomBytes } from 'crypto'
 import { Redis } from 'ioredis'
-import { SESSIONS_NAMESPACE } from '../../common/const/redis-namespaces.const'
-import { AuthPayload } from '../../common/interfaces/auth-payload.interface'
-import { Config } from '../../core/config'
-import { REDIS_KEY } from '../../core/redis/redis.const'
+import { SESSIONS_NAMESPACE } from '../../../common/const/redis-namespaces.const'
+import { AuthPayload } from '../../../common/interfaces/auth-payload.interface'
+import { Config } from '../../../core/config'
+import { REDIS_KEY } from '../../../core/redis/redis.const'
 
 @Injectable()
 export class SessionsService {

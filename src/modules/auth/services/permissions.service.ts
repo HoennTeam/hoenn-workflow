@@ -1,8 +1,8 @@
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { DataSource } from 'typeorm'
-import { AppException } from '../../common/exceptions/app.exception'
-import { Permission } from '../../entities/permission'
-import { Role } from '../../entities/role'
+import { AppException } from '../../../common/exceptions/app.exception'
+import { Permission } from '../../../entities/permission'
+import { Role } from '../../../entities/role'
 
 @Injectable()
 export class PermissionsService {
@@ -32,8 +32,8 @@ export class PermissionsService {
       .createQueryBuilder(Permission, 'permission')
       .leftJoin('permission.roles', 'roles')
       .leftJoin('roles.users', 'users')
-      .where('users.username = :username', { username})
-      .andWhere('permission.name = :permissionName', { permissionName})
+      .where('users.username = :username', { username })
+      .andWhere('permission.name = :permissionName', { permissionName })
       .getOne()
 
     return !!permission

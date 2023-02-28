@@ -6,11 +6,11 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger'
-import { ExceptionResponse } from '../../common/response/exception-response'
-import { ChangeOneTimePasswordRequest } from './api/change-one-time-password.api'
-import { SignInRequest } from './api/sign-in.dto'
-import { TokenResponse } from './api/token.api'
-import { AuthService } from './auth.service'
+import { ExceptionResponse } from '../../../common/response/exception-response'
+import { ChangeOneTimePasswordRequest } from '../api/change-one-time-password.api'
+import { SignInRequest } from '../api/sign-in.dto'
+import { TokenResponse } from '../api/token.api'
+import { AuthService } from '../services/auth.service'
 
 @ApiTags('Auth')
 @Controller('auth')
