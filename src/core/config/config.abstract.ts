@@ -20,11 +20,19 @@ export abstract class Config {
     readonly name: string
     readonly timeoutMs: number
   }
+  readonly redis: {
+    readonly host: string
+    readonly port: number
+  }
   readonly users: {
     readonly passwordMinLength: number
     readonly adminUsername: string
   }
   readonly passwords: {
     readonly saltRounds: number
+  }
+  readonly sessions: {
+    readonly idLength: number
+    readonly expiresSeconds: number
   }
 }

@@ -19,3 +19,13 @@ services:
       - POSTGRES_DB=workflow
     ports:
       - 5432:5432
+
+  redis:
+    image: redis:7.0.8-alpine
+    environment:
+      - REDIS_PASSWORD=workflow
+    volumes:
+      - ./.redis:/data
+    ports:
+      - 6379:6379
+
