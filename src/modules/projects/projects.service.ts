@@ -13,8 +13,8 @@ import {
   CreateProjectDto,
   CreateProjectRequestDto,
 } from './dto/create-project.dto'
-import { GetProjectResponseDto } from './dto/get-project.dto'
-import { GetProjectsResponseDto } from './dto/get-projects.dto'
+import { ProjectDto } from './dto/project.dto'
+import { FullProjectDto } from './dto/full-project.dto'
 
 @Injectable()
 export class ProjectsService {
@@ -23,7 +23,7 @@ export class ProjectsService {
     private readonly connection: DataSource
   ) {}
 
-  public async getProjects(): Promise<GetProjectsResponseDto[]> {
+  public async getProjects(): Promise<ProjectDto[]> {
     const projects = await this.connection
       .createQueryBuilder(Project, 'project')
       .leftJoinAndSelect('project.boards', 'boards')
@@ -32,18 +32,13 @@ export class ProjectsService {
     return projects.map((project) => ({
       id: project.id,
       name: project.name,
+      description: project.description,
       createdAt: project.createdAt,
       updatedAt: project.updatedAt,
-      boards: project.boards.map((board) => ({
-        id: board.id,
-        name: board.name,
-        createdAt: board.createdAt,
-        updatedAt: board.updatedAt,
-      })),
     }))
   }
 
-  public async getProject(id: number): Promise<GetProjectResponseDto> {
+  public async getProject(id: number): Promise<FullProjectDto> {
     const project = await this.connection
       .createQueryBuilder(Project, 'project')
       .leftJoinAndSelect('project.boards', 'boards')
@@ -64,15 +59,9 @@ export class ProjectsService {
       boards: project.boards.map((item) => ({
         id: item.id,
         name: item.name,
+        isDefault: item.isDefault,
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
-        tasks: item.tasks.map((item) => ({
-          id: item.id,
-          title: item.title,
-          description: item.description,
-          createdAt: item.createdAt,
-          updatedAt: item.updatedAt,
-        })),
       })),
     }
   }

@@ -21,7 +21,7 @@ export class Stage {
   id: number
 
   @Column()
-  title: string
+  name: string
 
   @OneToMany(() => Task, (tasks) => tasks.stage)
   tasks: Task

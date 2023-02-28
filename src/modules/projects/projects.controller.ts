@@ -17,8 +17,6 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger'
-import { ProjectResponse } from './api/get-projects.api'
-import { GetProjectResponseById } from './api/get-project.api'
 import {
   CreateProjectRequest,
   CreateProjectResponse,
@@ -27,6 +25,8 @@ import {
   UpdateProjectRequest,
   UpdateProjectResponse,
 } from './api/update-project.api'
+import { ProjectResponse } from './api/project.api'
+import { FullProjectResponse } from './api/full-project.api'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -41,12 +41,12 @@ export class ProjectsController {
   }
 
   @ApiOperation({ description: 'Get one project' })
-  @ApiOkResponse({ type: GetProjectResponseById })
+  @ApiOkResponse({ type: ProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Get('/:id')
   public async getProject(
     @Param('id', ParseIntPipe) id: number
-  ): Promise<GetProjectResponseById> {
+  ): Promise<FullProjectResponse> {
     return this.projectsService.getProject(id)
   }
 
