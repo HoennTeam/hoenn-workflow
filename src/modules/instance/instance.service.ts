@@ -3,7 +3,7 @@ import { DataSource } from 'typeorm'
 import { AppException } from '../../common/exceptions/app.exception'
 import { Config } from '../../core/config'
 import { Logger } from '../../core/logger'
-import { Instance } from '../../entities/Instance'
+import { Instance } from '../../entities/instance'
 import { UsersService } from '../users/users.service'
 import {
   CreateInstanceDto,

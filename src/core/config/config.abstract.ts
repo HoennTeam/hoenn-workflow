@@ -20,6 +20,9 @@ export abstract class Config {
     readonly name: string
     readonly timeoutMs: number
   }
+  readonly board: {
+    readonly defaultName: string
+  }
   readonly redis: {
     readonly host: string
     readonly port: number

@@ -5,6 +5,7 @@ import { LoggerModule } from './core/logger/logger.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Config } from './core/config'
 import { typeormDataSourceOptions } from './core/typeorm/dataSourceOptions'
+import { ProjectsModule } from './modules/projects/projects.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { UsersModule } from './modules/users/users.module'
 import { RedisModule } from './core/redis/redis.module'
@@ -45,6 +46,7 @@ import { Logger } from './core/logger'
       inject: [Config, Logger],
     }),
     InstanceModule,
+    ProjectsModule,
     AuthModule,
     UsersModule,
   ],
