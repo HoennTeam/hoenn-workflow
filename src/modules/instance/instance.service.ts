@@ -61,11 +61,9 @@ export class InstanceService {
 
     await this.connection.createEntityManager().save(newInstance)
 
-    const administrator = await this.usersService.createUser({
-      username: this.config.users.adminUsername,
-      fullName: this.config.users.adminUsername,
-      email: dto.administratorEmail,
-    })
+    const administrator = await this.usersService.createSystemAdmin(
+      dto.administratorEmail
+    )
 
     this.logger.info('Organization instance successfully setup', {
       instance: newInstance,

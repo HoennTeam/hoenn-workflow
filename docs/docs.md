@@ -65,10 +65,6 @@ class Permission {
 
   group: string
   operation: string
-
-  createdAt: Date
-  updatedAt: Date
-  deletedAt?: Date
 }
 ```
 
