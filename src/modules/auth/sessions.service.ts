@@ -5,6 +5,7 @@ import { Config } from '../../core/config'
 
 const sessions: Record<string, AuthPayload> = {
   sam: {
+    id: 1,
     username: 'sam!!',
   },
 }
@@ -24,6 +25,8 @@ export class SessionsService {
   }
 
   private generateSessionId(): string {
-    return randomBytes(this.config.sessions.idLength).toString('base64url')
+    return `sid.${randomBytes(this.config.sessions.idLength).toString(
+      'base64url'
+    )}`
   }
 }
