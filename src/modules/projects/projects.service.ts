@@ -82,7 +82,7 @@ export class ProjectsService {
   ): Promise<CreateProjectDto> {
     const project = new Project({
       name: dto.name,
-      description: dto.description,
+      description: dto.description ?? '',
       boards: [
         new Board({
           name: dotenvConfig.board.defaultName,
