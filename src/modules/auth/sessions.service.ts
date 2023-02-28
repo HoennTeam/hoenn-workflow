@@ -1,26 +1,39 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { randomBytes } from 'crypto'
+import { Redis } from 'ioredis'
+import { SESSIONS_NAMESPACE } from '../../common/const/redis-namespaces.const'
 import { AuthPayload } from '../../common/interfaces/auth-payload.interface'
 import { Config } from '../../core/config'
-
-const sessions: Record<string, AuthPayload> = {
-  sam: {
-    id: 1,
-    username: 'sam!!',
-  },
-}
+import { REDIS_KEY } from '../../core/redis/redis.const'
 
 @Injectable()
 export class SessionsService {
-  constructor(private readonly config: Config) {}
+  constructor(
+    private readonly config: Config,
+    @Inject(REDIS_KEY)
+    private readonly redisClient: Redis
+  ) {}
 
   public async getSession(sessionId: string): Promise<AuthPayload | undefined> {
-    return sessions[sessionId]
+    const sessionData = await this.redisClient.get(
+      `${SESSIONS_NAMESPACE}:${sessionId}`
+    )
+
+    if (!sessionData) {
+      return
+    }
+
+    return JSON.parse(sessionData)
   }
 
   public async createSession(payload: AuthPayload): Promise<string> {
     const sessionId = this.generateSessionId()
-    sessions[sessionId] = payload
+
+    await this.redisClient.set(
+      `${SESSIONS_NAMESPACE}:${sessionId}`,
+      JSON.stringify(payload)
+    )
+
     return sessionId
   }
 
