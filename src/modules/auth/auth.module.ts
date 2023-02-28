@@ -5,6 +5,7 @@ import { PasswordsService } from './passwords.service'
 import { SessionsService } from './sessions.service'
 import { APP_GUARD } from '@nestjs/core'
 import { AuthGuard } from './guards/auth.guard'
+import { PermissionsService } from './permissions.service'
 
 @Module({
   providers: [
@@ -12,8 +13,9 @@ import { AuthGuard } from './guards/auth.guard'
     PasswordsService,
     SessionsService,
     { provide: APP_GUARD, useClass: AuthGuard },
+    PermissionsService,
   ],
   controllers: [AuthController],
-  exports: [AuthService, PasswordsService, SessionsService],
+  exports: [AuthService, PasswordsService, SessionsService, PermissionsService],
 })
 export class AuthModule {}

@@ -8,6 +8,7 @@ import {
 import { AuthGuardOptions } from '../../../common/decorators/authorize.decorator'
 import { Config } from '../../../core/config'
 import { Logger } from '../../../core/logger'
+import { PermissionsService } from '../permissions.service'
 import { SessionsService } from '../sessions.service'
 
 @Injectable()
@@ -16,7 +17,8 @@ export class AuthGuard implements CanActivate {
     private readonly reflector: Reflector,
     private readonly config: Config,
     private readonly logger: Logger,
-    private readonly sessionsService: SessionsService
+    private readonly sessionsService: SessionsService,
+    private readonly permissionsService: PermissionsService
   ) {}
 
   public async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -48,6 +50,15 @@ export class AuthGuard implements CanActivate {
       const session = await this.sessionsService.getSession(token)
 
       if (!session) {
+        return false
+      }
+
+      const hasPermission = await this.permissionsService.hasGlobalPermission(
+        session.username,
+        options.permission
+      )
+
+      if (!hasPermission) {
         return false
       }
 
