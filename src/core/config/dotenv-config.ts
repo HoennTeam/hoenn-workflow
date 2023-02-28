@@ -32,6 +32,10 @@ function load(): Config {
       password: process.env.DATABASE_PASSWORD || 'workflow',
       timeoutMs: Number(process.env.DATABASE_TIMEOUT_MS) || 10000,
     },
+    redis: {
+      host: process.env.REDIS_HOST || 'localhost',
+      port: Number(process.env.REDIS_PORT) || 6379,
+    },
     users: {
       passwordMinLength: Number(process.env.USERS_PASSWORD_MIN_LENGTH) || 8,
       adminUsername: process.env.USERS_ADMIN_USERNAME ?? 'admin',

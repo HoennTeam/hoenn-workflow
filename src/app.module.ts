@@ -7,6 +7,8 @@ import { Config } from './core/config'
 import { typeormDataSourceOptions } from './core/typeorm/dataSourceOptions'
 import { AuthModule } from './modules/auth/auth.module'
 import { UsersModule } from './modules/users/users.module'
+import { RedisModule } from './core/redis/redis.module'
+import { Logger } from './core/logger'
 
 @Module({
   imports: [
@@ -18,6 +20,29 @@ import { UsersModule } from './modules/users/users.module'
         ...typeormDataSourceOptions,
         logger: 'advanced-console',
       }),
+    }),
+    RedisModule.forRootAsync({
+      useFactory: (config: Config, logger: Logger) => {
+        return {
+          connectionOptions: {
+            host: config.redis.host,
+            port: config.redis.port,
+          },
+          onClientReady: (client) => {
+            logger.info('Redis client successfully initialized')
+
+            client.on('error', (error) => {
+              logger.error('Redis client error', { error })
+            })
+
+            client.on('connect', () => {
+              logger.info('Redis client successfully connected')
+            })
+          },
+        }
+      },
+      imports: [ConfigModule, LoggerModule],
+      inject: [Config, Logger],
     }),
     InstanceModule,
     AuthModule,
