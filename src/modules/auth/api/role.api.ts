@@ -17,5 +17,5 @@ export class RoleResponse {
   public readonly createdAt: string
 
   @ApiProperty()
-  public readonly updateAt: string
+  public readonly updatedAt: string
 }

@@ -5,5 +5,5 @@ export interface RoleDto {
   readonly isGlobal: boolean
 
   readonly createdAt: string
-  readonly updateAt: string
+  readonly updatedAt: string
 }

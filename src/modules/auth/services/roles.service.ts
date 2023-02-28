@@ -21,7 +21,7 @@ export class RolesService {
       description: r.description,
       isGlobal: r.isGlobal,
       createdAt: r.createdAt.toISOString(),
-      updateAt: r.updatedAt.toISOString(),
+      updatedAt: r.updatedAt.toISOString(),
     }))
   }
 
@@ -44,7 +44,7 @@ export class RolesService {
       description: role.description,
       isGlobal: role.isGlobal,
       createdAt: role.createdAt.toISOString(),
-      updateAt: role.updatedAt.toISOString(),
+      updatedAt: role.updatedAt.toISOString(),
     }
   }
 
@@ -63,7 +63,7 @@ export class RolesService {
       description: role.description,
       isGlobal: role.isGlobal,
       createdAt: role.createdAt.toISOString(),
-      updateAt: role.updatedAt.toISOString(),
+      updatedAt: role.updatedAt.toISOString(),
     }
   }
 
@@ -91,7 +91,7 @@ export class RolesService {
       description: role.description,
       isGlobal: role.isGlobal,
       createdAt: role.createdAt.toISOString(),
-      updateAt: role.updatedAt.toISOString(),
+      updatedAt: role.updatedAt.toISOString(),
     }
   }
 
