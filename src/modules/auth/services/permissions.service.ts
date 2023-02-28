@@ -38,4 +38,23 @@ export class PermissionsService {
 
     return !!permission
   }
+
+  public async hasProjectPermission(
+    username: string,
+    projectId: number,
+    permissionName: string
+  ): Promise<boolean> {
+    const permission = await this.connection
+      .createQueryBuilder(Permission, 'permission')
+      .leftJoin('permission.roles', 'roles')
+      .leftJoin('roles.projectsUsers', 'projectsUsers')
+      .leftJoin('projectsUsers.project', 'project')
+      .leftJoin('projectsUsers.user', 'user')
+      .where('user.username = :username', { username })
+      .andWhere('project.id = :projectId', { projectId })
+      .andWhere('permission.name = :permissionName', { permissionName })
+      .getOne()
+
+    return !!permission
+  }
 }
