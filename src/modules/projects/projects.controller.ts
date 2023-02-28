@@ -18,15 +18,15 @@ import {
   ApiTags,
 } from '@nestjs/swagger'
 import { ProjectResponse } from './api/get-projects.api'
-import { ProjectResponseById } from './api/get-project.api'
+import { GetProjectResponseById } from './api/get-project.api'
 import {
   CreateProjectRequest,
   CreateProjectResponse,
 } from './api/create-project.api'
 import {
-  ChangeTitleProjectRequest,
-  ChangeTitleProjectResponse,
-} from './api/change-title-project.api'
+  UpdateProjectRequest,
+  UpdateProjectResponse,
+} from './api/update-project.api'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -41,12 +41,12 @@ export class ProjectsController {
   }
 
   @ApiOperation({ description: 'Get one project' })
-  @ApiOkResponse({ type: ProjectResponseById })
+  @ApiOkResponse({ type: GetProjectResponseById })
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Get('/:id')
   public async getProject(
     @Param('id', ParseIntPipe) id: number
-  ): Promise<ProjectResponseById> {
+  ): Promise<GetProjectResponseById> {
     return this.projectsService.getProject(id)
   }
 
@@ -71,13 +71,13 @@ export class ProjectsController {
   }
 
   @ApiOperation({ description: 'Project title changed' })
-  @ApiOkResponse({ type: ChangeTitleProjectResponse })
+  @ApiOkResponse({ type: UpdateProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Patch('/:id')
-  public async changeTitleProject(
+  public async updateProject(
     @Param('id', ParseIntPipe) id: number,
-    @Body() changeTitleProject: ChangeTitleProjectRequest
-  ): Promise<ChangeTitleProjectResponse> {
-    return this.projectsService.changeTitleProject(id, changeTitleProject)
+    @Body() updateProject: UpdateProjectRequest
+  ): Promise<UpdateProjectResponse> {
+    return this.projectsService.updateProject(id, updateProject)
   }
 }

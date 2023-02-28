@@ -17,7 +17,7 @@ class TaskResponse {
   public readonly updatedAt: Date
 }
 
-class BoardResponse {
+class GetBoardResponse {
   @ApiProperty()
   public readonly id: number
 
@@ -34,12 +34,15 @@ class BoardResponse {
   public readonly tasks: TaskResponse[]
 }
 
-export class ProjectResponseById {
+export class GetProjectResponseById {
   @ApiProperty()
   public readonly id: number
 
   @ApiProperty()
-  public readonly title: string
+  public readonly name: string
+
+  @ApiProperty()
+  public readonly description: string
 
   @ApiProperty()
   public readonly createdAt: Date
@@ -47,6 +50,6 @@ export class ProjectResponseById {
   @ApiProperty()
   public readonly updatedAt: Date
 
-  @ApiProperty({ type: [BoardResponse] })
-  public readonly boards: BoardResponse[]
+  @ApiProperty({ type: [GetBoardResponse] })
+  public readonly boards: GetBoardResponse[]
 }

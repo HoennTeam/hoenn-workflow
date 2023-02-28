@@ -1,6 +1,7 @@
 export interface CreateProjectDto {
   id: number
-  title: string
+  name: string
+  description: string
   createdAt: Date
   updatedAt: Date
   board: CreateBoardDto
@@ -14,6 +15,6 @@ interface CreateBoardDto {
 }
 
 export interface CreateProjectRequestDto {
-  title: string
-  description: string
+  name: string
+  description?: string
 }

@@ -21,7 +21,7 @@ export class ProjectResponse {
   public readonly id: number
 
   @ApiProperty()
-  public readonly title: string
+  public readonly name: string
 
   @ApiProperty()
   public readonly createdAt: Date

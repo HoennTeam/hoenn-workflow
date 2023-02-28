@@ -8,7 +8,6 @@ import {
   OneToMany,
 } from 'typeorm'
 import { Board } from './board'
-import { Task } from './task'
 
 @Entity()
 export class Project {
@@ -19,12 +18,12 @@ export class Project {
   id: number
 
   @Column()
-  title: string
+  name: string
 
   @Column()
   description: string
 
-  @OneToMany(() => Board, (boards) => boards.project)
+  @OneToMany(() => Board, (boards) => boards.project, { cascade: true })
   boards: Board[]
 
   @CreateDateColumn()

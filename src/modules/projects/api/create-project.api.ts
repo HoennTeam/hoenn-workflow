@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsString, MaxLength, MinLength } from 'class-validator'
+import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator'
+import { IsNull } from 'typeorm'
 
 export class CreateProjectRequest {
   @ApiProperty({
@@ -8,14 +9,15 @@ export class CreateProjectRequest {
   @IsString()
   @MinLength(1)
   @MaxLength(30)
-  public readonly title: string
+  public readonly name: string
 
   @ApiProperty({
     example: 'My description',
+    required: false,
   })
   @IsString()
-  @MinLength(1)
-  public readonly description: string
+  @IsOptional()
+  public readonly description?: string = ''
 }
 
 export class CreateBoardResponse {
@@ -37,7 +39,10 @@ export class CreateProjectResponse {
   public readonly id: number
 
   @ApiProperty()
-  public readonly title: string
+  public readonly name: string
+
+  @ApiProperty()
+  public readonly description: string
 
   @ApiProperty()
   public readonly createdAt: Date

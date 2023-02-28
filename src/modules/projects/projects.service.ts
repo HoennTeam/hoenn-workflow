@@ -6,9 +6,9 @@ import { Board } from 'src/entities/board'
 import { Project } from 'src/entities/project'
 import { DataSource } from 'typeorm'
 import {
-  ChangeTitleProjectDto,
-  ChangeTitleProjectRequestDto,
-} from './dto/change-title-project.dto'
+  UpdateProjectDto,
+  UpdateProjectRequestDto,
+} from './dto/update-project.dto'
 import {
   CreateProjectDto,
   CreateProjectRequestDto,
@@ -31,7 +31,7 @@ export class ProjectsService {
 
     return projects.map((project) => ({
       id: project.id,
-      title: project.title,
+      name: project.name,
       createdAt: project.createdAt,
       updatedAt: project.updatedAt,
       boards: project.boards.map((board) => ({
@@ -52,12 +52,13 @@ export class ProjectsService {
       .getOne()
 
     if (!project) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'project not found', { id })
+      throw new AppException(HttpStatus.NOT_FOUND, 'Project not found', { id })
     }
 
     return {
       id: project.id,
-      title: project.title,
+      name: project.name,
+      description: project.description,
       createdAt: project.createdAt,
       updatedAt: project.updatedAt,
       boards: project.boards.map((item) => ({
@@ -80,29 +81,29 @@ export class ProjectsService {
     dto: CreateProjectRequestDto
   ): Promise<CreateProjectDto> {
     const project = new Project({
-      title: dto.title,
+      name: dto.name,
       description: dto.description,
+      boards: [
+        new Board({
+          name: dotenvConfig.board.defaultName,
+          isDefault: true,
+        }),
+      ],
     })
 
     const newProject = await this.connection.createEntityManager().save(project)
 
-    const board = new Board({
-      project: newProject,
-      name: dotenvConfig.board.name,
-      isDefault: dotenvConfig.board.isDefault,
-    })
-    const newBoard = await this.connection.createEntityManager().save(board)
-
     return {
       id: newProject.id,
-      title: newProject.title,
+      name: newProject.name,
+      description: newProject.description,
       createdAt: newProject.createdAt,
       updatedAt: newProject.updatedAt,
       board: {
-        id: newBoard.id,
-        name: newBoard.name,
-        createdAt: newBoard.createdAt,
-        updatedAt: newBoard.updatedAt,
+        id: project.boards[0].id,
+        name: project.boards[0].name,
+        createdAt: project.boards[0].createdAt,
+        updatedAt: project.boards[0].updatedAt,
       },
     }
   }
@@ -123,10 +124,10 @@ export class ProjectsService {
     await this.connection.createEntityManager().softRemove(project)
   }
 
-  async changeTitleProject(
+  async updateProject(
     id: number,
-    dto: ChangeTitleProjectRequestDto
-  ): Promise<ChangeTitleProjectDto> {
+    dto: UpdateProjectRequestDto
+  ): Promise<UpdateProjectDto> {
     const project = await this.connection
       .createQueryBuilder(Project, 'project')
       .where('project.id = :id', { id })
@@ -136,14 +137,16 @@ export class ProjectsService {
       throw new AppException(HttpStatus.NOT_FOUND, 'Project not found', { id })
     }
 
-    project.title = dto.title
+    project.name = dto.name ?? project.name
+    project.description = dto.description ?? project.description
     project.updatedAt = new Date()
 
     await this.connection.createEntityManager().save(Project, project)
 
     return {
       id: project.id,
-      title: project.title,
+      description: project.description,
+      name: project.name,
       updatedAt: project.updatedAt,
     }
   }

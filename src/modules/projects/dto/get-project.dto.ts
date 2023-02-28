@@ -1,20 +1,21 @@
 export interface GetProjectResponseDto {
   id: number
-  title: string
+  name: string
+  description: string
   createdAt: Date
   updatedAt: Date
-  boards: BoardResponse[]
+  boards: BoardResponseDto[]
 }
 
-interface BoardResponse {
+interface BoardResponseDto {
   id: number
   name: string
   createdAt: Date
   updatedAt: Date
-  tasks: TaskResponse[]
+  tasks: TaskResponseDto[]
 }
 
-interface TaskResponse {
+interface TaskResponseDto {
   id: number
   title: string
   description: string

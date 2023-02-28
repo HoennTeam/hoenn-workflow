@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export interface GetProjectsResponseDto {
   readonly id: number
-  readonly title: string
+  readonly name: string
   readonly boards: {
     readonly id: number
     readonly name: string

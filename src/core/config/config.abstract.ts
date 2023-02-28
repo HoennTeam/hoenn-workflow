@@ -21,8 +21,7 @@ export abstract class Config {
     readonly timeoutMs: number
   }
   readonly board: {
-    readonly name: string
-    readonly isDefault: boolean
+    readonly defaultName: string
   }
   readonly users: {
     readonly passwordMinLength: number

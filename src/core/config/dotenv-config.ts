@@ -33,8 +33,7 @@ function load(): Config {
       timeoutMs: Number(process.env.DATABASE_TIMEOUT_MS) || 10000,
     },
     board: {
-      name: process.env.BOARD_DEFAULT_NAME || "Default board's name",
-      isDefault: getBoolean(process.env.DEFAULT_BOARD) ?? true,
+      defaultName: process.env.BOARD_DEFAULT_NAME || 'General',
     },
     users: {
       passwordMinLength: Number(process.env.USERS_PASSWORD_MIN_LENGTH) || 8,
