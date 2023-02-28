@@ -8,6 +8,7 @@ import { SignInDto } from './dto/sign-in.dto'
 import { TokenDto } from './dto/token.dto'
 import { ChangeOneTimePasswordDto } from './dto/change-one-time-password.dto'
 import { PasswordsService } from './passwords.service'
+import { SessionsService } from './sessions.service'
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,8 @@ export class AuthService {
     private readonly logger: Logger,
     private readonly config: Config,
     private readonly connection: DataSource,
-    private readonly passwordsService: PasswordsService
+    private readonly passwordsService: PasswordsService,
+    private readonly sessionsService: SessionsService
   ) {}
 
   public async signIn(dto: SignInDto): Promise<TokenDto> {
@@ -36,8 +38,13 @@ export class AuthService {
       )
     }
 
+    const sessionId = await this.sessionsService.createSession({
+      id: user.id,
+      username: user.username,
+    })
+
     return {
-      token: '',
+      token: sessionId,
       user: {
         username: user.username,
         email: user.email,

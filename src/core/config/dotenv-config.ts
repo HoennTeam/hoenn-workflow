@@ -35,12 +35,21 @@ function load(): Config {
     board: {
       defaultName: process.env.BOARD_DEFAULT_NAME || 'General',
     },
+    redis: {
+      host: process.env.REDIS_HOST || 'localhost',
+      port: Number(process.env.REDIS_PORT) || 6379,
+    },
     users: {
       passwordMinLength: Number(process.env.USERS_PASSWORD_MIN_LENGTH) || 8,
       adminUsername: process.env.USERS_ADMIN_USERNAME ?? 'admin',
     },
     passwords: {
       saltRounds: Number(process.env.PASSWORDS_SALT_ROUNDS) || 8,
+    },
+    sessions: {
+      expiresSeconds:
+        Number(process.env.SESSIONS_EXPIRES_SECONDS) || 60 * 60 * 24,
+      idLength: 128,
     },
   }
 }
