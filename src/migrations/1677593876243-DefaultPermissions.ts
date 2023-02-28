@@ -19,7 +19,8 @@ export class DefaultPermissions1677593876243 implements MigrationInterface {
 
     queryRunner.query(`INSERT INTO "role"
       (name, is_global, description) values
-      ('Administrator', true, 'System administrator')`)
+      ('Administrator', true, 'System administrator'),
+      ('Member', true, 'User without permissions')`)
 
     queryRunner.query(`INSERT INTO "roles_permissions"
       (role_id, permission_id)
