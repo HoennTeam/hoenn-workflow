@@ -37,11 +37,11 @@ async function bootstrap() {
     })
   )
 
-  app.use(
-    helmet({
-      crossOriginResourcePolicy: false,
-    })
-  )
+  app.use(helmet())
+
+  if (app.get(Config).app.enableCors) {
+    app.enableCors()
+  }
 
   setupSwagger(app)
 

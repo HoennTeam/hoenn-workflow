@@ -13,6 +13,7 @@ function load(): Config {
     app: {
       development: process.env.NODE_ENV === 'development',
       port: Number(process.env.PORT) || 3000,
+      enableCors: getBoolean(process.env.APP_ENABLE_CORS) ?? false,
     },
     logging: {
       level: process.env.LOGGING_LEVEL || 'debug',
