@@ -45,8 +45,10 @@ export class ProjectsService {
   async getFullProject(id: number): Promise<FullProjectDto> {
     const project = await this.connection
       .createQueryBuilder(Project, 'project')
-      .leftJoinAndSelect('project.boards', 'boards')
-      .leftJoinAndSelect('boards.tasks', 'tasks')
+      .innerJoinAndSelect('project.projectsUsers', 'projectsUsers')
+      .innerJoinAndSelect('projectsUsers.user', 'user')
+      .innerJoinAndSelect('user.globalRole', 'role')
+      .innerJoinAndSelect('project.boards', 'boards')
       .where('project.id = :id', { id })
       .getOne()
 
@@ -58,8 +60,6 @@ export class ProjectsService {
       id: project.id,
       name: project.name,
       description: project.description,
-      createdAt: project.createdAt.toISOString(),
-      updatedAt: project.updatedAt.toISOString(),
       boards: project.boards.map((item) => ({
         id: item.id,
         name: item.name,
@@ -67,6 +67,16 @@ export class ProjectsService {
         createdAt: item.createdAt.toISOString(),
         updatedAt: item.updatedAt.toISOString(),
       })),
+      users: project.projectsUsers.map((item) => ({
+        id: item.user.id,
+        fullName: item.user.fullName,
+        email: item.user.email,
+        roleName: item.user.globalRole.name,
+        createdAt: item.user.createdAt.toISOString(),
+        updatedAt: item.user.updatedAt.toISOString(),
+      })),
+      createdAt: project.createdAt.toISOString(),
+      updatedAt: project.updatedAt.toISOString(),
     }
   }
 

@@ -1,3 +1,4 @@
+import { UserDto } from 'src/modules/users/dto/user.dto'
 import { BoardDto } from './board.dto'
 
 export interface FullProjectDto {
@@ -7,4 +8,5 @@ export interface FullProjectDto {
   readonly createdAt: string
   readonly updatedAt: string
   readonly boards: BoardDto[]
+  readonly users: UserDto[]
 }
