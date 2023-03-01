@@ -53,7 +53,7 @@ export class ProjectsController {
     return this.projectsService.getFullProject(id)
   }
 
-  @ApiOperation({ description: 'Create project ' })
+  @ApiOperation({ description: 'Create project' })
   @ApiOkResponse({ type: CreateProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Post()

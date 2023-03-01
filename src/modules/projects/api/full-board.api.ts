@@ -9,10 +9,10 @@ export class FullBoardResponse {
   name: string
 
   @ApiProperty()
-  createdAt: Date
+  createdAt: string
 
   @ApiProperty()
-  updatedAt: Date
+  updatedAt: string
 
   @ApiProperty()
   stages: StageResponse[]

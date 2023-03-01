@@ -28,10 +28,10 @@ export class CreateBoardResponse {
   public readonly name: string
 
   @ApiProperty()
-  public readonly createdAt: Date
+  public readonly createdAt: string
 
   @ApiProperty()
-  public readonly updatedAt: Date
+  public readonly updatedAt: string
 }
 
 export class CreateProjectResponse {
@@ -45,10 +45,10 @@ export class CreateProjectResponse {
   public readonly description: string
 
   @ApiProperty()
-  public readonly createdAt: Date
+  public readonly createdAt: string
 
   @ApiProperty()
-  public readonly updatedAt: Date
+  public readonly updatedAt: string
 
   @ApiProperty({ type: CreateBoardResponse })
   public readonly board: CreateBoardResponse

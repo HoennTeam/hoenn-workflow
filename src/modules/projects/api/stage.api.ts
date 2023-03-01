@@ -8,8 +8,8 @@ export class StageResponse {
   name: string
 
   @ApiProperty()
-  createdAt: Date
+  createdAt: string
 
   @ApiProperty()
-  updatedAt: Date
+  updatedAt: string
 }

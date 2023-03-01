@@ -37,8 +37,8 @@ export class ProjectsService {
       id: project.id,
       name: project.name,
       description: project.description,
-      createdAt: project.createdAt,
-      updatedAt: project.updatedAt,
+      createdAt: project.createdAt.toISOString(),
+      updatedAt: project.updatedAt.toISOString(),
     }))
   }
 
@@ -58,14 +58,14 @@ export class ProjectsService {
       id: project.id,
       name: project.name,
       description: project.description,
-      createdAt: project.createdAt,
-      updatedAt: project.updatedAt,
+      createdAt: project.createdAt.toISOString(),
+      updatedAt: project.updatedAt.toISOString(),
       boards: project.boards.map((item) => ({
         id: item.id,
         name: item.name,
         isDefault: item.isDefault,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt,
+        createdAt: item.createdAt.toISOString(),
+        updatedAt: item.updatedAt.toISOString(),
       })),
     }
   }
@@ -88,13 +88,13 @@ export class ProjectsService {
       id: newProject.id,
       name: newProject.name,
       description: newProject.description,
-      createdAt: newProject.createdAt,
-      updatedAt: newProject.updatedAt,
+      createdAt: newProject.createdAt.toISOString(),
+      updatedAt: newProject.updatedAt.toISOString(),
       board: {
         id: project.boards[0].id,
         name: project.boards[0].name,
-        createdAt: project.boards[0].createdAt,
-        updatedAt: project.boards[0].updatedAt,
+        createdAt: project.boards[0].createdAt.toISOString(),
+        updatedAt: project.boards[0].updatedAt.toISOString(),
       },
     }
   }
@@ -138,7 +138,7 @@ export class ProjectsService {
       id: project.id,
       description: project.description,
       name: project.name,
-      updatedAt: project.updatedAt,
+      updatedAt: project.updatedAt.toISOString(),
     }
   }
 
@@ -162,8 +162,8 @@ export class ProjectsService {
       id: item.id,
       name: item.name,
       isDefault: item.isDefault,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
+      createdAt: item.createdAt.toISOString(),
+      updatedAt: item.updatedAt.toISOString(),
     }))
   }
 
@@ -176,7 +176,7 @@ export class ProjectsService {
       .innerJoin('board.project', 'project')
       .leftJoinAndSelect('board.stages', 'stages')
       .where('board.project = :projectId', { projectId })
-      .andWhere('project.deletedAt is null')
+      .andWhere('project.deletedAt IS NULL')
       .andWhere('board.id = :boardId', { boardId })
       .getOne()
 
@@ -191,13 +191,13 @@ export class ProjectsService {
       id: board.id,
       name: board.name,
       isDefault: board.isDefault,
-      createdAt: board.createdAt,
-      updatedAt: board.updatedAt,
+      createdAt: board.createdAt.toISOString(),
+      updatedAt: board.updatedAt.toISOString(),
       stages: board.stages.map((item) => ({
         id: item.id,
         name: item.name,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt,
+        createdAt: item.createdAt.toISOString(),
+        updatedAt: item.updatedAt.toISOString(),
       })),
     }
   }
@@ -223,15 +223,15 @@ export class ProjectsService {
       .innerJoin('stage.board', 'board')
       .innerJoin('board.project', 'project')
       .where('board.project = :projectId', { projectId })
-      .andWhere('project.deletedAt is null')
+      .andWhere('project.deletedAt IS NULL')
       .andWhere('board.id = :boardId', { boardId })
       .getMany()
 
     return stages.map((item) => ({
       id: item.id,
       name: item.name,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
+      createdAt: item.createdAt.toISOString(),
+      updatedAt: item.updatedAt.toISOString(),
     }))
   }
 }

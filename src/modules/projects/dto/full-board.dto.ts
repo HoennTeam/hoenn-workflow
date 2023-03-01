@@ -5,6 +5,6 @@ export interface FullBoardDto {
   name: string
   isDefault: boolean
   stages: StageDto[]
-  createdAt: Date
-  updatedAt: Date
+  createdAt: string
+  updatedAt: string
 }

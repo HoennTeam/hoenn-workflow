@@ -12,7 +12,7 @@ export class UpdateProjectResponse {
   public readonly description: string
 
   @ApiProperty()
-  public readonly updatedAt: Date
+  public readonly updatedAt: string
 }
 
 export class UpdateProjectRequest {

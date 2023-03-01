@@ -12,10 +12,10 @@ export class FullProjectResponse {
   description: string
 
   @ApiProperty()
-  createdAt: Date
+  createdAt: string
 
   @ApiProperty()
-  updatedAt: Date
+  updatedAt: string
 
   @ApiProperty()
   boards: BoardResponse[]

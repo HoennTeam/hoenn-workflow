@@ -11,8 +11,8 @@ export class BoardResponse {
   isDefault: boolean
 
   @ApiProperty()
-  createdAt: Date
+  createdAt: string
 
   @ApiProperty()
-  updatedAt: Date
+  updatedAt: string
 }

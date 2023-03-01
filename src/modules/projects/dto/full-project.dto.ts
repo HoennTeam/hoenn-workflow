@@ -4,7 +4,7 @@ export interface FullProjectDto {
   id: number
   name: string
   description: string
-  createdAt: Date
-  updatedAt: Date
+  createdAt: string
+  updatedAt: string
   boards: BoardDto[]
 }
