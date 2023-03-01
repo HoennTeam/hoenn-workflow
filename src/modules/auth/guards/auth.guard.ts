@@ -45,21 +45,21 @@ export class AuthGuard implements CanActivate {
       }
       const token = authorizationHeader.replace(AUTHORIZATION_SCHEME, '').trim()
 
-      this.logger.debug('Token: ', { token })
-
       const session = await this.sessionsService.getSession(token)
 
       if (!session) {
         return false
       }
 
-      const hasPermission = await this.permissionsService.hasGlobalPermission(
-        session.username,
-        options.permission
-      )
+      if (options.permission) {
+        const hasPermission = await this.permissionsService.hasGlobalPermission(
+          session.username,
+          options.permission
+        )
 
-      if (!hasPermission) {
-        return false
+        if (!hasPermission) {
+          return false
+        }
       }
 
       request.authPayload = session

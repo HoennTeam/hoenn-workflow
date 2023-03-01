@@ -9,6 +9,8 @@ import { TokenDto } from '../dto/token.dto'
 import { ChangeOneTimePasswordDto } from '../dto/change-one-time-password.dto'
 import { PasswordsService } from './passwords.service'
 import { SessionsService } from './sessions.service'
+import { AuthPayload } from '../../../common/interfaces/auth-payload.interface'
+import { MeDto } from '../dto/me.dto'
 
 @Injectable()
 export class AuthService {
@@ -41,6 +43,8 @@ export class AuthService {
     const sessionId = await this.sessionsService.createSession({
       id: user.id,
       username: user.username,
+      email: user.email,
+      fullName: user.fullName,
     })
 
     return {
@@ -106,5 +110,13 @@ export class AuthService {
     }
 
     return user
+  }
+
+  public async getMe(payload: AuthPayload): Promise<MeDto> {
+    return {
+      username: payload.username,
+      email: payload.email,
+      fullName: payload.fullName,
+    }
   }
 }
