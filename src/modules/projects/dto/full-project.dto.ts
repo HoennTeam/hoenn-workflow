@@ -1,10 +1,10 @@
 import { BoardDto } from './board.dto'
 
 export interface FullProjectDto {
-  id: number
-  name: string
-  description: string
-  createdAt: string
-  updatedAt: string
-  boards: BoardDto[]
+  readonly id: number
+  readonly name: string
+  readonly description: string
+  readonly createdAt: string
+  readonly updatedAt: string
+  readonly boards: BoardDto[]
 }
