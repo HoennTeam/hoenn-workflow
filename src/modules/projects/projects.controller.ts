@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Put,
 } from '@nestjs/common'
 import { ExceptionResponse } from '../../common/response/exception-response'
 import {
@@ -30,6 +31,11 @@ import { FullProjectResponse } from './api/full-project.api'
 import { BoardResponse } from './api/board.api'
 import { FullBoardResponse } from './api/full-board.api'
 import { StageResponse } from './api/stage.api'
+import {
+  AddUserToProjectRequest,
+  AddUserToProjectResponse,
+} from './api/add-user-to-project.api'
+import { AddUserToProjectRequestDto } from './dto/add-user-to-project.dto'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -114,5 +120,16 @@ export class ProjectsController {
     @Param('boardId', ParseIntPipe) boardId: number
   ): Promise<StageResponse[]> {
     return this.projectsService.getStages(projectId, boardId)
+  }
+
+  @ApiOperation({ description: 'Add user in project' })
+  @ApiOkResponse({ type: AddUserToProjectResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Put('/:projectId')
+  public async addUserToProject(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Body() addUserToProjectDto: AddUserToProjectRequest
+  ): Promise<AddUserToProjectResponse> {
+    return this.projectsService.addUserToProject(projectId, addUserToProjectDto)
   }
 }

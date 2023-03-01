@@ -19,6 +19,13 @@ import { BoardDto } from './dto/board.dto'
 import { FullBoardDto } from './dto/full-board.dto'
 import { StageDto } from './dto/stage.dto'
 import { Stage } from 'src/entities/stage'
+import {
+  AddUserToProjectRequestDto,
+  AddUserToProjectResponseDto,
+} from './dto/add-user-to-project.dto'
+import { ProjectsUsers } from 'src/entities/projects-users'
+import { User } from 'src/entities/user'
+import { Role } from 'src/entities/role'
 
 @Injectable()
 export class ProjectsService {
@@ -45,10 +52,10 @@ export class ProjectsService {
   async getFullProject(id: number): Promise<FullProjectDto> {
     const project = await this.connection
       .createQueryBuilder(Project, 'project')
-      .innerJoinAndSelect('project.projectsUsers', 'projectsUsers')
-      .innerJoinAndSelect('projectsUsers.user', 'user')
-      .innerJoinAndSelect('projectsUsers.role', 'role')
-      .innerJoinAndSelect('project.boards', 'boards')
+      .leftJoinAndSelect('project.projectsUsers', 'projectsUsers')
+      .leftJoinAndSelect('projectsUsers.user', 'user')
+      .leftJoinAndSelect('projectsUsers.role', 'role')
+      .leftJoinAndSelect('project.boards', 'boards')
       .where('project.id = :id', { id })
       .getOne()
 
@@ -252,5 +259,89 @@ export class ProjectsService {
       createdAt: item.createdAt.toISOString(),
       updatedAt: item.updatedAt.toISOString(),
     }))
+  }
+
+  async addUserToProject(
+    projectId: number,
+    dto: AddUserToProjectRequestDto
+  ): Promise<AddUserToProjectResponseDto> {
+    const project = await this.connection
+      .createEntityManager()
+      .findOne(Project, { where: { id: projectId } })
+
+    if (!project) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'Project not found', {
+        projectId,
+      })
+    }
+
+    const user = await this.connection
+      .createEntityManager()
+      .findOne(User, { where: { username: dto.user } })
+
+    const role = await this.connection
+      .createEntityManager()
+      .findOne(Role, { where: { name: dto.role, isGlobal: false } })
+
+    if (!role || !user) {
+      throw new AppException(
+        HttpStatus.BAD_REQUEST,
+        'The entered data is not correct',
+        { user: dto.user, role: dto.role }
+      )
+    }
+
+    const userExists = await this.connection
+      .createQueryBuilder(ProjectsUsers, 'projectsUsers')
+      .where('projectsUsers.user = :userId', { userId: user.id })
+      .andWhere('projectsUsers.project = :projectId', { projectId })
+      .getOne()
+
+    this.logger.info('user: ', user)
+    this.logger.info('project: ', project)
+    this.logger.info('userExists: ', userExists)
+
+    if (userExists) {
+      throw new AppException(
+        HttpStatus.BAD_REQUEST,
+        'User already exists in project',
+        { user: user.username }
+      )
+    }
+
+    const created = new ProjectsUsers({
+      project: project,
+      role: role,
+      user: user,
+    })
+
+    await this.connection.createEntityManager().save(ProjectsUsers, created)
+
+    return {
+      project: {
+        id: project.id,
+        name: project.name,
+        description: project.description,
+        createdAt: project.createdAt.toISOString(),
+        updatedAt: project.updatedAt.toISOString(),
+      },
+      user: {
+        user: {
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+          createdAt: user.createdAt.toISOString(),
+          updatedAt: user.updatedAt.toISOString(),
+        },
+        role: {
+          id: role.id,
+          name: role.name,
+          isGlobal: role.isGlobal,
+          description: role.description,
+          createdAt: role.createdAt.toISOString(),
+          updatedAt: role.updatedAt.toISOString(),
+        },
+      },
+    }
   }
 }
