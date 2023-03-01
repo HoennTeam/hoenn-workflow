@@ -15,6 +15,10 @@ import {
 } from './dto/create-project.dto'
 import { ProjectDto } from './dto/project.dto'
 import { FullProjectDto } from './dto/full-project.dto'
+import { BoardDto } from './dto/board.dto'
+import { FullBoardDto } from './dto/full-board.dto'
+import { StageDto } from './dto/stage.dto'
+import { Stage } from 'src/entities/stage'
 
 @Injectable()
 export class ProjectsService {
@@ -23,7 +27,7 @@ export class ProjectsService {
     private readonly connection: DataSource
   ) {}
 
-  public async getProjects(): Promise<ProjectDto[]> {
+  async getProjects(): Promise<ProjectDto[]> {
     const projects = await this.connection
       .createQueryBuilder(Project, 'project')
       .leftJoinAndSelect('project.boards', 'boards')
@@ -38,7 +42,7 @@ export class ProjectsService {
     }))
   }
 
-  public async getProject(id: number): Promise<FullProjectDto> {
+  async getFullProject(id: number): Promise<FullProjectDto> {
     const project = await this.connection
       .createQueryBuilder(Project, 'project')
       .leftJoinAndSelect('project.boards', 'boards')
@@ -66,9 +70,7 @@ export class ProjectsService {
     }
   }
 
-  public async createProject(
-    dto: CreateProjectRequestDto
-  ): Promise<CreateProjectDto> {
+  async createProject(dto: CreateProjectRequestDto): Promise<CreateProjectDto> {
     const project = new Project({
       name: dto.name,
       description: dto.description ?? '',
@@ -138,5 +140,98 @@ export class ProjectsService {
       name: project.name,
       updatedAt: project.updatedAt,
     }
+  }
+
+  async getBoards(projectId: number): Promise<BoardDto[]> {
+    const projectExists = await this.connection
+      .createEntityManager()
+      .exists(Project, { where: { id: projectId } })
+
+    if (!projectExists) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'Project not found', {
+        projectId,
+      })
+    }
+
+    const boards = await this.connection
+      .createQueryBuilder(Board, 'board')
+      .where('board.project = :projectId', { projectId })
+      .getMany()
+
+    return boards.map((item) => ({
+      id: item.id,
+      name: item.name,
+      isDefault: item.isDefault,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+    }))
+  }
+
+  async getFullBoard(
+    projectId: number,
+    boardId: number
+  ): Promise<FullBoardDto> {
+    const board = await this.connection
+      .createQueryBuilder(Board, 'board')
+      .innerJoin('board.project', 'project')
+      .leftJoinAndSelect('board.stages', 'stages')
+      .where('board.project = :projectId', { projectId })
+      .andWhere('project.deletedAt is null')
+      .andWhere('board.id = :boardId', { boardId })
+      .getOne()
+
+    if (!board) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'Board not found', {
+        boardId,
+        projectId,
+      })
+    }
+
+    return {
+      id: board.id,
+      name: board.name,
+      isDefault: board.isDefault,
+      createdAt: board.createdAt,
+      updatedAt: board.updatedAt,
+      stages: board.stages.map((item) => ({
+        id: item.id,
+        name: item.name,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+      })),
+    }
+  }
+
+  async getStages(projectId: number, boardId: number): Promise<StageDto[]> {
+    const boardExists = await this.connection
+      .createEntityManager()
+      .exists(Board, { where: { id: boardId, project: { id: projectId } } })
+
+    if (!boardExists) {
+      throw new AppException(
+        HttpStatus.NOT_FOUND,
+        'Project or board not found',
+        {
+          projectId,
+          boardId,
+        }
+      )
+    }
+
+    const stages = await this.connection
+      .createQueryBuilder(Stage, 'stage')
+      .innerJoin('stage.board', 'board')
+      .innerJoin('board.project', 'project')
+      .where('board.project = :projectId', { projectId })
+      .andWhere('project.deletedAt is null')
+      .andWhere('board.id = :boardId', { boardId })
+      .getMany()
+
+    return stages.map((item) => ({
+      id: item.id,
+      name: item.name,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+    }))
   }
 }
