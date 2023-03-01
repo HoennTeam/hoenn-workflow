@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { UserResponse } from 'src/modules/users/api/user.api'
 import { BoardResponse } from './board.api'
+import { ProjectUsersResponse } from './project-users.api'
 
 export class FullProjectResponse {
   @ApiProperty()
@@ -22,5 +23,5 @@ export class FullProjectResponse {
   public readonly boards: BoardResponse[]
 
   @ApiProperty()
-  public readonly users: UserResponse[]
+  public readonly users: ProjectUsersResponse[]
 }

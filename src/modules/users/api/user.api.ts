@@ -11,9 +11,6 @@ export class UserResponse {
   public readonly email: string
 
   @ApiProperty()
-  public readonly roleName: string
-
-  @ApiProperty()
   public readonly createdAt: string
 
   @ApiProperty()

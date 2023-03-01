@@ -47,7 +47,7 @@ export class ProjectsService {
       .createQueryBuilder(Project, 'project')
       .innerJoinAndSelect('project.projectsUsers', 'projectsUsers')
       .innerJoinAndSelect('projectsUsers.user', 'user')
-      .innerJoinAndSelect('user.globalRole', 'role')
+      .innerJoinAndSelect('projectsUsers.role', 'role')
       .innerJoinAndSelect('project.boards', 'boards')
       .where('project.id = :id', { id })
       .getOne()
@@ -68,12 +68,21 @@ export class ProjectsService {
         updatedAt: item.updatedAt.toISOString(),
       })),
       users: project.projectsUsers.map((item) => ({
-        id: item.user.id,
-        fullName: item.user.fullName,
-        email: item.user.email,
-        roleName: item.user.globalRole.name,
-        createdAt: item.user.createdAt.toISOString(),
-        updatedAt: item.user.updatedAt.toISOString(),
+        role: {
+          id: item.role.id,
+          name: item.role.name,
+          description: item.role.description,
+          isGlobal: item.role.isGlobal,
+          createdAt: item.role.createdAt.toISOString(),
+          updatedAt: item.role.updatedAt.toISOString(),
+        },
+        user: {
+          id: item.user.id,
+          fullName: item.user.fullName,
+          email: item.user.email,
+          createdAt: item.user.createdAt.toISOString(),
+          updatedAt: item.user.updatedAt.toISOString(),
+        },
       })),
       createdAt: project.createdAt.toISOString(),
       updatedAt: project.updatedAt.toISOString(),
