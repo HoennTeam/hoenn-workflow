@@ -6,7 +6,7 @@ import { Config } from '../../core/config'
 import { Logger } from '../../core/logger'
 import { Role } from '../../entities/role'
 import { User } from '../../entities/user'
-import { PasswordsService } from '../auth/passwords.service'
+import { PasswordsService } from '../auth/services/passwords.service'
 import { CreateUserDto, CreateUserOutDto } from './dto/create-user.dto'
 
 @Injectable()

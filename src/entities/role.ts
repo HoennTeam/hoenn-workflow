@@ -10,10 +10,15 @@ import {
   UpdateDateColumn,
 } from 'typeorm'
 import { Permission } from './permission'
+import { ProjectsUsers } from './projects-users'
 import { User } from './user'
 
 @Entity()
 export class Role {
+  constructor(data: Partial<Role>) {
+    Object.assign(this, data)
+  }
+
   @PrimaryGeneratedColumn()
   id: number
 
@@ -31,6 +36,9 @@ export class Role {
 
   @OneToMany(() => User, (user) => user.globalRole)
   users: User[]
+
+  @OneToMany(() => ProjectsUsers, (projectsUsers) => projectsUsers.role)
+  projectsUsers: ProjectsUsers[]
 
   @CreateDateColumn()
   createdAt: Date

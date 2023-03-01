@@ -8,8 +8,8 @@ import {
 import { AuthGuardOptions } from '../../../common/decorators/authorize.decorator'
 import { Config } from '../../../core/config'
 import { Logger } from '../../../core/logger'
-import { PermissionsService } from '../permissions.service'
-import { SessionsService } from '../sessions.service'
+import { PermissionsService } from '../services/permissions.service'
+import { SessionsService } from '../services/sessions.service'
 
 @Injectable()
 export class AuthGuard implements CanActivate {

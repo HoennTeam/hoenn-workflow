@@ -8,6 +8,7 @@ import {
   OneToMany,
 } from 'typeorm'
 import { Board } from './board'
+import { ProjectsUsers } from './projects-users'
 
 @Entity()
 export class Project {
@@ -28,14 +29,13 @@ export class Project {
   })
   boards: Board[]
 
+  @OneToMany(() => ProjectsUsers, (projectsUsers) => projectsUsers.project)
+  projectsUsers: ProjectsUsers[]
+
   @CreateDateColumn()
   createdAt: Date
-
   @UpdateDateColumn()
   updatedAt: Date
-
-  @DeleteDateColumn({
-    nullable: true,
-  })
+  @DeleteDateColumn({ nullable: true })
   deletedAt?: Date
 }

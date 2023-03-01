@@ -6,7 +6,9 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   ManyToOne,
+  OneToMany,
 } from 'typeorm'
+import { ProjectsUsers } from './projects-users'
 import { Role } from './role'
 
 @Entity()
@@ -36,6 +38,9 @@ export class User {
     cascade: true,
   })
   globalRole: Role
+
+  @OneToMany(() => ProjectsUsers, (projectsUsers) => projectsUsers.user)
+  projectsUsers: ProjectsUsers[]
 
   @CreateDateColumn()
   createdAt: Date

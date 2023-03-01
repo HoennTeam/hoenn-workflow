@@ -3,6 +3,10 @@ import { Role } from './role'
 
 @Entity()
 export class Permission {
+  constructor(data: Partial<Permission>) {
+    Object.assign(this, data)
+  }
+
   @PrimaryGeneratedColumn()
   id: number
 
