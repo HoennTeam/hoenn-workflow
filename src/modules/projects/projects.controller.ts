@@ -32,10 +32,10 @@ import { BoardResponse } from './api/board.api'
 import { FullBoardResponse } from './api/full-board.api'
 import { StageResponse } from './api/stage.api'
 import {
-  AddUserToProjectRequest,
-  AddUserToProjectResponse,
-} from './api/add-user-to-project.api'
-import { AddUserToProjectRequestDto } from './dto/add-user-to-project.dto'
+  UserToProjectRequest,
+  UserToProjectResponse,
+} from './api/user-to-project.api'
+import { UserToProjectRequestDto } from './dto/user-to-project.dto'
 import { DeleteUserFromProjectRequest } from './api/delete-user-from-project.api'
 @ApiTags('Projects')
 @Controller('projects')
@@ -124,13 +124,13 @@ export class ProjectsController {
   }
 
   @ApiOperation({ description: 'Add user to project' })
-  @ApiOkResponse({ type: AddUserToProjectResponse })
+  @ApiOkResponse({ type: UserToProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Put('/:projectId/users')
   public async addUserToProject(
     @Param('projectId', ParseIntPipe) projectId: number,
-    @Body() addUserToProjectDto: AddUserToProjectRequest
-  ): Promise<AddUserToProjectResponse> {
+    @Body() addUserToProjectDto: UserToProjectRequest
+  ): Promise<UserToProjectResponse> {
     return this.projectsService.addUserToProject(projectId, addUserToProjectDto)
   }
 
@@ -143,5 +143,19 @@ export class ProjectsController {
     @Body() user: DeleteUserFromProjectRequest
   ): Promise<void> {
     return this.projectsService.removeUserFromProject(projectId, user)
+  }
+
+  @ApiOperation({ description: 'Change user role in project' })
+  @ApiOkResponse({ type: UserToProjectResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Patch('/:projectId/users')
+  public async changeUserRoleInProject(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Body() userToProject: UserToProjectRequest
+  ): Promise<UserToProjectResponse> {
+    return this.projectsService.changeUserRoleInProject(
+      projectId,
+      userToProject
+    )
   }
 }

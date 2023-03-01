@@ -3,7 +3,7 @@ import { IsString, MinLength } from 'class-validator'
 import { ProjectUsersResponse } from './project-users.api'
 import { ProjectResponse } from './project.api'
 
-export class AddUserToProjectRequest {
+export class UserToProjectRequest {
   @ApiProperty()
   @IsString()
   @MinLength(1)
@@ -15,7 +15,7 @@ export class AddUserToProjectRequest {
   public readonly role: string
 }
 
-export class AddUserToProjectResponse {
+export class UserToProjectResponse {
   public readonly project: ProjectResponse
-  public readonly user: ProjectUsersResponse
+  public readonly users: ProjectUsersResponse
 }

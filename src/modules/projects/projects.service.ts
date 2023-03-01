@@ -20,13 +20,14 @@ import { FullBoardDto } from './dto/full-board.dto'
 import { StageDto } from './dto/stage.dto'
 import { Stage } from 'src/entities/stage'
 import {
-  AddUserToProjectRequestDto,
-  AddUserToProjectResponseDto,
-} from './dto/add-user-to-project.dto'
+  UserToProjectRequestDto,
+  UserToProjectResponseDto,
+} from './dto/user-to-project.dto'
 import { ProjectsUsers } from 'src/entities/projects-users'
 import { User } from 'src/entities/user'
 import { Role } from 'src/entities/role'
 import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
+import { ProjectUsersDto } from './dto/project-users.dto'
 
 @Injectable()
 export class ProjectsService {
@@ -264,8 +265,8 @@ export class ProjectsService {
 
   async addUserToProject(
     projectId: number,
-    dto: AddUserToProjectRequestDto
-  ): Promise<AddUserToProjectResponseDto> {
+    dto: UserToProjectRequestDto
+  ): Promise<UserToProjectResponseDto> {
     const project = await this.connection
       .createEntityManager()
       .findOne(Project, { where: { id: projectId } })
@@ -322,7 +323,7 @@ export class ProjectsService {
         createdAt: project.createdAt.toISOString(),
         updatedAt: project.updatedAt.toISOString(),
       },
-      user: {
+      users: {
         user: {
           id: user.id,
           fullName: user.fullName,
@@ -367,5 +368,88 @@ export class ProjectsService {
       .remove(projectsUsers)
 
     this.logger.info('removed user in project', removed)
+  }
+
+  async changeUserRoleInProject(
+    projectId: number,
+    dto: UserToProjectRequestDto
+  ): Promise<UserToProjectResponseDto> {
+    const project = await this.connection
+      .createEntityManager()
+      .findOne(Project, { where: { id: projectId } })
+
+    if (!project) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'Project not found', {
+        projectId,
+      })
+    }
+
+    const user = await this.connection
+      .createEntityManager()
+      .findOne(User, { where: { username: dto.user } })
+
+    const role = await this.connection
+      .createEntityManager()
+      .findOne(Role, { where: { name: dto.role, isGlobal: false } })
+
+    if (!role || !user) {
+      throw new AppException(
+        HttpStatus.BAD_REQUEST,
+        'The entered data is not correct',
+        { user: dto.user, role: dto.role }
+      )
+    }
+
+    const projectsUsers = await this.connection
+      .createQueryBuilder(ProjectsUsers, 'projectsUsers')
+      .where('projectsUsers.user = :userId', { userId: user.id })
+      .andWhere('projectsUsers.project = :projectId', { projectId })
+      .getOne()
+
+    if (!projectsUsers) {
+      throw new AppException(
+        HttpStatus.NOT_FOUND,
+        'User not exists in project',
+        { user: user.username }
+      )
+    }
+
+    const newUserRole = new ProjectsUsers({
+      id: projectsUsers.id,
+      project: project,
+      role: role,
+      user: user,
+    })
+
+    const updated = await this.connection
+      .createEntityManager()
+      .save(ProjectsUsers, newUserRole)
+
+    return {
+      project: {
+        id: project.id,
+        name: project.name,
+        description: project.description,
+        createdAt: project.createdAt.toISOString(),
+        updatedAt: project.updatedAt.toISOString(),
+      },
+      users: {
+        user: {
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+          createdAt: user.createdAt.toISOString(),
+          updatedAt: user.updatedAt.toISOString(),
+        },
+        role: {
+          id: role.id,
+          name: role.name,
+          isGlobal: role.isGlobal,
+          description: role.description,
+          createdAt: role.createdAt.toISOString(),
+          updatedAt: role.updatedAt.toISOString(),
+        },
+      },
+    }
   }
 }
