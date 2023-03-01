@@ -36,6 +36,7 @@ import {
   AddUserToProjectResponse,
 } from './api/add-user-to-project.api'
 import { AddUserToProjectRequestDto } from './dto/add-user-to-project.dto'
+import { DeleteUserFromProjectRequest } from './api/delete-user-from-project.api'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -122,14 +123,25 @@ export class ProjectsController {
     return this.projectsService.getStages(projectId, boardId)
   }
 
-  @ApiOperation({ description: 'Add user in project' })
+  @ApiOperation({ description: 'Add user to project' })
   @ApiOkResponse({ type: AddUserToProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
-  @Put('/:projectId')
+  @Put('/:projectId/users')
   public async addUserToProject(
     @Param('projectId', ParseIntPipe) projectId: number,
     @Body() addUserToProjectDto: AddUserToProjectRequest
   ): Promise<AddUserToProjectResponse> {
     return this.projectsService.addUserToProject(projectId, addUserToProjectDto)
+  }
+
+  @ApiOperation({ description: 'Remove user in project' })
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Delete('/:projectId/users')
+  public async removeUserFromProject(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Body() user: DeleteUserFromProjectRequest
+  ): Promise<void> {
+    return this.projectsService.removeUserFromProject(projectId, user)
   }
 }
