@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinTable,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -27,12 +28,13 @@ export class Board {
   isDefault: boolean
 
   @ManyToOne(() => Project, (project) => project.boards)
+  @JoinTable()
   project: Project
 
   @OneToMany(() => Task, (tasks) => tasks.board)
   tasks: Task[]
 
-  @OneToMany(() => Stage, (stages) => stages.board)
+  @OneToMany(() => Stage, (stages) => stages.board, { cascade: true })
   stages: Stage[]
 
   @CreateDateColumn()
