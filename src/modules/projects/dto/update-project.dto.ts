@@ -2,7 +2,7 @@ export interface UpdateProjectDto {
   readonly id: number
   readonly name: string
   readonly description: string
-  readonly updatedAt: Date
+  readonly updatedAt: string
 }
 
 export interface UpdateProjectRequestDto {

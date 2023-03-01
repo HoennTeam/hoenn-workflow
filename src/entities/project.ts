@@ -23,7 +23,9 @@ export class Project {
   @Column()
   description: string
 
-  @OneToMany(() => Board, (boards) => boards.project, { cascade: true })
+  @OneToMany(() => Board, (boards) => boards.project, {
+    cascade: true,
+  })
   boards: Board[]
 
   @CreateDateColumn()
