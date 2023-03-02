@@ -16,6 +16,9 @@ export class UserToProjectRequest {
 }
 
 export class UserToProjectResponse {
+  @ApiProperty()
   public readonly project: ProjectResponse
+
+  @ApiProperty()
   public readonly users: ProjectUsersResponse
 }
