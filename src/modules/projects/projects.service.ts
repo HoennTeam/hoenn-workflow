@@ -26,8 +26,6 @@ import {
 import { ProjectsUsers } from 'src/entities/projects-users'
 import { User } from 'src/entities/user'
 import { Role } from 'src/entities/role'
-import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
-import { ProjectUsersDto } from './dto/project-users.dto'
 
 @Injectable()
 export class ProjectsService {
@@ -345,21 +343,21 @@ export class ProjectsService {
 
   async removeUserFromProject(
     projectId: number,
-    dto: DeleteUserFromProjectDto
+    username: string
   ): Promise<void> {
     const projectsUsers = await this.connection
       .createQueryBuilder(ProjectsUsers, 'projectsUsers')
       .leftJoinAndSelect('projectsUsers.project', 'project')
       .leftJoinAndSelect('projectsUsers.user', 'user')
       .where('project.id = :projectId', { projectId })
-      .andWhere('user.username = :username', { username: dto.user })
+      .andWhere('user.username = :username', { username: username })
       .getOne()
 
     if (!projectsUsers) {
       throw new AppException(
         HttpStatus.NOT_FOUND,
         'Project not found or user already removed',
-        { user: dto.user }
+        { user: username }
       )
     }
 

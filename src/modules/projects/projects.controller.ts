@@ -35,8 +35,6 @@ import {
   UserToProjectRequest,
   UserToProjectResponse,
 } from './api/user-to-project.api'
-import { UserToProjectRequestDto } from './dto/user-to-project.dto'
-import { DeleteUserFromProjectRequest } from './api/delete-user-from-project.api'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -137,12 +135,12 @@ export class ProjectsController {
   @ApiOperation({ description: 'Remove user in project' })
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ExceptionResponse })
-  @Delete('/:projectId/users')
+  @Delete('/:projectId/users/:username')
   public async removeUserFromProject(
     @Param('projectId', ParseIntPipe) projectId: number,
-    @Body() user: DeleteUserFromProjectRequest
+    @Param('username') username: string
   ): Promise<void> {
-    return this.projectsService.removeUserFromProject(projectId, user)
+    return this.projectsService.removeUserFromProject(projectId, username)
   }
 
   @ApiOperation({ description: 'Change user role in project' })
