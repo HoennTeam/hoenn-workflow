@@ -355,7 +355,7 @@ export class ProjectsService {
     if (!projectsUsers) {
       throw new AppException(
         HttpStatus.NOT_FOUND,
-        'Project not found or user already removed',
+        'Project not found or user is not in this project',
         { user: dto.username }
       )
     }
