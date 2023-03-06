@@ -372,35 +372,12 @@ export class ProjectsService {
   async changeUserRoleInProject(
     dto: UserToProjectRequestDto
   ): Promise<UserToProjectResponseDto> {
-    const project = await this.connection
-      .createEntityManager()
-      .findOne(Project, { where: { id: dto.projectId } })
-
-    if (!project) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'Project not found', {
-        id: dto.projectId,
-      })
-    }
-
-    const user = await this.connection
-      .createEntityManager()
-      .findOne(User, { where: { username: dto.username } })
-
-    const role = await this.connection
-      .createEntityManager()
-      .findOne(Role, { where: { id: dto.roleId, isGlobal: false } })
-
-    if (!role || !user) {
-      throw new AppException(
-        HttpStatus.BAD_REQUEST,
-        'The entered data is not correct',
-        { user: dto.username, role: dto.roleId }
-      )
-    }
-
     const projectsUsers = await this.connection
       .createQueryBuilder(ProjectsUsers, 'projectsUsers')
-      .where('projectsUsers.user = :userId', { userId: user.id })
+      .leftJoinAndSelect('projectsUsers.project', 'project')
+      .leftJoinAndSelect('projectsUsers.user', 'user')
+      .leftJoinAndSelect('projectsUsers.role', 'role')
+      .where('user.username = :username', { username: dto.username })
       .andWhere('projectsUsers.project = :projectId', {
         projectId: dto.projectId,
       })
@@ -410,39 +387,49 @@ export class ProjectsService {
       throw new AppException(
         HttpStatus.NOT_FOUND,
         'User not exists in project',
-        { user: user.username }
+        { user: dto.username }
       )
+    }
+
+    const role = await this.connection
+      .getRepository(Role)
+      .findOne({ where: { id: dto.roleId } })
+
+    if (!role) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'Role not found')
+    }
+
+    if (role.isGlobal) {
+      throw new AppException(HttpStatus.BAD_REQUEST, 'Role is global')
     }
 
     projectsUsers.role = role
 
-    const updated = await this.connection
-      .createEntityManager()
-      .save(ProjectsUsers, projectsUsers)
+    await this.connection.getRepository(ProjectsUsers).save(projectsUsers)
 
     return {
       project: {
-        id: project.id,
-        name: project.name,
-        description: project.description,
-        createdAt: project.createdAt.toISOString(),
-        updatedAt: project.updatedAt.toISOString(),
+        id: projectsUsers.project.id,
+        name: projectsUsers.project.name,
+        description: projectsUsers.project.description,
+        createdAt: projectsUsers.project.createdAt.toISOString(),
+        updatedAt: projectsUsers.project.updatedAt.toISOString(),
       },
       users: {
         user: {
-          id: user.id,
-          fullName: user.fullName,
-          email: user.email,
-          createdAt: user.createdAt.toISOString(),
-          updatedAt: user.updatedAt.toISOString(),
+          id: projectsUsers.user.id,
+          fullName: projectsUsers.user.fullName,
+          email: projectsUsers.user.email,
+          createdAt: projectsUsers.user.createdAt.toISOString(),
+          updatedAt: projectsUsers.user.updatedAt.toISOString(),
         },
         role: {
-          id: role.id,
-          name: role.name,
-          isGlobal: role.isGlobal,
-          description: role.description,
-          createdAt: role.createdAt.toISOString(),
-          updatedAt: role.updatedAt.toISOString(),
+          id: projectsUsers.role.id,
+          name: projectsUsers.role.name,
+          isGlobal: projectsUsers.role.isGlobal,
+          description: projectsUsers.role.description,
+          createdAt: projectsUsers.role.createdAt.toISOString(),
+          updatedAt: projectsUsers.role.updatedAt.toISOString(),
         },
       },
     }
