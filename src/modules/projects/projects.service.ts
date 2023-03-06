@@ -279,16 +279,20 @@ export class ProjectsService {
       .createEntityManager()
       .findOne(User, { where: { username: dto.username } })
 
+    if (!user) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'User not found')
+    }
+
     const role = await this.connection
       .createEntityManager()
-      .findOne(Role, { where: { id: dto.roleId, isGlobal: false } })
+      .findOne(Role, { where: { id: dto.roleId } })
 
-    if (!role || !user) {
-      throw new AppException(
-        HttpStatus.BAD_REQUEST,
-        'The entered data is not correct',
-        { user: dto.username, role: dto.roleId }
-      )
+    if (!role) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'Role not found')
+    }
+
+    if (role.isGlobal) {
+      throw new AppException(HttpStatus.BAD_REQUEST, 'Role is global')
     }
 
     const userExistsInProject = await this.connection
