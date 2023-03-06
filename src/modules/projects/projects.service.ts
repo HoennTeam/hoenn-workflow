@@ -26,6 +26,7 @@ import {
 import { ProjectsUsers } from 'src/entities/projects-users'
 import { User } from 'src/entities/user'
 import { Role } from 'src/entities/role'
+import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
 
 @Injectable()
 export class ProjectsService {
@@ -262,39 +263,40 @@ export class ProjectsService {
   }
 
   async addUserToProject(
-    projectId: number,
     dto: UserToProjectRequestDto
   ): Promise<UserToProjectResponseDto> {
     const project = await this.connection
       .createEntityManager()
-      .findOne(Project, { where: { id: projectId } })
+      .findOne(Project, { where: { id: dto.projectId } })
 
     if (!project) {
       throw new AppException(HttpStatus.NOT_FOUND, 'Project not found', {
-        projectId,
+        id: dto.projectId,
       })
     }
 
     const user = await this.connection
       .createEntityManager()
-      .findOne(User, { where: { username: dto.user } })
+      .findOne(User, { where: { username: dto.username } })
 
     const role = await this.connection
       .createEntityManager()
-      .findOne(Role, { where: { name: dto.role, isGlobal: false } })
+      .findOne(Role, { where: { name: dto.userRole, isGlobal: false } })
 
     if (!role || !user) {
       throw new AppException(
         HttpStatus.BAD_REQUEST,
         'The entered data is not correct',
-        { user: dto.user, role: dto.role }
+        { user: dto.username, role: dto.userRole }
       )
     }
 
     const userExists = await this.connection
       .createQueryBuilder(ProjectsUsers, 'projectsUsers')
       .where('projectsUsers.user = :userId', { userId: user.id })
-      .andWhere('projectsUsers.project = :projectId', { projectId })
+      .andWhere('projectsUsers.project = :projectId', {
+        projectId: dto.projectId,
+      })
       .getOne()
 
     if (userExists) {
@@ -341,23 +343,20 @@ export class ProjectsService {
     }
   }
 
-  async removeUserFromProject(
-    projectId: number,
-    username: string
-  ): Promise<void> {
+  async removeUserFromProject(dto: DeleteUserFromProjectDto): Promise<void> {
     const projectsUsers = await this.connection
       .createQueryBuilder(ProjectsUsers, 'projectsUsers')
       .leftJoinAndSelect('projectsUsers.project', 'project')
       .leftJoinAndSelect('projectsUsers.user', 'user')
-      .where('project.id = :projectId', { projectId })
-      .andWhere('user.username = :username', { username: username })
+      .where('project.id = :projectId', { projectId: dto.projectId })
+      .andWhere('user.username = :username', { username: dto.username })
       .getOne()
 
     if (!projectsUsers) {
       throw new AppException(
         HttpStatus.NOT_FOUND,
         'Project not found or user already removed',
-        { user: username }
+        { user: dto.username }
       )
     }
 
@@ -369,39 +368,40 @@ export class ProjectsService {
   }
 
   async changeUserRoleInProject(
-    projectId: number,
     dto: UserToProjectRequestDto
   ): Promise<UserToProjectResponseDto> {
     const project = await this.connection
       .createEntityManager()
-      .findOne(Project, { where: { id: projectId } })
+      .findOne(Project, { where: { id: dto.projectId } })
 
     if (!project) {
       throw new AppException(HttpStatus.NOT_FOUND, 'Project not found', {
-        projectId,
+        id: dto.projectId,
       })
     }
 
     const user = await this.connection
       .createEntityManager()
-      .findOne(User, { where: { username: dto.user } })
+      .findOne(User, { where: { username: dto.username } })
 
     const role = await this.connection
       .createEntityManager()
-      .findOne(Role, { where: { name: dto.role, isGlobal: false } })
+      .findOne(Role, { where: { name: dto.userRole, isGlobal: false } })
 
     if (!role || !user) {
       throw new AppException(
         HttpStatus.BAD_REQUEST,
         'The entered data is not correct',
-        { user: dto.user, role: dto.role }
+        { user: dto.username, role: dto.userRole }
       )
     }
 
     const projectsUsers = await this.connection
       .createQueryBuilder(ProjectsUsers, 'projectsUsers')
       .where('projectsUsers.user = :userId', { userId: user.id })
-      .andWhere('projectsUsers.project = :projectId', { projectId })
+      .andWhere('projectsUsers.project = :projectId', {
+        projectId: dto.projectId,
+      })
       .getOne()
 
     if (!projectsUsers) {

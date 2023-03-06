@@ -35,6 +35,8 @@ import {
   UserToProjectRequest,
   UserToProjectResponse,
 } from './api/user-to-project.api'
+import { UserToProjectRequestDto } from './dto/user-to-project.dto'
+import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -127,9 +129,14 @@ export class ProjectsController {
   @Put('/:projectId/users')
   public async addUserToProject(
     @Param('projectId', ParseIntPipe) projectId: number,
-    @Body() addUserToProjectDto: UserToProjectRequest
+    @Body() userToProjectRequest: UserToProjectRequest
   ): Promise<UserToProjectResponse> {
-    return this.projectsService.addUserToProject(projectId, addUserToProjectDto)
+    const addUserToProjectDto: UserToProjectRequestDto = {
+      projectId: projectId,
+      username: userToProjectRequest.user,
+      userRole: userToProjectRequest.role,
+    }
+    return this.projectsService.addUserToProject(addUserToProjectDto)
   }
 
   @ApiOperation({ description: 'Remove user in project' })
@@ -140,7 +147,11 @@ export class ProjectsController {
     @Param('projectId', ParseIntPipe) projectId: number,
     @Param('username') username: string
   ): Promise<void> {
-    return this.projectsService.removeUserFromProject(projectId, username)
+    const deleteUserFromProjectDto: DeleteUserFromProjectDto = {
+      projectId: projectId,
+      username: username,
+    }
+    return this.projectsService.removeUserFromProject(deleteUserFromProjectDto)
   }
 
   @ApiOperation({ description: 'Change user role in project' })
@@ -149,11 +160,15 @@ export class ProjectsController {
   @Patch('/:projectId/users')
   public async changeUserRoleInProject(
     @Param('projectId', ParseIntPipe) projectId: number,
-    @Body() userToProject: UserToProjectRequest
+    @Body() userToProjectRequest: UserToProjectRequest
   ): Promise<UserToProjectResponse> {
+    const changeUserRoleInProjectDto: UserToProjectRequestDto = {
+      projectId: projectId,
+      username: userToProjectRequest.user,
+      userRole: userToProjectRequest.role,
+    }
     return this.projectsService.changeUserRoleInProject(
-      projectId,
-      userToProject
+      changeUserRoleInProjectDto
     )
   }
 }

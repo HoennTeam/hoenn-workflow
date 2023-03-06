@@ -2,8 +2,9 @@ import { ProjectUsersResponse } from '../api/project-users.api'
 import { ProjectDto } from './project.dto'
 
 export interface UserToProjectRequestDto {
-  readonly user: string
-  readonly role: string
+  readonly projectId: number
+  readonly username: string
+  readonly userRole: string
 }
 
 export interface UserToProjectResponseDto {
