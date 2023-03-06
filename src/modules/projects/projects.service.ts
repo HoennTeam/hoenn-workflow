@@ -281,17 +281,17 @@ export class ProjectsService {
 
     const role = await this.connection
       .createEntityManager()
-      .findOne(Role, { where: { name: dto.userRole, isGlobal: false } })
+      .findOne(Role, { where: { id: dto.roleId, isGlobal: false } })
 
     if (!role || !user) {
       throw new AppException(
         HttpStatus.BAD_REQUEST,
         'The entered data is not correct',
-        { user: dto.username, role: dto.userRole }
+        { user: dto.username, role: dto.roleId }
       )
     }
 
-    const userExists = await this.connection
+    const userExistsInProject = await this.connection
       .createQueryBuilder(ProjectsUsers, 'projectsUsers')
       .where('projectsUsers.user = :userId', { userId: user.id })
       .andWhere('projectsUsers.project = :projectId', {
@@ -299,7 +299,7 @@ export class ProjectsService {
       })
       .getOne()
 
-    if (userExists) {
+    if (userExistsInProject) {
       throw new AppException(
         HttpStatus.BAD_REQUEST,
         'User already exists in project',
@@ -363,8 +363,6 @@ export class ProjectsService {
     const removed = await this.connection
       .createEntityManager()
       .remove(projectsUsers)
-
-    this.logger.info('removed user in project', removed)
   }
 
   async changeUserRoleInProject(
@@ -386,13 +384,13 @@ export class ProjectsService {
 
     const role = await this.connection
       .createEntityManager()
-      .findOne(Role, { where: { name: dto.userRole, isGlobal: false } })
+      .findOne(Role, { where: { id: dto.roleId } })
 
     if (!role || !user) {
       throw new AppException(
         HttpStatus.BAD_REQUEST,
         'The entered data is not correct',
-        { user: dto.username, role: dto.userRole }
+        { user: dto.username, role: dto.roleId }
       )
     }
 
@@ -412,16 +410,11 @@ export class ProjectsService {
       )
     }
 
-    const newUserRole = new ProjectsUsers({
-      id: projectsUsers.id,
-      project: project,
-      role: role,
-      user: user,
-    })
+    projectsUsers.role = role
 
     const updated = await this.connection
       .createEntityManager()
-      .save(ProjectsUsers, newUserRole)
+      .save(ProjectsUsers, projectsUsers)
 
     return {
       project: {

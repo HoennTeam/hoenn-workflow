@@ -133,8 +133,8 @@ export class ProjectsController {
   ): Promise<UserToProjectResponse> {
     const addUserToProjectDto: UserToProjectRequestDto = {
       projectId: projectId,
-      username: userToProjectRequest.user,
-      userRole: userToProjectRequest.role,
+      username: userToProjectRequest.username,
+      roleId: userToProjectRequest.roleId,
     }
     return this.projectsService.addUserToProject(addUserToProjectDto)
   }
@@ -157,15 +157,16 @@ export class ProjectsController {
   @ApiOperation({ description: 'Change user role in project' })
   @ApiOkResponse({ type: UserToProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
-  @Patch('/:projectId/users')
+  @Patch('/:projectId/users/:username')
   public async changeUserRoleInProject(
     @Param('projectId', ParseIntPipe) projectId: number,
-    @Body() userToProjectRequest: UserToProjectRequest
+    @Param('username') username: string,
+    @Body('roleId', ParseIntPipe) roleId: number
   ): Promise<UserToProjectResponse> {
     const changeUserRoleInProjectDto: UserToProjectRequestDto = {
       projectId: projectId,
-      username: userToProjectRequest.user,
-      userRole: userToProjectRequest.role,
+      username: username,
+      roleId: roleId,
     }
     return this.projectsService.changeUserRoleInProject(
       changeUserRoleInProjectDto
