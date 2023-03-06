@@ -384,7 +384,7 @@ export class ProjectsService {
 
     const role = await this.connection
       .createEntityManager()
-      .findOne(Role, { where: { id: dto.roleId } })
+      .findOne(Role, { where: { id: dto.roleId, isGlobal: false } })
 
     if (!role || !user) {
       throw new AppException(
