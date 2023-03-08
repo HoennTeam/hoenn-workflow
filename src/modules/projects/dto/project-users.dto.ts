@@ -1,5 +1,5 @@
-import { RoleDto } from 'src/modules/auth/dto/role.dto'
-import { UserDto } from 'src/modules/users/dto/user.dto'
+import { RoleDto } from '../../../modules/auth/dto/role.dto'
+import { UserDto } from '../../../modules/users/dto/user.dto'
 
 export interface ProjectUsersDto {
   readonly user: UserDto

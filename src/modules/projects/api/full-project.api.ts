@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { UserResponse } from 'src/modules/users/api/user.api'
 import { BoardResponse } from './board.api'
 import { ProjectUsersResponse } from './project-users.api'
 

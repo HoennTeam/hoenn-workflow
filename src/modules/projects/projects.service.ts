@@ -23,7 +23,7 @@ import {
   UserToProjectRequestDto,
   UserToProjectResponseDto,
 } from './dto/user-to-project.dto'
-import { ProjectsUsers } from 'src/entities/projects-users'
+import { ProjectsUsers } from '../../entities/projects-users'
 import { User } from '../../entities/user'
 import { Role } from '../../entities/role'
 import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'

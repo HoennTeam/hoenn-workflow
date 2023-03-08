@@ -1,4 +1,3 @@
-import { UserDto } from 'src/modules/users/dto/user.dto'
 import { BoardDto } from './board.dto'
 import { ProjectUsersDto } from './project-users.dto'
 
