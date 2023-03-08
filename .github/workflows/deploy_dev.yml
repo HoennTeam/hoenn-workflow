@@ -23,4 +23,5 @@ jobs:
             git pull -f origin develop
             yarn
             yarn build
+            yarn migration:up
             pm2 restart workflow
