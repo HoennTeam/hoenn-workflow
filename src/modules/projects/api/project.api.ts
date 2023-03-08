@@ -2,17 +2,17 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class ProjectResponse {
   @ApiProperty()
-  id: number
+  public readonly id: number
 
   @ApiProperty()
-  name: string
+  public readonly name: string
 
   @ApiProperty()
-  description: string
+  public readonly description: string
 
   @ApiProperty()
-  createdAt: string
+  public readonly createdAt: string
 
   @ApiProperty()
-  updatedAt: string
+  public readonly updatedAt: string
 }

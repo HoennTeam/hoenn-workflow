@@ -3,17 +3,17 @@ import { StageResponse } from './stage.api'
 
 export class FullBoardResponse {
   @ApiProperty()
-  id: number
+  public readonly id: number
 
   @ApiProperty()
-  name: string
+  public readonly name: string
 
   @ApiProperty()
-  createdAt: string
+  public readonly createdAt: string
 
   @ApiProperty()
-  updatedAt: string
+  public readonly updatedAt: string
 
   @ApiProperty()
-  stages: StageResponse[]
+  public readonly stages: StageResponse[]
 }

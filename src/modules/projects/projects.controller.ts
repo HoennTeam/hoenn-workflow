@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Put,
 } from '@nestjs/common'
 import { ExceptionResponse } from '../../common/response/exception-response'
 import {
@@ -30,6 +31,12 @@ import { FullProjectResponse } from './api/full-project.api'
 import { BoardResponse } from './api/board.api'
 import { FullBoardResponse } from './api/full-board.api'
 import { StageResponse } from './api/stage.api'
+import {
+  UserToProjectRequest,
+  UserToProjectResponse,
+} from './api/user-to-project.api'
+import { UserToProjectRequestDto } from './dto/user-to-project.dto'
+import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -114,5 +121,55 @@ export class ProjectsController {
     @Param('boardId', ParseIntPipe) boardId: number
   ): Promise<StageResponse[]> {
     return this.projectsService.getStages(projectId, boardId)
+  }
+
+  @ApiOperation({ description: 'Add user to project' })
+  @ApiOkResponse({ type: UserToProjectResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Put('/:projectId/users')
+  public async addUserToProject(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Body() userToProjectRequest: UserToProjectRequest
+  ): Promise<UserToProjectResponse> {
+    const addUserToProjectDto: UserToProjectRequestDto = {
+      projectId: projectId,
+      username: userToProjectRequest.username,
+      roleId: userToProjectRequest.roleId,
+    }
+    return this.projectsService.addUserToProject(addUserToProjectDto)
+  }
+
+  @ApiOperation({ description: 'Remove user in project' })
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Delete('/:projectId/users/:username')
+  public async removeUserFromProject(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('username') username: string
+  ): Promise<void> {
+    const deleteUserFromProjectDto: DeleteUserFromProjectDto = {
+      projectId: projectId,
+      username: username,
+    }
+    return this.projectsService.removeUserFromProject(deleteUserFromProjectDto)
+  }
+
+  @ApiOperation({ description: 'Change user role in project' })
+  @ApiOkResponse({ type: UserToProjectResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Patch('/:projectId/users/:username')
+  public async changeUserRoleInProject(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('username') username: string,
+    @Body('roleId', ParseIntPipe) roleId: number
+  ): Promise<UserToProjectResponse> {
+    const changeUserRoleInProjectDto: UserToProjectRequestDto = {
+      projectId: projectId,
+      username: username,
+      roleId: roleId,
+    }
+    return this.projectsService.changeUserRoleInProject(
+      changeUserRoleInProjectDto
+    )
   }
 }
