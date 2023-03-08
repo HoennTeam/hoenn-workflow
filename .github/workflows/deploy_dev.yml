@@ -19,6 +19,8 @@ jobs:
           key: ${{ secrets.HOST_DEV_PRIVATE_KEY }}
           script_stop: true
           script: |
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
             cd ~/hoenn-workflow
             git checkout develop
             git pull -f origin develop
