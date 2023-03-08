@@ -1,6 +1,6 @@
 export interface StageDto {
-  id: number
-  name: string
-  createdAt: string
-  updatedAt: string
+  readonly id: number
+  readonly name: string
+  readonly createdAt: string
+  readonly updatedAt: string
 }

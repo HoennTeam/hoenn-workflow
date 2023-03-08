@@ -1,11 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger'
 
-export class StageResponse {
+export class UserResponse {
   @ApiProperty()
   public readonly id: number
 
   @ApiProperty()
-  public readonly name: string
+  public readonly fullName: string
+
+  @ApiProperty()
+  public readonly email: string
 
   @ApiProperty()
   public readonly createdAt: string

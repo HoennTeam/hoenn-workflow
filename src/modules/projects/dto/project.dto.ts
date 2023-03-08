@@ -1,7 +1,7 @@
 export interface ProjectDto {
-  id: number
-  name: string
-  description: string
-  createdAt: string
-  updatedAt: string
+  readonly id: number
+  readonly name: string
+  readonly description: string
+  readonly createdAt: string
+  readonly updatedAt: string
 }

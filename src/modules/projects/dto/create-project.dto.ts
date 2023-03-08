@@ -1,20 +1,20 @@
 export interface CreateProjectDto {
-  id: number
-  name: string
-  description: string
-  createdAt: string
-  updatedAt: string
-  board: CreateBoardDto
+  readonly id: number
+  readonly name: string
+  readonly description: string
+  readonly createdAt: string
+  readonly updatedAt: string
+  readonly board: CreateBoardDto
 }
 
 interface CreateBoardDto {
-  id: number
-  name: string
-  createdAt: string
-  updatedAt: string
+  readonly id: number
+  readonly name: string
+  readonly createdAt: string
+  readonly updatedAt: string
 }
 
 export interface CreateProjectRequestDto {
-  name: string
-  description?: string
+  readonly name: string
+  readonly description?: string
 }

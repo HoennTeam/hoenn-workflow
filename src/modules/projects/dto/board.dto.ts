@@ -1,7 +1,7 @@
 export interface BoardDto {
-  id: number
-  name: string
-  isDefault: boolean
-  createdAt: string
-  updatedAt: string
+  readonly id: number
+  readonly name: string
+  readonly isDefault: boolean
+  readonly createdAt: string
+  readonly updatedAt: string
 }

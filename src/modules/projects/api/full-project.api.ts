@@ -1,22 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { UserResponse } from 'src/modules/users/api/user.api'
 import { BoardResponse } from './board.api'
+import { ProjectUsersResponse } from './project-users.api'
 
 export class FullProjectResponse {
   @ApiProperty()
-  id: number
+  public readonly id: number
 
   @ApiProperty()
-  name: string
+  public readonly name: string
 
   @ApiProperty()
-  description: string
+  public readonly description: string
 
   @ApiProperty()
-  createdAt: string
+  public readonly createdAt: string
 
   @ApiProperty()
-  updatedAt: string
+  public readonly updatedAt: string
 
   @ApiProperty()
-  boards: BoardResponse[]
+  public readonly boards: BoardResponse[]
+
+  @ApiProperty()
+  public readonly users: ProjectUsersResponse[]
 }
