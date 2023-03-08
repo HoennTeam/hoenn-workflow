@@ -39,6 +39,7 @@ import { UserToProjectRequestDto } from './dto/user-to-project.dto'
 import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
 import { CreateBoardRequest } from './api/create-board.api'
 import { CreateBoardDto } from './dto/create-board.dto'
+import { UpdateBoardRequest } from './api/update-board.api'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -190,7 +191,7 @@ export class ProjectsController {
     return this.projectsService.createBoard(createBoardDto)
   }
 
-  @ApiOperation({ description: 'Removed board' })
+  @ApiOperation({ description: 'Remove board' })
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Delete('/:projectId/boards/:boardId')
