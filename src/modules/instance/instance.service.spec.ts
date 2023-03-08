@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { DataSource } from 'typeorm'
 import { ConfigModule } from '../../core/config/config.module'
 import { LoggerModule } from '../../core/logger/logger.module'
-import { PasswordsService } from '../auth/passwords.service'
+import { PasswordsService } from '../auth/services/passwords.service'
 import { UsersService } from '../users/users.service'
 import { InstanceService } from './instance.service'
 
