@@ -13,9 +13,9 @@ jobs:
       - name: Deploy
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST_MASTER }}
-          username: ${{ secrets.HOST_MASTER_USER }}
-          key: ${{ secrets.HOST_MASTER_PRIVATE_KEY }}
+          host: ${{ secrets.HOST_DEV }}
+          username: ${{ secrets.HOST_DEV_USER }}
+          key: ${{ secrets.HOST_DEV_PRIVATE_KEY }}
           script_stop: true
           script: |
             cd ~/hoenn-workflow
