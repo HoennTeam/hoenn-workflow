@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { RoleResponse } from 'src/modules/auth/api/role.api'
-import { UserResponse } from 'src/modules/users/api/user.api'
+import { RoleResponse } from '../../../modules/auth/api/role.api'
+import { UserResponse } from '../../../modules/users/api/user.api'
 
 export class ProjectUsersResponse {
   @ApiProperty()

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { ConfigModule } from '../../core/config/config.module'
-import { LoggerModule } from '../../core/logger/logger.module'
+import { ConfigModule } from '../../../core/config/config.module'
+import { LoggerModule } from '../../../core/logger/logger.module'
 import { PasswordsService } from './passwords.service'
 
 describe('PasswordsService', () => {
