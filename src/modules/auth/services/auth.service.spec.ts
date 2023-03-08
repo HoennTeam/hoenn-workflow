@@ -4,6 +4,7 @@ import { ConfigModule } from '../../../core/config/config.module'
 import { LoggerModule } from '../../../core/logger/logger.module'
 import { AuthService } from './auth.service'
 import { PasswordsService } from './passwords.service'
+import { SessionsService } from './sessions.service'
 
 describe('AuthService', () => {
   let service: AuthService
@@ -18,6 +19,7 @@ describe('AuthService', () => {
           useValue: {},
         },
         { provide: PasswordsService, useValue: {} },
+        { provide: SessionsService, useValue: {} },
       ],
     }).compile()
 

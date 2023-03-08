@@ -1,9 +1,9 @@
 import { HttpStatus, Injectable } from '@nestjs/common'
-import { AppException } from 'src/common/exceptions/app.exception'
-import { dotenvConfig } from 'src/core/config/dotenv-config'
-import { Logger } from 'src/core/logger'
-import { Board } from 'src/entities/board'
-import { Project } from 'src/entities/project'
+import { AppException } from '../../common/exceptions/app.exception'
+import { dotenvConfig } from '../../core/config/dotenv-config'
+import { Logger } from '../../core/logger'
+import { Board } from '../../entities/board'
+import { Project } from '../../entities/project'
 import { DataSource } from 'typeorm'
 import {
   UpdateProjectDto,
@@ -18,7 +18,7 @@ import { FullProjectDto } from './dto/full-project.dto'
 import { BoardDto } from './dto/board.dto'
 import { FullBoardDto } from './dto/full-board.dto'
 import { StageDto } from './dto/stage.dto'
-import { Stage } from 'src/entities/stage'
+import { Stage } from '../../entities/stage'
 
 @Injectable()
 export class ProjectsService {
