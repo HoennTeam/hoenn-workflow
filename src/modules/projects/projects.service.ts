@@ -25,7 +25,10 @@ import {
 import { ProjectsUsers } from '../../entities/projects-users'
 import { User } from '../../entities/user'
 import { Role } from '../../entities/role'
-import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
+import {
+  DeleteUserFromProjectDto,
+  ProjectWithCounts,
+} from './dto/delete-user-from-project.dto'
 import { Stage } from '../../entities/stage'
 import { CreateBoardDto } from './dto/create-board.dto'
 
@@ -419,6 +422,67 @@ export class ProjectsService {
       createdAt: created.createdAt.toISOString(),
       updatedAt: created.updatedAt.toISOString(),
     }
+  }
+
+  async removeBoard(projectId: number, boardId: number): Promise<void> {
+    const project = (await this.connection
+      .createQueryBuilder(Project, 'project')
+      .select('project')
+      .addSelect('COUNT(boards.id)', 'boardsCount')
+      .leftJoin('project.boards', 'boards')
+      .where('project.id = :projectId', { projectId })
+      .groupBy('project.id')
+      .getRawOne()) as ProjectWithCounts
+
+    if (!project) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'Project not found', {
+        projectId,
+      })
+    }
+
+    // const boards: BoardDto[] = project.boards.map((board) => ({
+    //   id: board.id,
+    //   name: board.name,
+    //   isDefault: board.isDefault,
+    //   createdAt: board.createdAt.toISOString(),
+    //   updatedAt: board.updatedAt.toISOString(),
+    // }))
+
+    // this.logger.info('boards', boards)
+
+    const board = await this.connection
+      .createQueryBuilder(Board, 'board')
+      .where('board.project = :projectId', { projectId })
+      .andWhere('board.id = :boardId', { boardId })
+      .getOne()
+
+    if (!board) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'Board not found', {
+        boardId,
+      })
+    }
+
+    if (project.boardsCount === 1) {
+      throw new AppException(
+        HttpStatus.BAD_REQUEST,
+        "Project can't have less than one board",
+        { boardsCount: project.boardsCount }
+      )
+    }
+
+    if (board.isDefault) {
+      const boards = await this.getBoards(projectId)
+      for (let index = 0; index < boards.length; index++) {
+        if (!boards[index].isDefault) {
+          const newDefaultBoard = new Board({ id: boards[index].id })
+          newDefaultBoard.isDefault = true
+          await this.connection.getRepository(Board).save(newDefaultBoard)
+          break
+        }
+      }
+    }
+
+    await this.connection.getRepository(Board).softRemove(board)
   }
 
   async getProjectIfExists(id: number): Promise<Project> {

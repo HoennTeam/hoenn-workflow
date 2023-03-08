@@ -189,4 +189,15 @@ export class ProjectsController {
     }
     return this.projectsService.createBoard(createBoardDto)
   }
+
+  @ApiOperation({ description: 'Removed board' })
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Delete('/:projectId/boards/:boardId')
+  public async removeBoard(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('boardId', ParseIntPipe) boardId: number
+  ): Promise<void> {
+    return this.projectsService.removeBoard(projectId, boardId)
+  }
 }
