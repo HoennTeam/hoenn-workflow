@@ -37,6 +37,8 @@ import {
 } from './api/user-to-project.api'
 import { UserToProjectRequestDto } from './dto/user-to-project.dto'
 import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
+import { CreateBoardRequest } from './api/create-board.api'
+import { CreateBoardDto } from './dto/create-board.dto'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -171,5 +173,20 @@ export class ProjectsController {
     return this.projectsService.changeUserRoleInProject(
       changeUserRoleInProjectDto
     )
+  }
+
+  @ApiOperation({ description: 'Create board' })
+  @ApiOkResponse({ type: BoardResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Post('/:projectId/boards')
+  public async createBoardInProject(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Body() createBoardRequest: CreateBoardRequest
+  ): Promise<BoardResponse> {
+    const createBoardDto: CreateBoardDto = {
+      projectId: projectId,
+      name: createBoardRequest.name,
+    }
+    return this.projectsService.createBoard(createBoardDto)
   }
 }

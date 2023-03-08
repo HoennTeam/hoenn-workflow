@@ -27,6 +27,7 @@ import { User } from '../../entities/user'
 import { Role } from '../../entities/role'
 import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
 import { Stage } from '../../entities/stage'
+import { CreateBoardDto } from './dto/create-board.dto'
 
 @Injectable()
 export class ProjectsService {
@@ -127,17 +128,7 @@ export class ProjectsService {
   }
 
   async removeProject(id: number): Promise<void> {
-    const project = await this.connection
-      .createQueryBuilder(Project, 'project')
-      .where('project.id = :id', { id })
-      .getOne()
-
-    if (!project) {
-      throw new AppException(
-        HttpStatus.NOT_FOUND,
-        'Project not found or already removed'
-      )
-    }
+    const project = await this.getProjectIfExists(id)
 
     await this.connection.createEntityManager().softRemove(project)
   }
@@ -146,14 +137,7 @@ export class ProjectsService {
     id: number,
     dto: UpdateProjectRequestDto
   ): Promise<UpdateProjectDto> {
-    const project = await this.connection
-      .createQueryBuilder(Project, 'project')
-      .where('project.id = :id', { id })
-      .getOne()
-
-    if (!project) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'Project not found', { id })
-    }
+    const project = await this.getProjectIfExists(id)
 
     project.name = dto.name ?? project.name
     project.description = dto.description ?? project.description
@@ -170,15 +154,7 @@ export class ProjectsService {
   }
 
   async getBoards(projectId: number): Promise<BoardDto[]> {
-    const projectExists = await this.connection
-      .createEntityManager()
-      .exists(Project, { where: { id: projectId } })
-
-    if (!projectExists) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'Project not found', {
-        projectId,
-      })
-    }
+    await this.getProjectIfExists(projectId)
 
     const boards = await this.connection
       .createQueryBuilder(Board, 'board')
@@ -265,15 +241,7 @@ export class ProjectsService {
   async addUserToProject(
     dto: UserToProjectRequestDto
   ): Promise<UserToProjectResponseDto> {
-    const project = await this.connection
-      .createEntityManager()
-      .findOne(Project, { where: { id: dto.projectId } })
-
-    if (!project) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'Project not found', {
-        id: dto.projectId,
-      })
-    }
+    const project = await this.getProjectIfExists(dto.projectId)
 
     const user = await this.connection
       .createEntityManager()
@@ -364,9 +332,7 @@ export class ProjectsService {
       )
     }
 
-    const removed = await this.connection
-      .createEntityManager()
-      .remove(projectsUsers)
+    await this.connection.createEntityManager().remove(projectsUsers)
   }
 
   async changeUserRoleInProject(
@@ -433,5 +399,39 @@ export class ProjectsService {
         },
       },
     }
+  }
+
+  async createBoard(dto: CreateBoardDto): Promise<BoardDto> {
+    const project = await this.getProjectIfExists(dto.projectId)
+
+    const newBoard = new Board({
+      name: dto.name,
+      isDefault: false,
+      project: project,
+    })
+
+    const created = await this.connection.getRepository(Board).save(newBoard)
+
+    return {
+      id: created.id,
+      name: created.name,
+      isDefault: created.isDefault,
+      createdAt: created.createdAt.toISOString(),
+      updatedAt: created.updatedAt.toISOString(),
+    }
+  }
+
+  async getProjectIfExists(id: number): Promise<Project> {
+    const project = await this.connection
+      .getRepository(Project)
+      .findOne({ where: { id } })
+
+    if (!project) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'Project not found', {
+        id,
+      })
+    }
+
+    return project
   }
 }
