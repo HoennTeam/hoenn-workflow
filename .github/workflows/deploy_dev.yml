@@ -1,0 +1,25 @@
+name: Hoenn Blog master deploy
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST_MASTER }}
+          username: ${{ secrets.HOST_MASTER_USER }}
+          key: ${{ secrets.HOST_MASTER_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            cd ~/hoenn-blog
+            git checkout master
+            git pull -f origin master
+            yarn
+            yarn prebuild
+            yarn build
+            pm2 restart blog
