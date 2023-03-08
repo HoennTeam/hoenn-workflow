@@ -9,7 +9,7 @@ import {
 import { ExceptionResponse } from '../../common/response/exception-response'
 import {
   CreateInstanceRequest,
-  createInstanceResponse,
+  CreateInstanceResponse,
 } from './api/create-instance.api'
 import { InstanceResponse } from './api/instance.api'
 import { InstanceService } from './instance.service'
@@ -33,7 +33,7 @@ export class InstanceController {
   @Post()
   public async createInstance(
     @Body() createInstanceRequest: CreateInstanceRequest
-  ): Promise<createInstanceResponse> {
+  ): Promise<CreateInstanceResponse> {
     return this.instanceService.createInstance(createInstanceRequest)
   }
 }

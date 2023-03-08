@@ -18,7 +18,7 @@ export class CreateInstanceRequest {
   public readonly administratorEmail: string
 }
 
-export class createInstanceResponse {
+export class CreateInstanceResponse {
   @ApiProperty()
   public readonly instance: InstanceResponse
 
