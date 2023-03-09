@@ -40,6 +40,7 @@ import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
 import { CreateBoardRequest } from './api/create-board.api'
 import { CreateBoardDto } from './dto/create-board.dto'
 import { UpdateBoardRequest } from './api/update-board.api'
+import { UpdateBoardDto } from './dto/update-board.dto'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -200,5 +201,23 @@ export class ProjectsController {
     @Param('boardId', ParseIntPipe) boardId: number
   ): Promise<void> {
     return this.projectsService.removeBoard(projectId, boardId)
+  }
+
+  @ApiOperation({ description: 'Update board' })
+  @ApiOkResponse({ type: BoardResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Patch('/:projectId/boards/:boardId')
+  public async updateBoard(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Body() updateBoard: UpdateBoardRequest
+  ): Promise<BoardResponse> {
+    const updateBoardDto: UpdateBoardDto = {
+      boardId,
+      projectId,
+      isDefault: updateBoard.isDefault,
+      name: updateBoard.name,
+    }
+    return this.projectsService.updateBoard(updateBoardDto)
   }
 }

@@ -28,6 +28,7 @@ import { Role } from '../../entities/role'
 import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
 import { Stage } from '../../entities/stage'
 import { CreateBoardDto } from './dto/create-board.dto'
+import { UpdateBoardDto } from './dto/update-board.dto'
 
 @Injectable()
 export class ProjectsService {
@@ -444,6 +445,56 @@ export class ProjectsService {
     }
 
     await this.connection.getRepository(Board).softRemove(board)
+  }
+
+  async updateBoard(dto: UpdateBoardDto): Promise<BoardDto> {
+    const project = await this.getProjectIfExists(dto.projectId)
+
+    const board = await this.connection
+      .createQueryBuilder(Board, 'board')
+      .where('board.project = :projectId', { projectId: dto.projectId })
+      .andWhere('board.id = :boardId', { boardId: dto.boardId })
+      .getOne()
+
+    if (!board) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'Board not found', {
+        id: dto.boardId,
+      })
+    }
+
+    if (dto.isDefault !== undefined) {
+      if (!dto.isDefault) {
+        throw new AppException(
+          HttpStatus.BAD_REQUEST,
+          "You can't make the default false",
+          { isDefault: dto.isDefault }
+        )
+      }
+      const defaultBoard = await this.connection
+        .createQueryBuilder(Board, 'board')
+        .where('board.isDefault = true')
+        .andWhere('board.project = :projectId', { projectId: dto.projectId })
+        .getOneOrFail()
+
+      this.logger.info('default board', { defaultBoard })
+
+      defaultBoard.isDefault = false
+
+      await this.connection.getRepository(Board).save(defaultBoard)
+    }
+
+    board.name = dto.name ?? board.name
+    board.isDefault = dto.isDefault ?? board.isDefault
+
+    const updated = await this.connection.getRepository(Board).save(board)
+
+    return {
+      id: updated.id,
+      name: updated.name,
+      isDefault: updated.isDefault,
+      createdAt: updated.createdAt.toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
   }
 
   async getProjectIfExists(id: number): Promise<Project> {
