@@ -37,6 +37,8 @@ import {
 } from './api/user-to-project.api'
 import { UserToProjectRequestDto } from './dto/user-to-project.dto'
 import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
+import { CreateStageRequest } from './api/create-stage.api'
+import { CreateStageDto } from './dto/create-stage.dto'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -171,5 +173,22 @@ export class ProjectsController {
     return this.projectsService.changeUserRoleInProject(
       changeUserRoleInProjectDto
     )
+  }
+
+  @ApiOperation({ description: 'Create stage' })
+  @ApiOkResponse({ type: StageResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Post(':projectId/boards/:boardId/stages')
+  public async createStage(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Body() createStage: CreateStageRequest
+  ): Promise<StageResponse> {
+    const dto: CreateStageDto = {
+      projectId,
+      boardId,
+      name: createStage.name,
+    }
+    return this.projectsService.createStage(dto)
   }
 }

@@ -27,6 +27,7 @@ import { User } from '../../entities/user'
 import { Role } from '../../entities/role'
 import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
 import { Stage } from '../../entities/stage'
+import { CreateStageDto } from './dto/create-stage.dto'
 
 @Injectable()
 export class ProjectsService {
@@ -432,6 +433,34 @@ export class ProjectsService {
           updatedAt: projectsUsers.role.updatedAt.toISOString(),
         },
       },
+    }
+  }
+
+  async createStage(dto: CreateStageDto): Promise<StageDto> {
+    const board = await this.connection
+      .createQueryBuilder(Board, 'board')
+      .where('board.project = :projectId', { projectId: dto.projectId })
+      .andWhere('board.id = :boardId', { boardId: dto.boardId })
+      .getOne()
+
+    if (!board) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'Board not found', {
+        id: dto.boardId,
+      })
+    }
+
+    const newStage = new Stage({
+      name: dto.name,
+      board: board,
+    })
+
+    const created = await this.connection.getRepository(Stage).save(newStage)
+
+    return {
+      id: created.id,
+      name: created.name,
+      createdAt: created.createdAt.toISOString(),
+      updatedAt: created.updatedAt.toISOString(),
     }
   }
 }
