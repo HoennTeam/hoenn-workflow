@@ -40,6 +40,8 @@ import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
 import { CreateStageRequest } from './api/create-stage.api'
 import { CreateStageDto } from './dto/create-stage.dto'
 import { RemoveStageDto } from './dto/delete-stage.dto'
+import { UpdateStageDto } from './dto/update-stage.dto'
+import { UpdateStageRequest } from './api/update-stage.api'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -208,5 +210,24 @@ export class ProjectsController {
       stageId,
     }
     return this.projectsService.removeStage(dto)
+  }
+
+  @ApiOperation({ description: 'Update stage' })
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Patch(':projectId/boards/:boardId/stages/:stageId')
+  public async updateStage(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Param('stageId', ParseIntPipe) stageId: number,
+    @Body() updateStage: UpdateStageRequest
+  ): Promise<StageResponse> {
+    const dto: UpdateStageDto = {
+      projectId,
+      boardId,
+      stageId,
+      name: updateStage.name,
+    }
+    return this.projectsService.updateStage(dto)
   }
 }
