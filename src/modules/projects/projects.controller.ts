@@ -39,6 +39,7 @@ import { UserToProjectRequestDto } from './dto/user-to-project.dto'
 import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
 import { CreateStageRequest } from './api/create-stage.api'
 import { CreateStageDto } from './dto/create-stage.dto'
+import { RemoveStageDto } from './dto/delete-stage.dto'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -190,5 +191,22 @@ export class ProjectsController {
       name: createStage.name,
     }
     return this.projectsService.createStage(dto)
+  }
+
+  @ApiOperation({ description: 'Remove stage' })
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Delete(':projectId/boards/:boardId/stages/:stageId')
+  public async removeStage(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Param('stageId', ParseIntPipe) stageId: number
+  ): Promise<void> {
+    const dto: RemoveStageDto = {
+      projectId,
+      boardId,
+      stageId,
+    }
+    return this.projectsService.removeStage(dto)
   }
 }

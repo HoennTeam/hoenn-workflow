@@ -28,6 +28,7 @@ import { Role } from '../../entities/role'
 import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
 import { Stage } from '../../entities/stage'
 import { CreateStageDto } from './dto/create-stage.dto'
+import { RemoveStageDto } from './dto/delete-stage.dto'
 
 @Injectable()
 export class ProjectsService {
@@ -462,5 +463,39 @@ export class ProjectsService {
       createdAt: created.createdAt.toISOString(),
       updatedAt: created.updatedAt.toISOString(),
     }
+  }
+
+  async removeStage(dto: RemoveStageDto): Promise<void> {
+    const board = await this.getBoardIfExists(dto.projectId, dto.boardId)
+
+    const stage = await this.connection
+      .createQueryBuilder(Stage, 'stage')
+      .where('stage.id = :stageId', { stageId: dto.stageId })
+      .getOne()
+
+    if (!stage) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'Stage not found', {
+        id: dto.stageId,
+      })
+    }
+
+    await this.connection.getRepository(Stage).softRemove(stage)
+  }
+
+  async getBoardIfExists(projectId: number, boardId: number): Promise<Board> {
+    const board = await this.connection
+      .createQueryBuilder(Board, 'board')
+      .innerJoin('board.project', 'project')
+      .where('board.project = :projectId', { projectId })
+      .andWhere('board.id = :boardId', { boardId })
+      .getOne()
+
+    if (!board) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'Board not found', {
+        boardId,
+      })
+    }
+
+    return board
   }
 }
