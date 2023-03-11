@@ -439,17 +439,7 @@ export class ProjectsService {
   }
 
   async createStage(dto: CreateStageDto): Promise<StageDto> {
-    const board = await this.connection
-      .createQueryBuilder(Board, 'board')
-      .where('board.project = :projectId', { projectId: dto.projectId })
-      .andWhere('board.id = :boardId', { boardId: dto.boardId })
-      .getOne()
-
-    if (!board) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'Board not found', {
-        id: dto.boardId,
-      })
-    }
+    const board = await this.getBoardIfExists(dto.projectId, dto.boardId)
 
     const newStage = new Stage({
       name: dto.name,
@@ -467,7 +457,7 @@ export class ProjectsService {
   }
 
   async removeStage(dto: RemoveStageDto): Promise<void> {
-    const board = await this.getBoardIfExists(dto.projectId, dto.boardId)
+    await this.getBoardIfExists(dto.projectId, dto.boardId)
 
     const stage = await this.connection
       .createQueryBuilder(Stage, 'stage')
@@ -497,7 +487,9 @@ export class ProjectsService {
       })
     }
 
-    stage.name = dto.name ?? stage.name
+    if (dto.name) {
+      stage.name = dto.name
+    }
 
     const updated = await this.connection.getRepository(Stage).save(stage)
 
@@ -505,7 +497,7 @@ export class ProjectsService {
       id: updated.id,
       name: updated.name,
       createdAt: updated.createdAt.toISOString(),
-      updatedAt: updated.updatedAt.toISOString(),
+      updatedAt: new Date().toISOString(),
     }
   }
 

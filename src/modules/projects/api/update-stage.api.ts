@@ -6,5 +6,5 @@ export class UpdateStageRequest {
   @IsString()
   @IsOptional()
   @MinLength(1)
-  public readonly name: string
+  public readonly name?: string
 }
