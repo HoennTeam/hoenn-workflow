@@ -423,8 +423,6 @@ export class ProjectsService {
   }
 
   async removeBoard(projectId: number, boardId: number): Promise<void> {
-    await this.getProjectIfExists(projectId)
-
     const board = await this.connection
       .createQueryBuilder(Board, 'board')
       .where('board.project = :projectId', { projectId })
@@ -448,8 +446,6 @@ export class ProjectsService {
   }
 
   async updateBoard(dto: UpdateBoardDto): Promise<BoardDto> {
-    const project = await this.getProjectIfExists(dto.projectId)
-
     const board = await this.connection
       .createQueryBuilder(Board, 'board')
       .where('board.project = :projectId', { projectId: dto.projectId })
@@ -463,24 +459,13 @@ export class ProjectsService {
     }
 
     if (dto.isDefault !== undefined) {
-      if (!dto.isDefault) {
-        throw new AppException(
-          HttpStatus.BAD_REQUEST,
-          "You can't make the default false",
-          { isDefault: dto.isDefault }
-        )
-      }
-      const defaultBoard = await this.connection
+      await this.connection
         .createQueryBuilder(Board, 'board')
-        .where('board.isDefault = true')
-        .andWhere('board.project = :projectId', { projectId: dto.projectId })
-        .getOneOrFail()
-
-      this.logger.info('default board', { defaultBoard })
-
-      defaultBoard.isDefault = false
-
-      await this.connection.getRepository(Board).save(defaultBoard)
+        .innerJoin('board.project', 'project')
+        .update(Board)
+        .set({ isDefault: false })
+        .where('project.id = :projectId', { projectId: dto.projectId })
+        .execute()
     }
 
     board.name = dto.name ?? board.name
