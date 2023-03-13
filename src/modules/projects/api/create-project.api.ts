@@ -20,7 +20,7 @@ export class CreateProjectRequest {
   public readonly description: string
 }
 
-export class CreateBoardResponse {
+class CreateBoardResponse {
   @ApiProperty()
   public readonly id: number
 

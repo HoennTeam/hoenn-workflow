@@ -3,6 +3,11 @@ import { DataSourceOptions } from 'typeorm'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { Config } from '../config'
 import { dotenvConfig } from '../config/dotenv-config'
+const types = require('pg').types
+
+types.setTypeParser(types.builtins.INT8, (value: string) => {
+  return parseInt(value)
+})
 
 const config: Config = dotenvConfig
 
