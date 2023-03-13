@@ -457,35 +457,21 @@ export class ProjectsService {
   }
 
   async removeStage(dto: RemoveStageDto): Promise<void> {
-    await this.getBoardIfExists(dto.projectId, dto.boardId)
-
-    const stage = await this.connection
-      .createQueryBuilder(Stage, 'stage')
-      .where('stage.id = :stageId', { stageId: dto.stageId })
-      .getOne()
-
-    if (!stage) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'Stage not found', {
-        id: dto.stageId,
-      })
-    }
+    const stage = await this.getStageIfExists(
+      dto.projectId,
+      dto.boardId,
+      dto.stageId
+    )
 
     await this.connection.getRepository(Stage).softRemove(stage)
   }
 
   async updateStage(dto: UpdateStageDto): Promise<StageDto> {
-    await this.getBoardIfExists(dto.projectId, dto.boardId)
-
-    const stage = await this.connection
-      .createQueryBuilder(Stage, 'stage')
-      .where('stage.id = :stageId', { stageId: dto.stageId })
-      .getOne()
-
-    if (!stage) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'Stage not found', {
-        id: dto.stageId,
-      })
-    }
+    const stage = await this.getStageIfExists(
+      dto.projectId,
+      dto.boardId,
+      dto.stageId
+    )
 
     if (dto.name) {
       stage.name = dto.name
@@ -516,5 +502,28 @@ export class ProjectsService {
     }
 
     return board
+  }
+
+  async getStageIfExists(
+    projectId: number,
+    boardId: number,
+    stageId: number
+  ): Promise<Stage> {
+    const stage = await this.connection
+      .createQueryBuilder(Stage, 'stage')
+      .innerJoin('stage.board', 'board')
+      .innerJoin('board.project', 'project')
+      .where('project.id = :projectId', { projectId })
+      .andWhere('board.id = :boardId', { boardId })
+      .andWhere('stage.id = :stageId', { stageId })
+      .getOne()
+
+    if (!stage) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'Stage not found', {
+        id: stageId,
+      })
+    }
+
+    return stage
   }
 }
