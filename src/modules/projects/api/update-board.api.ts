@@ -1,6 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Transform } from 'class-transformer'
-import { IsBoolean, IsOptional, IsString, MinLength } from 'class-validator'
+import {
+  Equals,
+  IsBoolean,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator'
 
 export class UpdateBoardRequest {
   @ApiProperty()
@@ -11,7 +16,7 @@ export class UpdateBoardRequest {
 
   @ApiProperty()
   @IsBoolean()
-  @Transform(({ value }) => value === true || undefined)
+  @Equals(true)
   @IsOptional()
   public readonly isDefault?: boolean
 }

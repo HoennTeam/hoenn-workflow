@@ -458,7 +458,7 @@ export class ProjectsService {
       })
     }
 
-    if (dto.isDefault !== undefined) {
+    if (dto.isDefault) {
       await this.connection
         .createQueryBuilder(Board, 'board')
         .innerJoin('board.project', 'project')
@@ -468,8 +468,10 @@ export class ProjectsService {
         .execute()
     }
 
-    board.name = dto.name ?? board.name
-    board.isDefault = dto.isDefault ?? board.isDefault
+    Object.assign(board, {
+      name: dto.name,
+      isDefault: dto.isDefault || board.isDefault,
+    })
 
     const updated = await this.connection.getRepository(Board).save(board)
 
