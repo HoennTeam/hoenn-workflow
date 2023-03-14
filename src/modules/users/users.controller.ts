@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
 } from '@nestjs/common'
 import {
@@ -13,9 +14,12 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger'
 import { ExceptionResponse } from '../../common/response/exception-response'
 import { CreateUserRequest, CreateUserResponse } from './api/create-user.api'
+import { FullUserResponse } from './api/full-user.api'
+import { UpdateUserRequest } from './api/update-user.api'
 import { UserResponse } from './api/user.api'
 import { UsersService } from './users.service'
 
@@ -58,5 +62,19 @@ export class UsersController {
   @Delete('/:username')
   public async removeUser(@Param('username') username: string): Promise<void> {
     return this.usersService.removeUser(username)
+  }
+
+  @ApiOperation({ description: 'Update user' })
+  @ApiOkResponse({ type: FullUserResponse })
+  @ApiUnauthorizedResponse({ type: ExceptionResponse })
+  @Patch('/:username')
+  public async updateProfile(
+    @Param('username') username: string,
+    @Body() dto: UpdateUserRequest
+  ): Promise<FullUserResponse> {
+    return this.usersService.updateProfile({
+      username,
+      ...dto,
+    })
   }
 }
