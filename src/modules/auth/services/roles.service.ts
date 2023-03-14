@@ -13,7 +13,12 @@ export class RolesService {
   constructor(private readonly connection: DataSource) {}
 
   public async getRoles(): Promise<RoleDto[]> {
-    const roles = await this.connection.getRepository(Role).find()
+    const roles = await this.connection.getRepository(Role).find({
+      order: {
+        isGlobal: 'DESC',
+        name: 'ASC',
+      },
+    })
 
     return roles.map((r) => ({
       id: r.id,
