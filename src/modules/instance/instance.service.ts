@@ -93,16 +93,31 @@ export class InstanceService {
       )
     }
 
-    Object.assign(instance, {
-      name: dto.name || instance.name,
-      administratorEmail: dto.administratorEmail || instance.administratorEmail,
-    })
+    this.logger.info('Instance before update', { instance })
+
+    if (dto.name) {
+      instance.name = dto.name
+    }
+
+    if (dto.administratorEmail) {
+      instance.administratorEmail = dto.administratorEmail
+    }
+
+    this.logger.info('Instance after update', { instance })
+
+    await this.connection.getRepository(Instance).save(
+      new Instance({
+        id: instance.id,
+        name: dto.name,
+        administratorEmail: dto.administratorEmail,
+      })
+    )
 
     return {
       name: instance.name,
       administratorEmail: instance.administratorEmail,
       createdAt: instance.createdAt.toISOString(),
-      updatedAt: instance.updatedAt.toISOString(),
+      updatedAt: new Date().toISOString(),
     }
   }
 }

@@ -1,15 +1,15 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsOptional, IsString, MinLength } from 'class-validator'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator'
 
 export class UpdateInstanceRequest {
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
   @MinLength(1)
   @IsOptional()
   public readonly name?: string
 
-  @ApiProperty()
-  @IsString()
+  @ApiPropertyOptional()
+  @IsEmail()
   @MinLength(1)
   @IsOptional()
   public readonly administratorEmail?: string
