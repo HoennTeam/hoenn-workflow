@@ -117,6 +117,7 @@ export class RolesService {
         .createQueryBuilder(Permission, 'permission')
         .select('permission.*')
         .addSelect('enabled.id IS NOT NULL', 'enabled')
+        .leftJoin(Role, 'role', 'TRUE')
         .leftJoin(
           (qb) =>
             qb
@@ -128,7 +129,10 @@ export class RolesService {
           'enabled',
           'enabled.id = permission.id'
         )
-        .orderBy('enabled', 'DESC')
+        .where('role.id = :roleId', { roleId })
+        .andWhere('permission.isGlobal = role.isGlobal')
+        .orderBy('permission.group', 'ASC')
+        .addOrderBy('permission.operation', 'ASC')
         .getRawMany()
 
     return permissions.map((p) => ({
