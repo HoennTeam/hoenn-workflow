@@ -45,9 +45,9 @@ import { Logger } from './core/logger'
       imports: [ConfigModule, LoggerModule],
       inject: [Config, Logger],
     }),
+    AuthModule,
     InstanceModule,
     ProjectsModule,
-    AuthModule,
     UsersModule,
   ],
 })

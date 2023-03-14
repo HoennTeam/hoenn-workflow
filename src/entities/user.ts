@@ -22,14 +22,21 @@ export class User {
 
   @Column({ unique: true })
   username: string
+
   @Column()
   password: string
+
+  @Column({
+    default: '',
+  })
+  bio: string
 
   @Column({ default: true })
   requiredPasswordChange: boolean
 
   @Column()
   fullName: string
+
   @Column({ unique: true })
   email: string
 
@@ -44,8 +51,10 @@ export class User {
 
   @CreateDateColumn()
   createdAt: Date
+
   @UpdateDateColumn()
   updatedAt: Date
+
   @DeleteDateColumn({ nullable: true })
   deletedAt?: Date
 }

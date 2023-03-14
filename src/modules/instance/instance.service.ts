@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { HttpStatus, Inject, Injectable, forwardRef } from '@nestjs/common'
 import { DataSource } from 'typeorm'
 import { AppException } from '../../common/exceptions/app.exception'
 import { Config } from '../../core/config'
@@ -18,6 +18,7 @@ export class InstanceService {
     private readonly logger: Logger,
     private readonly config: Config,
     private readonly connection: DataSource,
+    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService
   ) {}
 

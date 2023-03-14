@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Post,
+  forwardRef,
+  Param,
+  Patch,
+} from '@nestjs/common'
 import {
   ApiOkResponse,
   ApiOperation,
@@ -15,11 +24,18 @@ import { MeResponse } from '../api/me.api'
 import { SignInRequest } from '../api/sign-in.dto'
 import { TokenResponse } from '../api/token.api'
 import { AuthService } from '../services/auth.service'
+import { UsersService } from '../../users/users.service'
+import { FullUserResponse } from '../../users/api/full-user.api'
+import { UpdateUserRequest } from '../../users/api/update-user.api'
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @Inject(forwardRef(() => UsersService))
+    private readonly usersService: UsersService
+  ) {}
 
   @Post('sign-in')
   @ApiOperation({ description: 'Sign In' })
@@ -53,5 +69,31 @@ export class AuthController {
   @Authorize({})
   public async getMe(@Payload() payload: AuthPayload): Promise<MeResponse> {
     return this.authService.getMe(payload)
+  }
+
+  @ApiOperation({ description: 'Get profile' })
+  @ApiOkResponse({ type: FullUserResponse })
+  @ApiUnauthorizedResponse({ type: ExceptionResponse })
+  @Authorize({})
+  @Get('/profile')
+  public async getFullProfile(
+    @Payload() payload: AuthPayload
+  ): Promise<FullUserResponse> {
+    return this.usersService.getFullUser(payload.username)
+  }
+
+  @ApiOperation({ description: 'Update profile' })
+  @ApiOkResponse({ type: FullUserResponse })
+  @ApiUnauthorizedResponse({ type: ExceptionResponse })
+  @Authorize({})
+  @Patch('/profile')
+  public async updateProfile(
+    @Payload() payload: AuthPayload,
+    @Body() dto: UpdateUserRequest
+  ): Promise<FullUserResponse> {
+    return this.usersService.updateUser({
+      username: payload.username,
+      ...dto,
+    })
   }
 }

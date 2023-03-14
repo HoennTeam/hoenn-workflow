@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { randomBytes } from 'crypto'
 import { DataSource } from 'typeorm'
 import { AppException } from '../../common/exceptions/app.exception'
@@ -8,6 +8,9 @@ import { Role } from '../../entities/role'
 import { User } from '../../entities/user'
 import { PasswordsService } from '../auth/services/passwords.service'
 import { CreateUserDto, CreateUserOutDto } from './dto/create-user.dto'
+import { FullUserDto } from './dto/full-user.dto'
+import { UpdateUserDto } from './dto/update-user.dto'
+import { UserDto } from './dto/user.dto'
 
 @Injectable()
 export class UsersService {
@@ -95,5 +98,73 @@ export class UsersService {
 
   private generateRandomPassword(): string {
     return randomBytes(this.config.users.passwordMinLength).toString('hex')
+  }
+
+  async getUsers(): Promise<UserDto[]> {
+    const users = await this.connection
+      .createQueryBuilder(User, 'user')
+      .getMany()
+
+    return users.map((user) => ({
+      email: user.email,
+      fullName: user.fullName,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    }))
+  }
+
+  async removeUser(username: string): Promise<void> {
+    const user = await this.getUserIfExists(username)
+
+    await this.connection.getRepository(User).softRemove(user)
+  }
+
+  async getFullUser(username: string): Promise<FullUserDto> {
+    const user = await this.getUserIfExists(username)
+
+    return {
+      username: user.username,
+      fullName: user.fullName,
+      email: user.email,
+      bio: user.bio,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    }
+  }
+
+  private async getUserIfExists(username: string): Promise<User> {
+    const user = await this.connection
+      .createQueryBuilder(User, 'user')
+      .where('user.username = :username', { username })
+      .getOne()
+
+    if (!user) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'User not found', {
+        username,
+      })
+    }
+
+    return user
+  }
+
+  async updateUser(dto: UpdateUserDto): Promise<FullUserDto> {
+    const user = await this.getUserIfExists(dto.username)
+
+    Object.assign(user, {
+      bio: dto.bio ?? user.bio,
+      fullName: dto.fullName ?? user.fullName,
+      email: dto.email ?? user.email,
+    })
+
+    await this.connection.getRepository(User).save(user)
+
+    return {
+      username: user.username,
+      fullName: user.fullName,
+      email: user.email,
+      bio: user.bio,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
   }
 }
