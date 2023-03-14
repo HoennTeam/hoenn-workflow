@@ -93,21 +93,12 @@ export class InstanceService {
       )
     }
 
-    if (dto.name) {
-      instance.name = dto.name
-    }
+    Object.assign(instance, {
+      name: dto.name ?? instance.name,
+      administratorEmail: dto.administratorEmail ?? instance.administratorEmail,
+    })
 
-    if (dto.administratorEmail) {
-      instance.administratorEmail = dto.administratorEmail
-    }
-
-    await this.connection.getRepository(Instance).save(
-      new Instance({
-        id: instance.id,
-        name: dto.name,
-        administratorEmail: dto.administratorEmail,
-      })
-    )
+    await this.connection.getRepository(Instance).save(instance)
 
     return {
       name: instance.name,
