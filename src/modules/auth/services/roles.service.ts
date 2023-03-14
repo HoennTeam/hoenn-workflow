@@ -20,6 +20,7 @@ export class RolesService {
       name: r.name,
       description: r.description,
       isGlobal: r.isGlobal,
+      isImmutable: r.isImmutable,
       createdAt: r.createdAt.toISOString(),
       updatedAt: r.updatedAt.toISOString(),
     }))
@@ -43,6 +44,7 @@ export class RolesService {
       name: role.name,
       description: role.description,
       isGlobal: role.isGlobal,
+      isImmutable: role.isImmutable,
       createdAt: role.createdAt.toISOString(),
       updatedAt: role.updatedAt.toISOString(),
     }
@@ -62,6 +64,7 @@ export class RolesService {
       name: role.name,
       description: role.description,
       isGlobal: role.isGlobal,
+      isImmutable: role.isImmutable,
       createdAt: role.createdAt.toISOString(),
       updatedAt: role.updatedAt.toISOString(),
     }
@@ -80,6 +83,10 @@ export class RolesService {
       })
     }
 
+    if (role.isImmutable) {
+      throw new AppException(HttpStatus.BAD_REQUEST, 'This role is immutable')
+    }
+
     role.name = dto.name ?? role.name
     role.description = dto.description ?? role.description
 
@@ -90,6 +97,7 @@ export class RolesService {
       name: role.name,
       description: role.description,
       isGlobal: role.isGlobal,
+      isImmutable: role.isImmutable,
       createdAt: role.createdAt.toISOString(),
       updatedAt: role.updatedAt.toISOString(),
     }
@@ -106,6 +114,10 @@ export class RolesService {
       throw new AppException(HttpStatus.NOT_FOUND, 'Role not found', {
         id: roleId,
       })
+    }
+
+    if (role.isImmutable) {
+      throw new AppException(HttpStatus.BAD_REQUEST, 'This role is immutable')
     }
 
     await this.connection.getRepository(Role).softRemove(role)
@@ -160,6 +172,10 @@ export class RolesService {
       })
     }
 
+    if (role.isImmutable) {
+      throw new AppException(HttpStatus.BAD_REQUEST, 'This role is immutable')
+    }
+
     const permissions = await this.connection.getRepository(Permission).find({
       where: {
         name: In(permissionsNames),
@@ -185,6 +201,10 @@ export class RolesService {
       throw new AppException(HttpStatus.NOT_FOUND, 'Role not found', {
         id: roleId,
       })
+    }
+
+    if (role.isImmutable) {
+      throw new AppException(HttpStatus.BAD_REQUEST, 'This role is immutable')
     }
 
     role.permissions = role.permissions.filter(

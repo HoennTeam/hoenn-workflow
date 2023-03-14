@@ -30,6 +30,9 @@ export class Role {
   @Column()
   description: string
 
+  @Column({ default: false })
+  isImmutable: boolean
+
   @ManyToMany(() => Permission, (permission) => permission.roles)
   @JoinTable({ name: 'roles_permissions' })
   permissions: Permission[]

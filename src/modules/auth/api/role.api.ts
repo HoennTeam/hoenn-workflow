@@ -14,6 +14,9 @@ export class RoleResponse {
   public readonly isGlobal: boolean
 
   @ApiProperty()
+  public readonly isImmutable: boolean
+
+  @ApiProperty()
   public readonly createdAt: string
 
   @ApiProperty()
