@@ -37,6 +37,11 @@ import {
 } from './api/user-to-project.api'
 import { UserToProjectRequestDto } from './dto/user-to-project.dto'
 import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
+import { CreateStageRequest } from './api/create-stage.api'
+import { CreateStageDto } from './dto/create-stage.dto'
+import { RemoveStageDto } from './dto/delete-stage.dto'
+import { UpdateStageDto } from './dto/update-stage.dto'
+import { UpdateStageRequest } from './api/update-stage.api'
 import { CreateBoardRequest } from './api/create-board.api'
 import { CreateBoardDto } from './dto/create-board.dto'
 import { UpdateBoardRequest } from './api/update-board.api'
@@ -175,6 +180,59 @@ export class ProjectsController {
     return this.projectsService.changeUserRoleInProject(
       changeUserRoleInProjectDto
     )
+  }
+
+  @ApiOperation({ description: 'Create stage' })
+  @ApiOkResponse({ type: StageResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Post(':projectId/boards/:boardId/stages')
+  public async createStage(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Body() createStage: CreateStageRequest
+  ): Promise<StageResponse> {
+    const dto: CreateStageDto = {
+      projectId,
+      boardId,
+      name: createStage.name,
+    }
+    return this.projectsService.createStage(dto)
+  }
+
+  @ApiOperation({ description: 'Remove stage' })
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Delete(':projectId/boards/:boardId/stages/:stageId')
+  public async removeStage(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Param('stageId', ParseIntPipe) stageId: number
+  ): Promise<void> {
+    const dto: RemoveStageDto = {
+      projectId,
+      boardId,
+      stageId,
+    }
+    return this.projectsService.removeStage(dto)
+  }
+
+  @ApiOperation({ description: 'Update stage' })
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Patch(':projectId/boards/:boardId/stages/:stageId')
+  public async updateStage(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Param('stageId', ParseIntPipe) stageId: number,
+    @Body() updateStage: UpdateStageRequest
+  ): Promise<StageResponse> {
+    const dto: UpdateStageDto = {
+      projectId,
+      boardId,
+      stageId,
+      name: updateStage.name,
+    }
+    return this.projectsService.updateStage(dto)
   }
 
   @ApiOperation({ description: 'Create board' })
