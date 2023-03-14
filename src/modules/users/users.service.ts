@@ -9,6 +9,7 @@ import { User } from '../../entities/user'
 import { PasswordsService } from '../auth/services/passwords.service'
 import { CreateUserDto, CreateUserOutDto } from './dto/create-user.dto'
 import { FullUserDto } from './dto/full-user.dto'
+import { UpdateUserDto } from './dto/update-user.dto'
 import { UserDto } from './dto/user.dto'
 
 @Injectable()
@@ -129,7 +130,7 @@ export class UsersService {
     await this.connection.getRepository(User).softRemove(user)
   }
 
-  public async getProfile(username: string): Promise<FullUserDto> {
+  async getProfile(username: string): Promise<FullUserDto> {
     const user = await this.getUserIfExists(username)
 
     return {
@@ -154,5 +155,25 @@ export class UsersService {
     }
 
     return user
+  }
+
+  async updateProfile(dto: UpdateUserDto): Promise<FullUserDto> {
+    const user = await this.getUserIfExists(dto.username)
+
+    Object.assign(user, {
+      bio: dto.bio ?? user.bio,
+      fullName: dto.fullName ?? user.fullName,
+      email: dto.email ?? user.email,
+    })
+
+    await this.connection.getRepository(User).save(user)
+
+    return {
+      fullName: user.fullName,
+      email: user.email,
+      bio: user.bio,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
   }
 }

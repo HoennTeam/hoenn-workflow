@@ -6,6 +6,7 @@ import {
   Post,
   forwardRef,
   Param,
+  Patch,
 } from '@nestjs/common'
 import {
   ApiOkResponse,
@@ -25,6 +26,7 @@ import { TokenResponse } from '../api/token.api'
 import { AuthService } from '../services/auth.service'
 import { UsersService } from '../../users/users.service'
 import { FullUserResponse } from '../../users/api/full-user.api'
+import { UpdateUserRequest } from '../../users/api/update-user.api'
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -77,5 +79,16 @@ export class AuthController {
     @Param('username') username: string
   ): Promise<FullUserResponse> {
     return this.usersService.getProfile(username)
+  }
+
+  @ApiOperation({ description: 'Update profile' })
+  @ApiOkResponse({ type: FullUserResponse })
+  @ApiUnauthorizedResponse({ type: ExceptionResponse })
+  @Patch('/profile/:username')
+  public async updateProfile(
+    @Param('username') username: string,
+    @Body() dto: UpdateUserRequest
+  ): Promise<FullUserResponse> {
+    return this.usersService.updateProfile({ username, ...dto })
   }
 }
