@@ -6,17 +6,16 @@ export class UpdateUserRequest {
   @IsString()
   @IsOptional()
   @MinLength(1)
-  public readonly fullName: string
-  s
+  public readonly fullName?: string
 
   @ApiPropertyOptional()
   @IsEmail()
   @IsOptional()
   @MinLength(1)
-  public readonly email: string
+  public readonly email?: string
 
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  public readonly bio: string
+  public readonly bio?: string
 }

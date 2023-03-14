@@ -72,7 +72,7 @@ export class UsersController {
     @Param('username') username: string,
     @Body() dto: UpdateUserRequest
   ): Promise<FullUserResponse> {
-    return this.usersService.updateProfile({
+    return this.usersService.updateUser({
       username,
       ...dto,
     })

@@ -72,14 +72,14 @@ export class AuthController {
   }
 
   @ApiOperation({ description: 'Get profile' })
-  @ApiOkResponse({ type: MeResponse })
+  @ApiOkResponse({ type: FullUserResponse })
   @ApiUnauthorizedResponse({ type: ExceptionResponse })
   @Authorize({})
   @Get('/profile')
   public async getFullProfile(
     @Payload() payload: AuthPayload
   ): Promise<FullUserResponse> {
-    return this.usersService.getProfile(payload.username)
+    return this.usersService.getFullUser(payload.username)
   }
 
   @ApiOperation({ description: 'Update profile' })
@@ -91,7 +91,7 @@ export class AuthController {
     @Payload() payload: AuthPayload,
     @Body() dto: UpdateUserRequest
   ): Promise<FullUserResponse> {
-    return this.usersService.updateProfile({
+    return this.usersService.updateUser({
       username: payload.username,
       ...dto,
     })

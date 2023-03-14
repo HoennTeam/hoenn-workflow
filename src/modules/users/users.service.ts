@@ -130,7 +130,7 @@ export class UsersService {
     await this.connection.getRepository(User).softRemove(user)
   }
 
-  async getProfile(username: string): Promise<FullUserDto> {
+  async getFullUser(username: string): Promise<FullUserDto> {
     const user = await this.getUserIfExists(username)
 
     return {
@@ -157,7 +157,7 @@ export class UsersService {
     return user
   }
 
-  async updateProfile(dto: UpdateUserDto): Promise<FullUserDto> {
+  async updateUser(dto: UpdateUserDto): Promise<FullUserDto> {
     const user = await this.getUserIfExists(dto.username)
 
     Object.assign(user, {
