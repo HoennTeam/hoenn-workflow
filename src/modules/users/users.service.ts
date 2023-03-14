@@ -113,17 +113,6 @@ export class UsersService {
     }))
   }
 
-  async getUser(username: string): Promise<UserDto> {
-    const user = await this.getUserIfExists(username)
-
-    return {
-      fullName: user.fullName,
-      email: user.email,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt.toISOString(),
-    }
-  }
-
   async removeUser(username: string): Promise<void> {
     const user = await this.getUserIfExists(username)
 
@@ -134,6 +123,7 @@ export class UsersService {
     const user = await this.getUserIfExists(username)
 
     return {
+      username: user.username,
       fullName: user.fullName,
       email: user.email,
       bio: user.bio,
@@ -169,6 +159,7 @@ export class UsersService {
     await this.connection.getRepository(User).save(user)
 
     return {
+      username: user.username,
       fullName: user.fullName,
       email: user.email,
       bio: user.bio,

@@ -47,13 +47,13 @@ export class UsersController {
   }
 
   @ApiOperation({ description: 'Get user' })
-  @ApiOkResponse({ type: UserResponse })
+  @ApiOkResponse({ type: FullUserResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Get('/:username')
   public async getUser(
     @Param('username') username: string
-  ): Promise<UserResponse> {
-    return this.usersService.getUser(username)
+  ): Promise<FullUserResponse> {
+    return this.usersService.getFullUser(username)
   }
 
   @ApiOperation({ description: 'Remove user' })

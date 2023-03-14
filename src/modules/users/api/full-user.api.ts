@@ -2,6 +2,9 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class FullUserResponse {
   @ApiProperty()
+  public readonly username: string
+
+  @ApiProperty()
   public readonly fullName: string
 
   @ApiProperty()
