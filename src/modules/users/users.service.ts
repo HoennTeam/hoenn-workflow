@@ -8,6 +8,7 @@ import { Role } from '../../entities/role'
 import { User } from '../../entities/user'
 import { PasswordsService } from '../auth/services/passwords.service'
 import { CreateUserDto, CreateUserOutDto } from './dto/create-user.dto'
+import { UserDto } from './dto/user.dto'
 
 @Injectable()
 export class UsersService {
@@ -95,5 +96,40 @@ export class UsersService {
 
   private generateRandomPassword(): string {
     return randomBytes(this.config.users.passwordMinLength).toString('hex')
+  }
+
+  async getUsers(): Promise<UserDto[]> {
+    const users = await this.connection
+      .createQueryBuilder(User, 'user')
+      .getMany()
+
+    return users.map((user) => ({
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    }))
+  }
+
+  async getUser(id: number): Promise<UserDto> {
+    const user = await this.connection
+      .createQueryBuilder(User, 'user')
+      .where('user.id = :id', { id })
+      .getOne()
+
+    if (!user) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'User not found', {
+        id,
+      })
+    }
+
+    return {
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    }
   }
 }
