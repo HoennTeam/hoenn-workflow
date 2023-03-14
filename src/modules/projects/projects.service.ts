@@ -309,7 +309,6 @@ export class ProjectsService {
           updatedAt: user.updatedAt.toISOString(),
         },
         role: {
-          id: role.id,
           name: role.name,
           isGlobal: role.isGlobal,
           isImmutable: role.isImmutable,
@@ -396,7 +395,6 @@ export class ProjectsService {
           updatedAt: projectsUsers.user.updatedAt.toISOString(),
         },
         role: {
-          id: projectsUsers.role.id,
           name: projectsUsers.role.name,
           isGlobal: projectsUsers.role.isGlobal,
           isImmutable: projectsUsers.role.isImmutable,

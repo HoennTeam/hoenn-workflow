@@ -5,10 +5,5 @@ export class UpdateRoleRequest {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  public readonly name?: string
-
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
   public readonly description?: string
 }

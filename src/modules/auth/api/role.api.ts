@@ -2,9 +2,6 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class RoleResponse {
   @ApiProperty()
-  public readonly id: number
-
-  @ApiProperty()
   public readonly name: string
 
   @ApiProperty()

@@ -21,7 +21,6 @@ export class RolesService {
     })
 
     return roles.map((r) => ({
-      id: r.id,
       name: r.name,
       description: r.description,
       isGlobal: r.isGlobal,
@@ -31,21 +30,18 @@ export class RolesService {
     }))
   }
 
-  public async getRole(roleId: number): Promise<RoleDto> {
+  public async getRole(name: string): Promise<RoleDto> {
     const role = await this.connection.getRepository(Role).findOne({
-      where: {
-        id: roleId,
-      },
+      where: { name },
     })
 
     if (!role) {
       throw new AppException(HttpStatus.NOT_FOUND, 'Role not found', {
-        id: roleId,
+        name,
       })
     }
 
     return {
-      id: role.id,
       name: role.name,
       description: role.description,
       isGlobal: role.isGlobal,
@@ -65,7 +61,6 @@ export class RolesService {
     await this.connection.getRepository(Role).save(role)
 
     return {
-      id: role.id,
       name: role.name,
       description: role.description,
       isGlobal: role.isGlobal,
@@ -77,14 +72,12 @@ export class RolesService {
 
   public async updateRole(dto: UpdateRoleDto): Promise<RoleDto> {
     const role = await this.connection.getRepository(Role).findOne({
-      where: {
-        id: dto.id,
-      },
+      where: { name: dto.name },
     })
 
     if (!role) {
       throw new AppException(HttpStatus.NOT_FOUND, 'Role not found', {
-        id: dto.id,
+        name: dto.name,
       })
     }
 
@@ -92,13 +85,11 @@ export class RolesService {
       throw new AppException(HttpStatus.BAD_REQUEST, 'This role is immutable')
     }
 
-    role.name = dto.name ?? role.name
     role.description = dto.description ?? role.description
 
     await this.connection.getRepository(Role).save(role)
 
     return {
-      id: role.id,
       name: role.name,
       description: role.description,
       isGlobal: role.isGlobal,
@@ -108,16 +99,14 @@ export class RolesService {
     }
   }
 
-  public async deleteRole(roleId: number): Promise<void> {
+  public async deleteRole(name: string): Promise<void> {
     const role = await this.connection.getRepository(Role).findOne({
-      where: {
-        id: roleId,
-      },
+      where: { name },
     })
 
     if (!role) {
       throw new AppException(HttpStatus.NOT_FOUND, 'Role not found', {
-        id: roleId,
+        name,
       })
     }
 
@@ -128,7 +117,7 @@ export class RolesService {
     await this.connection.getRepository(Role).softRemove(role)
   }
 
-  public async getPermissions(roleId: number): Promise<PermissionDto[]> {
+  public async getPermissions(roleName: string): Promise<PermissionDto[]> {
     const permissions: (Permission & { enabled: boolean })[] =
       await this.connection
         .createQueryBuilder(Permission, 'permission')
@@ -142,11 +131,11 @@ export class RolesService {
               .from(Permission, 'permission')
               .select('permission.id', 'id')
               .leftJoin('permission.roles', 'roles')
-              .where('roles.id = :roleId', { roleId }),
+              .where('roles.name = :roleName', { roleName }),
           'enabled',
           'enabled.id = permission.id'
         )
-        .where('role.id = :roleId', { roleId })
+        .where('role.name = :roleName', { roleName })
         .andWhere('permission.isGlobal = role.isGlobal')
         .orderBy('permission.group', 'ASC')
         .addOrderBy('permission.operation', 'ASC')
@@ -163,17 +152,17 @@ export class RolesService {
   }
 
   public async addPermissions(
-    roleId: number,
+    roleName: string,
     permissionsNames: string[]
   ): Promise<void> {
     const role = await this.connection.getRepository(Role).findOne({
-      where: { id: roleId },
+      where: { name: roleName },
       relations: ['permissions'],
     })
 
     if (!role) {
       throw new AppException(HttpStatus.NOT_FOUND, 'Role not found', {
-        id: roleId,
+        name: roleName,
       })
     }
 
@@ -194,17 +183,17 @@ export class RolesService {
   }
 
   public async removePermissions(
-    roleId: number,
+    roleName: string,
     permissionsNames: string[]
   ): Promise<void> {
     const role = await this.connection.getRepository(Role).findOne({
-      where: { id: roleId },
+      where: { name: roleName },
       relations: ['permissions'],
     })
 
     if (!role) {
       throw new AppException(HttpStatus.NOT_FOUND, 'Role not found', {
-        id: roleId,
+        name: roleName,
       })
     }
 

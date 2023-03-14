@@ -25,11 +25,9 @@ export class RolesController {
     return this.rolesService.getRoles()
   }
 
-  @Get(':id')
-  public async getRole(
-    @Param('id', ParseIntPipe) id: number
-  ): Promise<RoleResponse> {
-    return this.rolesService.getRole(id)
+  @Get(':name')
+  public async getRole(@Param('name') name: string): Promise<RoleResponse> {
+    return this.rolesService.getRole(name)
   }
 
   @Post()
@@ -39,44 +37,42 @@ export class RolesController {
     return this.rolesService.createRole(data)
   }
 
-  @Patch(':id')
+  @Patch(':name')
   public async updateRole(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('name') name: string,
     @Body() data: UpdateRoleRequest
   ): Promise<RoleResponse> {
     return this.rolesService.updateRole({
-      id,
+      name,
       ...data,
     })
   }
 
-  @Delete(':id')
-  public async deleteRole(
-    @Param('id', ParseIntPipe) id: number
-  ): Promise<void> {
-    return this.rolesService.deleteRole(id)
+  @Delete(':name')
+  public async deleteRole(@Param('name') name: string): Promise<void> {
+    return this.rolesService.deleteRole(name)
   }
 
-  @Get(':id/permissions')
+  @Get(':name/permissions')
   public async getPermissions(
-    @Param('id', ParseIntPipe) id: number
+    @Param('name') roleName: string
   ): Promise<PermissionResponse[]> {
-    return this.rolesService.getPermissions(id)
+    return this.rolesService.getPermissions(roleName)
   }
 
-  @Put(':id/permissions')
+  @Put(':name/permissions')
   public async addPermissions(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('name') roleName: string,
     @Body() data: PermissionsListRequest
   ): Promise<void> {
-    return this.rolesService.addPermissions(id, data.permissionsNames)
+    return this.rolesService.addPermissions(roleName, data.permissionsNames)
   }
 
-  @Delete(':id/permissions')
+  @Delete(':name/permissions')
   public async removePermissions(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('name') roleName: string,
     @Body() data: PermissionsListRequest
   ): Promise<void> {
-    return this.rolesService.removePermissions(id, data.permissionsNames)
+    return this.rolesService.removePermissions(roleName, data.permissionsNames)
   }
 }
