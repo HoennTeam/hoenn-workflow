@@ -112,15 +112,15 @@ export class UsersService {
     }))
   }
 
-  async getUser(id: number): Promise<UserDto> {
+  async getUser(username: string): Promise<UserDto> {
     const user = await this.connection
       .createQueryBuilder(User, 'user')
-      .where('user.id = :id', { id })
+      .where('user.username = :username', { username })
       .getOne()
 
     if (!user) {
       throw new AppException(HttpStatus.NOT_FOUND, 'User not found', {
-        id,
+        username,
       })
     }
 
@@ -131,5 +131,20 @@ export class UsersService {
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
     }
+  }
+
+  async removeUser(username: string): Promise<void> {
+    const user = await this.connection
+      .createQueryBuilder(User, 'user')
+      .where('user.username = :username', { username })
+      .getOne()
+
+    if (!user) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'User not found', {
+        username,
+      })
+    }
+
+    await this.connection.getRepository(User).softRemove(user)
   }
 }

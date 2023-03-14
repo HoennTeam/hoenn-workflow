@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -44,10 +45,18 @@ export class UsersController {
   @ApiOperation({ description: 'Get user' })
   @ApiOkResponse({ type: UserResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
-  @Get('/:userId')
+  @Get('/:username')
   public async getUser(
-    @Param('userId', ParseIntPipe) id: number
+    @Param('username') username: string
   ): Promise<UserResponse> {
-    return this.usersService.getUser(id)
+    return this.usersService.getUser(username)
+  }
+
+  @ApiOperation({ description: 'Remove user' })
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Delete('/:username')
+  public async removeUser(@Param('username') username: string): Promise<void> {
+    return this.usersService.removeUser(username)
   }
 }
