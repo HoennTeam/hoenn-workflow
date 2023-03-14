@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common'
+import { Body, Controller, Get, Patch, Post } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
@@ -12,6 +12,7 @@ import {
   CreateInstanceResponse,
 } from './api/create-instance.api'
 import { InstanceResponse } from './api/instance.api'
+import { UpdateInstanceRequest } from './api/update-instance.api'
 import { InstanceService } from './instance.service'
 
 @ApiTags('Instance')
@@ -35,5 +36,15 @@ export class InstanceController {
     @Body() createInstanceRequest: CreateInstanceRequest
   ): Promise<CreateInstanceResponse> {
     return this.instanceService.createInstance(createInstanceRequest)
+  }
+
+  @ApiOperation({ description: 'Update instance' })
+  @ApiOkResponse({ type: InstanceResponse })
+  @ApiBadRequestResponse({ type: ExceptionResponse })
+  @Patch()
+  public async updateInstance(
+    @Body() updateInstanceRequest: UpdateInstanceRequest
+  ): Promise<InstanceResponse> {
+    return this.instanceService.updateInstance(updateInstanceRequest)
   }
 }
