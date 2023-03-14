@@ -301,7 +301,6 @@ export class ProjectsService {
       },
       users: {
         user: {
-          id: user.id,
           fullName: user.fullName,
           email: user.email,
           createdAt: user.createdAt.toISOString(),
@@ -387,7 +386,6 @@ export class ProjectsService {
       },
       users: {
         user: {
-          id: projectsUsers.user.id,
           fullName: projectsUsers.user.fullName,
           email: projectsUsers.user.email,
           createdAt: projectsUsers.user.createdAt.toISOString(),

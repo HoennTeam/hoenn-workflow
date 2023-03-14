@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { randomBytes } from 'crypto'
 import { DataSource } from 'typeorm'
 import { AppException } from '../../common/exceptions/app.exception'
@@ -8,6 +8,7 @@ import { Role } from '../../entities/role'
 import { User } from '../../entities/user'
 import { PasswordsService } from '../auth/services/passwords.service'
 import { CreateUserDto, CreateUserOutDto } from './dto/create-user.dto'
+import { FullUserDto } from './dto/full-user.dto'
 import { UserDto } from './dto/user.dto'
 
 @Injectable()
@@ -104,7 +105,6 @@ export class UsersService {
       .getMany()
 
     return users.map((user) => ({
-      id: user.id,
       email: user.email,
       fullName: user.fullName,
       createdAt: user.createdAt.toISOString(),
@@ -113,19 +113,9 @@ export class UsersService {
   }
 
   async getUser(username: string): Promise<UserDto> {
-    const user = await this.connection
-      .createQueryBuilder(User, 'user')
-      .where('user.username = :username', { username })
-      .getOne()
-
-    if (!user) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'User not found', {
-        username,
-      })
-    }
+    const user = await this.getUserIfExists(username)
 
     return {
-      id: user.id,
       fullName: user.fullName,
       email: user.email,
       createdAt: user.createdAt.toISOString(),
@@ -134,6 +124,24 @@ export class UsersService {
   }
 
   async removeUser(username: string): Promise<void> {
+    const user = await this.getUserIfExists(username)
+
+    await this.connection.getRepository(User).softRemove(user)
+  }
+
+  public async getProfile(username: string): Promise<FullUserDto> {
+    const user = await this.getUserIfExists(username)
+
+    return {
+      fullName: user.fullName,
+      email: user.email,
+      bio: user.bio,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    }
+  }
+
+  private async getUserIfExists(username: string): Promise<User> {
     const user = await this.connection
       .createQueryBuilder(User, 'user')
       .where('user.username = :username', { username })
@@ -145,6 +153,6 @@ export class UsersService {
       })
     }
 
-    await this.connection.getRepository(User).softRemove(user)
+    return user
   }
 }

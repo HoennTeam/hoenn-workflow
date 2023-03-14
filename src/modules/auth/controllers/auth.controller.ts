@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Inject, Post, forwardRef } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Post,
+  forwardRef,
+  Param,
+} from '@nestjs/common'
 import {
   ApiOkResponse,
   ApiOperation,
@@ -16,7 +24,7 @@ import { SignInRequest } from '../api/sign-in.dto'
 import { TokenResponse } from '../api/token.api'
 import { AuthService } from '../services/auth.service'
 import { UsersService } from '../../users/users.service'
-import { privateDecrypt } from 'crypto'
+import { FullUserResponse } from '../../users/api/full-user.api'
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -59,5 +67,15 @@ export class AuthController {
   @Authorize({})
   public async getMe(@Payload() payload: AuthPayload): Promise<MeResponse> {
     return this.authService.getMe(payload)
+  }
+
+  @ApiOperation({ description: 'Get profile' })
+  @ApiOkResponse({ type: MeResponse })
+  @ApiUnauthorizedResponse({ type: ExceptionResponse })
+  @Get('/profile/:username')
+  public async getFullProfile(
+    @Param('username') username: string
+  ): Promise<FullUserResponse> {
+    return this.usersService.getProfile(username)
   }
 }
