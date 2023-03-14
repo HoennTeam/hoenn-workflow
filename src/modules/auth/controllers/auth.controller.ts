@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common'
+import { Body, Controller, Get, Inject, Post, forwardRef } from '@nestjs/common'
 import {
   ApiOkResponse,
   ApiOperation,
@@ -15,11 +15,17 @@ import { MeResponse } from '../api/me.api'
 import { SignInRequest } from '../api/sign-in.dto'
 import { TokenResponse } from '../api/token.api'
 import { AuthService } from '../services/auth.service'
+import { UsersService } from '../../users/users.service'
+import { privateDecrypt } from 'crypto'
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @Inject(forwardRef(() => UsersService))
+    private readonly usersService: UsersService
+  ) {}
 
   @Post('sign-in')
   @ApiOperation({ description: 'Sign In' })
