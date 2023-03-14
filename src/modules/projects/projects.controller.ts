@@ -42,6 +42,10 @@ import { CreateStageDto } from './dto/create-stage.dto'
 import { RemoveStageDto } from './dto/delete-stage.dto'
 import { UpdateStageDto } from './dto/update-stage.dto'
 import { UpdateStageRequest } from './api/update-stage.api'
+import { CreateBoardRequest } from './api/create-board.api'
+import { CreateBoardDto } from './dto/create-board.dto'
+import { UpdateBoardRequest } from './api/update-board.api'
+import { UpdateBoardDto } from './dto/update-board.dto'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -229,5 +233,49 @@ export class ProjectsController {
       name: updateStage.name,
     }
     return this.projectsService.updateStage(dto)
+  }
+
+  @ApiOperation({ description: 'Create board' })
+  @ApiOkResponse({ type: BoardResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Post('/:projectId/boards')
+  public async createBoardInProject(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Body() createBoardRequest: CreateBoardRequest
+  ): Promise<BoardResponse> {
+    const createBoardDto: CreateBoardDto = {
+      projectId: projectId,
+      name: createBoardRequest.name,
+    }
+    return this.projectsService.createBoard(createBoardDto)
+  }
+
+  @ApiOperation({ description: 'Remove board' })
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Delete('/:projectId/boards/:boardId')
+  public async removeBoard(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('boardId', ParseIntPipe) boardId: number
+  ): Promise<void> {
+    return this.projectsService.removeBoard(projectId, boardId)
+  }
+
+  @ApiOperation({ description: 'Update board' })
+  @ApiOkResponse({ type: BoardResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Patch('/:projectId/boards/:boardId')
+  public async updateBoard(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Body() updateBoard: UpdateBoardRequest
+  ): Promise<BoardResponse> {
+    const updateBoardDto: UpdateBoardDto = {
+      boardId,
+      projectId,
+      isDefault: updateBoard.isDefault,
+      name: updateBoard.name,
+    }
+    return this.projectsService.updateBoard(updateBoardDto)
   }
 }
