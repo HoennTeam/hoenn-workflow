@@ -2,9 +2,6 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class RoleResponse {
   @ApiProperty()
-  public readonly id: number
-
-  @ApiProperty()
   public readonly name: string
 
   @ApiProperty()
@@ -12,6 +9,9 @@ export class RoleResponse {
 
   @ApiProperty()
   public readonly isGlobal: boolean
+
+  @ApiProperty()
+  public readonly isImmutable: boolean
 
   @ApiProperty()
   public readonly createdAt: string
