@@ -163,6 +163,7 @@ export class RolesService {
     const permissions = await this.connection.getRepository(Permission).find({
       where: {
         name: In(permissionsNames),
+        isGlobal: role.isGlobal,
       },
     })
 
