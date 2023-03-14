@@ -10,6 +10,7 @@ import {
   CreateInstanceOutDto,
 } from './dto/create-instance.dto'
 import { InstanceDto } from './dto/instance.dto'
+import { UpdateInstanceDto } from './dto/update-instance.dto'
 
 @Injectable()
 export class InstanceService {
@@ -77,6 +78,33 @@ export class InstanceService {
         updatedAt: newInstance.updatedAt.toISOString(),
       },
       administrator,
+    }
+  }
+
+  public async updateInstance(dto: UpdateInstanceDto): Promise<InstanceDto> {
+    const [instance] = await this.connection
+      .createEntityManager()
+      .find(Instance, { take: 1 })
+
+    if (!instance) {
+      throw new AppException(
+        HttpStatus.NOT_FOUND,
+        'Your instance is not set up yet'
+      )
+    }
+
+    Object.assign(instance, {
+      name: dto.name ?? instance.name,
+      administratorEmail: dto.administratorEmail ?? instance.administratorEmail,
+    })
+
+    await this.connection.getRepository(Instance).save(instance)
+
+    return {
+      name: instance.name,
+      administratorEmail: instance.administratorEmail,
+      createdAt: instance.createdAt.toISOString(),
+      updatedAt: new Date().toISOString(),
     }
   }
 }
