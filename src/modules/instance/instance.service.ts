@@ -93,8 +93,6 @@ export class InstanceService {
       )
     }
 
-    this.logger.info('Instance before update', { instance })
-
     if (dto.name) {
       instance.name = dto.name
     }
@@ -102,8 +100,6 @@ export class InstanceService {
     if (dto.administratorEmail) {
       instance.administratorEmail = dto.administratorEmail
     }
-
-    this.logger.info('Instance after update', { instance })
 
     await this.connection.getRepository(Instance).save(
       new Instance({
