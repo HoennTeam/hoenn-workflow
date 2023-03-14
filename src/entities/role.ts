@@ -33,7 +33,9 @@ export class Role {
   @Column({ default: false })
   isImmutable: boolean
 
-  @ManyToMany(() => Permission, (permission) => permission.roles)
+  @ManyToMany(() => Permission, (permission) => permission.roles, {
+    cascade: ['remove'],
+  })
   @JoinTable({ name: 'roles_permissions' })
   permissions: Permission[]
 

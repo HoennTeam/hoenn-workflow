@@ -114,7 +114,7 @@ export class RolesService {
       throw new AppException(HttpStatus.BAD_REQUEST, 'This role is immutable')
     }
 
-    await this.connection.getRepository(Role).softRemove(role)
+    await this.connection.getRepository(Role).remove(role)
   }
 
   public async getPermissions(roleName: string): Promise<PermissionDto[]> {
