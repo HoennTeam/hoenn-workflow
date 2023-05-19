@@ -91,6 +91,7 @@ export class ProjectsService {
           updatedAt: item.role.updatedAt.toISOString(),
         },
         user: {
+          username: item.user.username,
           id: item.user.id,
           fullName: item.user.fullName,
           email: item.user.email,
@@ -302,6 +303,7 @@ export class ProjectsService {
       },
       users: {
         user: {
+          username: user.username,
           fullName: user.fullName,
           email: user.email,
           createdAt: user.createdAt.toISOString(),
@@ -387,6 +389,7 @@ export class ProjectsService {
       },
       users: {
         user: {
+          username: projectsUsers.user.username,
           fullName: projectsUsers.user.fullName,
           email: projectsUsers.user.email,
           createdAt: projectsUsers.user.createdAt.toISOString(),

@@ -106,6 +106,7 @@ export class UsersService {
       .getMany()
 
     return users.map((user) => ({
+      username: user.username,
       email: user.email,
       fullName: user.fullName,
       createdAt: user.createdAt.toISOString(),
