@@ -184,6 +184,9 @@ export class ProjectsService {
       .createQueryBuilder(Board, 'board')
       .innerJoin('board.project', 'project')
       .leftJoinAndSelect('board.stages', 'stages')
+      .leftJoinAndSelect('board.tasks', 'tasks')
+      .leftJoin('tasks.stage', 'taskStage')
+      .addSelect('taskStage.id', 'id')
       .where('board.project = :projectId', { projectId })
       .andWhere('project.deletedAt IS NULL')
       .andWhere('board.id = :boardId', { boardId })
@@ -202,11 +205,19 @@ export class ProjectsService {
       isDefault: board.isDefault,
       createdAt: board.createdAt.toISOString(),
       updatedAt: board.updatedAt.toISOString(),
-      stages: board.stages.map((item) => ({
-        id: item.id,
-        name: item.name,
-        createdAt: item.createdAt.toISOString(),
-        updatedAt: item.updatedAt.toISOString(),
+      stages: board.stages.map((stage) => ({
+        id: stage.id,
+        name: stage.name,
+        createdAt: stage.createdAt.toISOString(),
+        updatedAt: stage.updatedAt.toISOString(),
+      })),
+      tasks: board.tasks.map((task) => ({
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        stageId: task.stage.id,
+        createdAt: task.createdAt.toISOString(),
+        updatedAt: task.createdAt.toISOString(),
       })),
     }
   }
