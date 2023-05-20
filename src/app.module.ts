@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module'
 import { UsersModule } from './modules/users/users.module'
 import { RedisModule } from './core/redis/redis.module'
 import { Logger } from './core/logger'
+import { TasksModule } from './modules/task/tasks.module'
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { Logger } from './core/logger'
     InstanceModule,
     ProjectsModule,
     UsersModule,
+    TasksModule,
   ],
 })
 export class AppModule {}
