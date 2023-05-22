@@ -11,9 +11,4 @@ export class UpdateTaskRequest {
   @IsString()
   @IsOptional()
   public readonly description?: string
-
-  @ApiPropertyOptional()
-  @IsInt()
-  @IsOptional()
-  public readonly stageId?: number
 }
