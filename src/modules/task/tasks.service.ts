@@ -26,6 +26,7 @@ export class TasksService {
       number: task.number,
       title: task.title,
       description: task.description,
+      index: task.index,
       stageId: task.stage.id,
       createdAt: task.createdAt.toISOString(),
       updatedAt: task.updatedAt.toISOString(),
@@ -43,15 +44,23 @@ export class TasksService {
       const { taskNumber } = await tx
         .getRepository(Task)
         .createQueryBuilder('task')
-        .select('COALESCE(MAX(task.number), 1)', 'taskNumber')
+        .select('COALESCE(MAX(task.number) + 1, 1)', 'taskNumber')
         .leftJoin('task.board', 'board')
         .where('board.project = :projectId', { projectId: dto.projectId })
+        .getRawOne()
+
+      const { taskIndex } = await tx
+        .getRepository(Task)
+        .createQueryBuilder('task')
+        .select('COALESCE(MAX(task.index) + 1, 1)', 'taskIndex')
+        .where('task.stage = :stageId', { stageId: dto.stageId })
         .getRawOne()
 
       const task = new Task({
         board,
         stage,
         number: taskNumber,
+        index: taskIndex,
         title: dto.title,
         description: '',
       })
@@ -92,14 +101,55 @@ export class TasksService {
   async moveTask(dto: MoveTaskDto): Promise<FullTaskDto> {
     const task = await this.tasksRepository.getTaskIfExists(dto.id)
 
+    const fromStageId = task.stage.id
+
     if (dto.stageId) {
       const stage = await this.projectsRepository.getStageIfExists(dto.stageId)
 
       task.stage = stage
     }
 
-    const updated = await this.connection.getRepository(Task).save(task)
+    const toStageId = task.stage.id
+    const oldIndex = task.index
 
-    return this.getFullTaskDto(updated)
+    await this.connection.transaction(async (tx) => {
+      // Task should be on top of the list
+      if (!dto.leadingTaskId) {
+        task.index = 1
+      } else {
+        const { leadingTaskIndex } = await this.connection
+          .getRepository(Task)
+          .createQueryBuilder('task')
+          .select('task.index', 'leadingTaskIndex')
+          .where('task.id = :taskId', { taskId: dto.leadingTaskId })
+          .getRawOne()
+
+        task.index = leadingTaskIndex + 1
+      }
+
+      const newIndex = task.index
+
+      await this.connection
+        .getRepository(Task)
+        .createQueryBuilder('task')
+        .update()
+        .set({ index: () => 'index - 1' })
+        .where('task.stage_id = :stageId', { stageId: fromStageId })
+        .andWhere('task.index > :oldIndex', { oldIndex })
+        .execute()
+
+      await this.connection
+        .getRepository(Task)
+        .createQueryBuilder('task')
+        .update()
+        .set({ index: () => 'index + 1' })
+        .where('task.stage_id = :stageId', { stageId: toStageId })
+        .andWhere('task.index >= :newIndex', { newIndex })
+        .execute()
+
+      await this.connection.getRepository(Task).save(task)
+    })
+
+    return this.getFullTaskDto(task)
   }
 }

@@ -73,6 +73,8 @@ export class ProjectsRepository {
       .where('board.project = :projectId', { projectId })
       .andWhere('project.deletedAt IS NULL')
       .andWhere('board.id = :boardId', { boardId })
+      .orderBy('stages.id', 'ASC')
+      .addOrderBy('tasks.index', 'ASC')
       .getOne()
 
     if (!board) {

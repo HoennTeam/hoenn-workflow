@@ -14,6 +14,9 @@ export class TaskResponse {
   public readonly description: string
 
   @ApiProperty()
+  public readonly index: number
+
+  @ApiProperty()
   public readonly stageId: number
 
   @ApiProperty()

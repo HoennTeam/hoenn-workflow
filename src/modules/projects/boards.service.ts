@@ -85,6 +85,7 @@ export class BoardsService {
         number: task.number,
         title: task.title,
         description: task.description,
+        index: task.index,
         stageId: task.stage.id,
         createdAt: task.createdAt.toISOString(),
         updatedAt: task.createdAt.toISOString(),

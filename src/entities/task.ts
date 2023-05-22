@@ -28,6 +28,9 @@ export class Task {
   @Column()
   description: string
 
+  @Column()
+  index: number
+
   @ManyToOne(() => Stage, (stage) => stage.tasks)
   stage: Stage
 
