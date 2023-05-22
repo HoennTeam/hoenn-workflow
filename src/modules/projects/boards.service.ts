@@ -82,6 +82,7 @@ export class BoardsService {
       })),
       tasks: board.tasks.map((task) => ({
         id: task.id,
+        number: task.number,
         title: task.title,
         description: task.description,
         stageId: task.stage.id,

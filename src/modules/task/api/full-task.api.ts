@@ -5,6 +5,9 @@ export class FullTaskResponse {
   public readonly id: number
 
   @ApiProperty()
+  public readonly number: number
+
+  @ApiProperty()
   public readonly title: string
 
   @ApiProperty()

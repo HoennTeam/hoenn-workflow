@@ -23,6 +23,7 @@ export class TasksService {
   public getFullTaskDto(task: Task): FullTaskDto {
     return {
       id: task.id,
+      number: task.number,
       title: task.title,
       description: task.description,
       stageId: task.stage.id,
@@ -38,16 +39,27 @@ export class TasksService {
     )
     const stage = await this.projectsRepository.getStageIfExists(dto.stageId)
 
-    const task = new Task({
-      board,
-      stage,
-      title: dto.title,
-      description: '',
+    return await this.connection.transaction(async (tx) => {
+      const { taskNumber } = await tx
+        .getRepository(Task)
+        .createQueryBuilder('task')
+        .select('COALESCE(MAX(task.number), 1)', 'taskNumber')
+        .leftJoin('task.board', 'board')
+        .where('board.project = :projectId', { projectId: dto.projectId })
+        .getRawOne()
+
+      const task = new Task({
+        board,
+        stage,
+        number: taskNumber,
+        title: dto.title,
+        description: '',
+      })
+
+      const created = await tx.getRepository(Task).save(task)
+
+      return this.getFullTaskDto(created)
     })
-
-    const created = await this.connection.getRepository(Task).save(task)
-
-    return this.getFullTaskDto(created)
   }
 
   async removeTask(id: number): Promise<void> {

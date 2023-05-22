@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { StageResponse } from './stage.api'
-import { TaskResponse } from './task.api'
+import { TaskResponse } from '../../task/api/task.api'
 
 export class FullBoardResponse {
   @ApiProperty()

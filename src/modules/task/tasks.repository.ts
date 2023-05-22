@@ -11,6 +11,7 @@ export class TasksRepository {
     const task = await this.connection
       .getRepository(Task)
       .createQueryBuilder('task')
+      .leftJoinAndSelect('task.stage', 'stage')
       .where('task.id = :id', { id })
       .getOne()
 

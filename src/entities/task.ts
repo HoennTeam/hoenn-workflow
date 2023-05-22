@@ -20,6 +20,9 @@ export class Task {
   id: number
 
   @Column()
+  number: number
+
+  @Column()
   title: string
 
   @Column()
