@@ -21,6 +21,7 @@ import { CreateTaskRequest } from './api/create-task.api'
 import { FullTaskResponse } from './api/full-task.api'
 import { UpdateTaskRequest } from './api/update-task.api'
 import { TasksService } from './tasks.service'
+import { MoveTaskRequest } from './api/move-task.api'
 
 @ApiTags('Tasks')
 @Controller('tasks')
@@ -31,17 +32,17 @@ export class TasksController {
   @ApiOkResponse({ type: FullTaskResponse })
   @ApiConflictResponse({ type: ExceptionResponse })
   @Post()
-  public async createUser(
-    @Body() createUserRequest: CreateTaskRequest
+  public async createTask(
+    @Body() createTaskRequest: CreateTaskRequest
   ): Promise<FullTaskResponse> {
-    return this.tasksService.createTask(createUserRequest)
+    return this.tasksService.createTask(createTaskRequest)
   }
 
   @ApiOperation({ description: 'Get full task' })
   @ApiOkResponse({ type: FullTaskResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Get('/:id')
-  public async getUser(
+  public async getFullTask(
     @Param('id', new ParseIntPipe()) id: number
   ): Promise<FullTaskResponse> {
     return this.tasksService.getFullTask(id)
@@ -51,23 +52,37 @@ export class TasksController {
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Delete('/:id')
-  public async removeUser(
+  public async removeTask(
     @Param('id', new ParseIntPipe()) id: number
   ): Promise<void> {
     return this.tasksService.removeTask(id)
   }
 
-  @ApiOperation({ description: 'Update user' })
+  @ApiOperation({ description: 'Update task' })
   @ApiOkResponse({ type: FullTaskResponse })
   @ApiUnauthorizedResponse({ type: ExceptionResponse })
   @Patch('/:id')
-  public async updateProfile(
+  public async updateTask(
     @Param('id', new ParseIntPipe()) id: number,
-    @Body() dto: UpdateTaskRequest
+    @Body() updateTaskRequest: UpdateTaskRequest
   ): Promise<FullTaskResponse> {
     return this.tasksService.updateTask({
       id,
-      ...dto,
+      ...updateTaskRequest,
+    })
+  }
+
+  @ApiOperation({ description: 'Move task' })
+  @ApiOkResponse({ type: FullTaskResponse })
+  @ApiUnauthorizedResponse({ type: ExceptionResponse })
+  @Patch('/:id/move')
+  public async moveTask(
+    @Param('id', new ParseIntPipe()) id: number,
+    @Body() moveTaskRequest: MoveTaskRequest
+  ): Promise<FullTaskResponse> {
+    return this.tasksService.moveTask({
+      id,
+      ...moveTaskRequest,
     })
   }
 }

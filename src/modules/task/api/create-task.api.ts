@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsInt, IsString } from 'class-validator'
+import { IsIn, IsInt, IsString } from 'class-validator'
 
 export class CreateTaskRequest {
   @ApiProperty()
@@ -13,4 +13,8 @@ export class CreateTaskRequest {
   @ApiProperty()
   @IsInt()
   public readonly boardId: number
+
+  @ApiProperty()
+  @IsInt()
+  public readonly projectId: number
 }
