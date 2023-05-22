@@ -46,10 +46,14 @@ import { CreateBoardRequest } from './api/create-board.api'
 import { CreateBoardDto } from './dto/create-board.dto'
 import { UpdateBoardRequest } from './api/update-board.api'
 import { UpdateBoardDto } from './dto/update-board.dto'
+import { BoardsService } from './boards.service'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) {}
+  constructor(
+    private readonly projectsService: ProjectsService,
+    private readonly boardsService: BoardsService
+  ) {}
 
   @ApiOperation({ description: 'Get all projects' })
   @ApiOkResponse({ type: ProjectResponse })
@@ -98,38 +102,6 @@ export class ProjectsController {
     @Body() updateProject: UpdateProjectRequest
   ): Promise<UpdateProjectResponse> {
     return this.projectsService.updateProject(id, updateProject)
-  }
-
-  @ApiOperation({ description: 'Get boards' })
-  @ApiOkResponse({ type: BoardResponse })
-  @ApiNotFoundResponse({ type: ExceptionResponse })
-  @Get('/:id/boards')
-  public async getBoards(
-    @Param('id', ParseIntPipe) projectId: number
-  ): Promise<BoardResponse[]> {
-    return this.projectsService.getBoards(projectId)
-  }
-
-  @ApiOperation({ description: 'Get board' })
-  @ApiOkResponse({ type: FullBoardResponse })
-  @ApiNotFoundResponse({ type: ExceptionResponse })
-  @Get('/:projectId/boards/:boardId')
-  public async getBoard(
-    @Param('projectId', ParseIntPipe) projectId: number,
-    @Param('boardId', ParseIntPipe) boardId: number
-  ): Promise<FullBoardResponse> {
-    return this.projectsService.getFullBoard(projectId, boardId)
-  }
-
-  @ApiOperation({ description: 'Get stages' })
-  @ApiOkResponse({ type: StageResponse })
-  @ApiNotFoundResponse({ type: ExceptionResponse })
-  @Get('/:projectId/boards/:boardId/stages')
-  public async getStages(
-    @Param('projectId', ParseIntPipe) projectId: number,
-    @Param('boardId', ParseIntPipe) boardId: number
-  ): Promise<StageResponse[]> {
-    return this.projectsService.getStages(projectId, boardId)
   }
 
   @ApiOperation({ description: 'Add user to project' })
@@ -182,6 +154,27 @@ export class ProjectsController {
     )
   }
 
+  @ApiOperation({ description: 'Get boards' })
+  @ApiOkResponse({ type: BoardResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Get('/:id/boards')
+  public async getBoards(
+    @Param('id', ParseIntPipe) projectId: number
+  ): Promise<BoardResponse[]> {
+    return this.boardsService.getBoards(projectId)
+  }
+
+  @ApiOperation({ description: 'Get board' })
+  @ApiOkResponse({ type: FullBoardResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Get('/:projectId/boards/:boardId')
+  public async getBoard(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('boardId', ParseIntPipe) boardId: number
+  ): Promise<FullBoardResponse> {
+    return this.boardsService.getFullBoard(projectId, boardId)
+  }
+
   @ApiOperation({ description: 'Create board' })
   @ApiOkResponse({ type: BoardResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
@@ -194,7 +187,7 @@ export class ProjectsController {
       projectId: projectId,
       name: createBoardRequest.name,
     }
-    return this.projectsService.createBoard(createBoardDto)
+    return this.boardsService.createBoard(createBoardDto)
   }
 
   @ApiOperation({ description: 'Remove board' })
@@ -205,7 +198,7 @@ export class ProjectsController {
     @Param('projectId', ParseIntPipe) projectId: number,
     @Param('boardId', ParseIntPipe) boardId: number
   ): Promise<void> {
-    return this.projectsService.removeBoard(projectId, boardId)
+    return this.boardsService.removeBoard(projectId, boardId)
   }
 
   @ApiOperation({ description: 'Update board' })
@@ -223,7 +216,18 @@ export class ProjectsController {
       isDefault: updateBoard.isDefault,
       name: updateBoard.name,
     }
-    return this.projectsService.updateBoard(updateBoardDto)
+    return this.boardsService.updateBoard(updateBoardDto)
+  }
+
+  @ApiOperation({ description: 'Get stages' })
+  @ApiOkResponse({ type: StageResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Get('/:projectId/boards/:boardId/stages')
+  public async getStages(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('boardId', ParseIntPipe) boardId: number
+  ): Promise<StageResponse[]> {
+    return this.boardsService.getStages(projectId, boardId)
   }
 
   @ApiOperation({ description: 'Create stage' })
@@ -240,7 +244,24 @@ export class ProjectsController {
       boardId,
       name: createStage.name,
     }
-    return this.projectsService.createStage(dto)
+    return this.boardsService.createStage(dto)
+  }
+
+  @ApiOperation({ description: 'Remove stage' })
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Delete(':projectId/boards/:boardId/stages/:stageId')
+  public async removeStage(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Param('stageId', ParseIntPipe) stageId: number
+  ): Promise<void> {
+    const dto: RemoveStageDto = {
+      projectId,
+      boardId,
+      stageId,
+    }
+    return this.boardsService.removeStage(dto)
   }
 
   @ApiOperation({ description: 'Update stage' })
@@ -259,23 +280,6 @@ export class ProjectsController {
       stageId,
       name: updateStage.name,
     }
-    return this.projectsService.updateStage(dto)
-  }
-
-  @ApiOperation({ description: 'Remove stage' })
-  @ApiOkResponse()
-  @ApiNotFoundResponse({ type: ExceptionResponse })
-  @Delete(':projectId/boards/:boardId/stages/:stageId')
-  public async removeStage(
-    @Param('projectId', ParseIntPipe) projectId: number,
-    @Param('boardId', ParseIntPipe) boardId: number,
-    @Param('stageId', ParseIntPipe) stageId: number
-  ): Promise<void> {
-    const dto: RemoveStageDto = {
-      projectId,
-      boardId,
-      stageId,
-    }
-    return this.projectsService.removeStage(dto)
+    return this.boardsService.updateStage(dto)
   }
 }

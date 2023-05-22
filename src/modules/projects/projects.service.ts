@@ -32,63 +32,19 @@ import { RemoveStageDto } from './dto/delete-stage.dto'
 import { UpdateStageDto } from './dto/update-stage.dto'
 import { CreateBoardDto } from './dto/create-board.dto'
 import { UpdateBoardDto } from './dto/update-board.dto'
+import { ProjectsRepository } from './projects.repository'
 
 @Injectable()
 export class ProjectsService {
   constructor(
     private readonly logger: Logger,
-    private readonly connection: DataSource
+    private readonly connection: DataSource,
+    private readonly projectsRepository: ProjectsRepository
   ) {}
-
-  async getProjectIfExists(id: number): Promise<Project> {
-    const project = await this.connection
-      .getRepository(Project)
-      .findOne({ where: { id } })
-
-    if (!project) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'Project not found', {
-        id,
-      })
-    }
-
-    return project
-  }
-
-  async getBoardIfExists(projectId: number, boardId: number): Promise<Board> {
-    const board = await this.connection
-      .createQueryBuilder(Board, 'board')
-      .innerJoin('board.project', 'project')
-      .where('board.project = :projectId', { projectId })
-      .andWhere('board.id = :boardId', { boardId })
-      .getOne()
-
-    if (!board) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'Board not found', {
-        boardId,
-      })
-    }
-
-    return board
-  }
-
-  public async getStageIfExists(id: number): Promise<Stage> {
-    const stage = await this.connection
-      .createQueryBuilder(Stage, 'stage')
-      .where('stage.id = :id', { id })
-      .getOne()
-
-    if (!stage) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'Stage not found', {
-        id: id,
-      })
-    }
-    return stage
-  }
 
   async getProjects(): Promise<ProjectDto[]> {
     const projects = await this.connection
       .createQueryBuilder(Project, 'project')
-      .leftJoinAndSelect('project.boards', 'boards')
       .getMany()
 
     return projects.map((project) => ({
@@ -101,18 +57,7 @@ export class ProjectsService {
   }
 
   async getFullProject(id: number): Promise<FullProjectDto> {
-    const project = await this.connection
-      .createQueryBuilder(Project, 'project')
-      .leftJoinAndSelect('project.projectsUsers', 'projectsUsers')
-      .leftJoinAndSelect('projectsUsers.user', 'user')
-      .leftJoinAndSelect('projectsUsers.role', 'role')
-      .leftJoinAndSelect('project.boards', 'boards')
-      .where('project.id = :id', { id })
-      .getOne()
-
-    if (!project) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'Project not found', { id })
-    }
+    const project = await this.projectsRepository.getFullProjectIfExists(id)
 
     return {
       id: project.id,
@@ -179,7 +124,7 @@ export class ProjectsService {
   }
 
   async removeProject(id: number): Promise<void> {
-    const project = await this.getProjectIfExists(id)
+    const project = await this.projectsRepository.getProjectIfExists(id)
 
     await this.connection.createEntityManager().softRemove(project)
   }
@@ -188,7 +133,7 @@ export class ProjectsService {
     id: number,
     dto: UpdateProjectRequestDto
   ): Promise<UpdateProjectDto> {
-    const project = await this.getProjectIfExists(id)
+    const project = await this.projectsRepository.getProjectIfExists(id)
 
     project.name = dto.name ?? project.name
     project.description = dto.description ?? project.description
@@ -204,105 +149,12 @@ export class ProjectsService {
     }
   }
 
-  async getBoards(projectId: number): Promise<BoardDto[]> {
-    await this.getProjectIfExists(projectId)
-
-    const boards = await this.connection
-      .createQueryBuilder(Board, 'board')
-      .where('board.project = :projectId', { projectId })
-      .getMany()
-
-    return boards.map((item) => ({
-      id: item.id,
-      name: item.name,
-      isDefault: item.isDefault,
-      createdAt: item.createdAt.toISOString(),
-      updatedAt: item.updatedAt.toISOString(),
-    }))
-  }
-
-  async getFullBoard(
-    projectId: number,
-    boardId: number
-  ): Promise<FullBoardDto> {
-    const board = await this.connection
-      .createQueryBuilder(Board, 'board')
-      .innerJoin('board.project', 'project')
-      .leftJoinAndSelect('board.stages', 'stages')
-      .leftJoinAndSelect('board.tasks', 'tasks')
-      .leftJoinAndSelect('tasks.stage', 'stage')
-      .where('board.project = :projectId', { projectId })
-      .andWhere('project.deletedAt IS NULL')
-      .andWhere('board.id = :boardId', { boardId })
-      .getOne()
-
-    if (!board) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'Board not found', {
-        boardId,
-        projectId,
-      })
-    }
-
-    return {
-      id: board.id,
-      name: board.name,
-      isDefault: board.isDefault,
-      createdAt: board.createdAt.toISOString(),
-      updatedAt: board.updatedAt.toISOString(),
-      stages: board.stages.map((stage) => ({
-        id: stage.id,
-        name: stage.name,
-        createdAt: stage.createdAt.toISOString(),
-        updatedAt: stage.updatedAt.toISOString(),
-      })),
-      tasks: board.tasks.map((task) => ({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        stageId: task.stage.id,
-        createdAt: task.createdAt.toISOString(),
-        updatedAt: task.createdAt.toISOString(),
-      })),
-    }
-  }
-
-  async getStages(projectId: number, boardId: number): Promise<StageDto[]> {
-    const boardExists = await this.connection
-      .createEntityManager()
-      .exists(Board, { where: { id: boardId, project: { id: projectId } } })
-
-    if (!boardExists) {
-      throw new AppException(
-        HttpStatus.NOT_FOUND,
-        'Project or board not found',
-        {
-          projectId,
-          boardId,
-        }
-      )
-    }
-
-    const stages = await this.connection
-      .createQueryBuilder(Stage, 'stage')
-      .innerJoin('stage.board', 'board')
-      .innerJoin('board.project', 'project')
-      .where('board.project = :projectId', { projectId })
-      .andWhere('project.deletedAt IS NULL')
-      .andWhere('board.id = :boardId', { boardId })
-      .getMany()
-
-    return stages.map((item) => ({
-      id: item.id,
-      name: item.name,
-      createdAt: item.createdAt.toISOString(),
-      updatedAt: item.updatedAt.toISOString(),
-    }))
-  }
-
   async addUserToProject(
     dto: UserToProjectRequestDto
   ): Promise<UserToProjectResponseDto> {
-    const project = await this.getProjectIfExists(dto.projectId)
+    const project = await this.projectsRepository.getProjectIfExists(
+      dto.projectId
+    )
 
     const user = await this.connection
       .createEntityManager()
@@ -459,113 +311,6 @@ export class ProjectsService {
           updatedAt: projectsUsers.role.updatedAt.toISOString(),
         },
       },
-    }
-  }
-
-  async createBoard(dto: CreateBoardDto): Promise<BoardDto> {
-    const project = await this.getProjectIfExists(dto.projectId)
-
-    const newBoard = new Board({
-      name: dto.name,
-      isDefault: false,
-      project: project,
-    })
-
-    const created = await this.connection.getRepository(Board).save(newBoard)
-
-    return {
-      id: created.id,
-      name: created.name,
-      isDefault: created.isDefault,
-      createdAt: created.createdAt.toISOString(),
-      updatedAt: created.updatedAt.toISOString(),
-    }
-  }
-
-  async removeBoard(projectId: number, boardId: number): Promise<void> {
-    const board = await this.getBoardIfExists(projectId, boardId)
-
-    if (board.isDefault) {
-      throw new AppException(
-        HttpStatus.BAD_REQUEST,
-        'You cannot delete default board'
-      )
-    }
-
-    await this.connection.getRepository(Board).softRemove(board)
-  }
-
-  async updateBoard(dto: UpdateBoardDto): Promise<BoardDto> {
-    const board = await this.getBoardIfExists(dto.projectId, dto.boardId)
-
-    if (dto.isDefault) {
-      await this.connection
-        .createQueryBuilder(Board, 'board')
-        .innerJoin('board.project', 'project')
-        .update(Board)
-        .set({ isDefault: false })
-        .where('project.id = :projectId', { projectId: dto.projectId })
-        .execute()
-    }
-
-    Object.assign(board, {
-      name: dto.name,
-      isDefault: dto.isDefault || board.isDefault,
-    })
-
-    const updated = await this.connection.getRepository(Board).save(board)
-
-    return {
-      id: updated.id,
-      name: updated.name,
-      isDefault: updated.isDefault,
-      createdAt: updated.createdAt.toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
-  }
-
-  async createStage(dto: CreateStageDto): Promise<StageDto> {
-    const board = await this.getBoardIfExists(dto.projectId, dto.boardId)
-
-    const newStage = new Stage({
-      name: dto.name,
-      board: board,
-    })
-
-    const created = await this.connection.getRepository(Stage).save(newStage)
-
-    return {
-      id: created.id,
-      name: created.name,
-      createdAt: created.createdAt.toISOString(),
-      updatedAt: created.updatedAt.toISOString(),
-    }
-  }
-
-  async removeStage(dto: RemoveStageDto): Promise<void> {
-    await this.getBoardIfExists(dto.projectId, dto.boardId)
-
-    const stage = await this.getStageIfExists(dto.stageId)
-
-    await this.connection.getRepository(Stage).softRemove(stage)
-  }
-
-  async updateStage(dto: UpdateStageDto): Promise<StageDto> {
-    await this.getBoardIfExists(dto.projectId, dto.boardId)
-
-    const stage = await this.getStageIfExists(dto.stageId)
-
-    if (dto.name) {
-      stage.name = dto.name
-    }
-
-    const updated = await this.connection.getRepository(Stage).save(stage)
-
-    return {
-      id: updated.id,
-      name: updated.name,
-      createdAt: updated.createdAt.toISOString(),
-      updatedAt: new Date().toISOString(),
     }
   }
 }
