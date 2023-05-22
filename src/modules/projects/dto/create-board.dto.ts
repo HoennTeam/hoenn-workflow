@@ -1,4 +1,4 @@
 export interface CreateBoardDto {
-  readonly projectId: number
+  readonly projectSlug: string
   readonly name: string
 }

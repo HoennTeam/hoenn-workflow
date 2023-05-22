@@ -3,6 +3,11 @@ import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator'
 import { IsNull } from 'typeorm'
 
 export class CreateProjectRequest {
+  @ApiProperty()
+  @MinLength(2)
+  @MaxLength(6)
+  public readonly slug: string
+
   @ApiProperty({
     example: 'My project',
   })

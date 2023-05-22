@@ -1,4 +1,4 @@
 export interface DeleteUserFromProjectDto {
   readonly username: string
-  readonly projectId: number
+  readonly projectSlug: number
 }

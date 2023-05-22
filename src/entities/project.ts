@@ -6,17 +6,22 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   OneToMany,
+  Index,
 } from 'typeorm'
 import { Board } from './board'
 import { ProjectsUsers } from './projects-users'
 
 @Entity()
+@Index('slug', { unique: true })
 export class Project {
   constructor(data: Partial<Project>) {
     Object.assign(this, data)
   }
   @PrimaryGeneratedColumn()
   id: number
+
+  @Column({ type: 'varchar', length: 10 })
+  slug: string
 
   @Column()
   name: string

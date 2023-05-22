@@ -3,6 +3,7 @@ import { TaskDto } from './task.dto'
 
 export interface FullBoardDto {
   readonly id: number
+  readonly slug: string
   readonly name: string
   readonly isDefault: boolean
   readonly stages: StageDto[]

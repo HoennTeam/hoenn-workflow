@@ -1,6 +1,6 @@
 export interface UpdateBoardDto {
-  readonly projectId: number
-  readonly boardId: number
+  readonly projectSlug: number
+  readonly boardSlug: number
   readonly name?: string
   readonly isDefault?: boolean
 }

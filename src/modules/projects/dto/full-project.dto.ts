@@ -3,6 +3,7 @@ import { ProjectUsersDto } from './project-users.dto'
 
 export interface FullProjectDto {
   readonly id: number
+  readonly slug: string
   readonly name: string
   readonly description: string
   readonly createdAt: string

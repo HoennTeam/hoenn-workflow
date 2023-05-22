@@ -1,5 +1,5 @@
 export interface RemoveStageDto {
-  readonly projectId: number
-  readonly boardId: number
-  readonly stageId: number
+  readonly projectSlug: number
+  readonly boardSlug: number
+  readonly stageSlug: number
 }

@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinTable,
   ManyToOne,
   OneToMany,
@@ -14,12 +15,16 @@ import { Stage } from './stage'
 import { Task } from './task'
 
 @Entity()
+@Index(['slug', 'project'], { unique: true })
 export class Board {
   constructor(data: Partial<Board>) {
     Object.assign(this, data)
   }
   @PrimaryGeneratedColumn()
   id: number
+
+  @Column()
+  slug: string
 
   @Column()
   name: string

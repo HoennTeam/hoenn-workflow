@@ -7,6 +7,9 @@ export class FullProjectResponse {
   public readonly id: number
 
   @ApiProperty()
+  public readonly slug: string
+
+  @ApiProperty()
   public readonly name: string
 
   @ApiProperty()

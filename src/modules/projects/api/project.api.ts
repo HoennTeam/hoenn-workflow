@@ -5,6 +5,9 @@ export class ProjectResponse {
   public readonly id: number
 
   @ApiProperty()
+  public readonly slug: string
+
+  @ApiProperty()
   public readonly name: string
 
   @ApiProperty()

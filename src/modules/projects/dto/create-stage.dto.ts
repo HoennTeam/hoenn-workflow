@@ -1,5 +1,5 @@
 export interface CreateStageDto {
-  readonly projectId: number
-  readonly boardId: number
+  readonly projectSlug: number
+  readonly boardSlug: number
   readonly name: string
 }

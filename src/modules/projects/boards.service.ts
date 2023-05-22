@@ -1,31 +1,10 @@
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { AppException } from '../../common/exceptions/app.exception'
-import { dotenvConfig } from '../../core/config/dotenv-config'
 import { Logger } from '../../core/logger'
 import { Board } from '../../entities/board'
-import { Project } from '../../entities/project'
 import { DataSource } from 'typeorm'
-import {
-  UpdateProjectDto,
-  UpdateProjectRequestDto,
-} from './dto/update-project.dto'
-import {
-  CreateProjectDto,
-  CreateProjectRequestDto,
-} from './dto/create-project.dto'
-import { ProjectDto } from './dto/project.dto'
-import { FullProjectDto } from './dto/full-project.dto'
-import { BoardDto } from './dto/board.dto'
 import { FullBoardDto } from './dto/full-board.dto'
 import { StageDto } from './dto/stage.dto'
-import {
-  UserToProjectRequestDto,
-  UserToProjectResponseDto,
-} from './dto/user-to-project.dto'
-import { ProjectsUsers } from '../../entities/projects-users'
-import { User } from '../../entities/user'
-import { Role } from '../../entities/role'
-import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
 import { Stage } from '../../entities/stage'
 import { CreateStageDto } from './dto/create-stage.dto'
 import { RemoveStageDto } from './dto/delete-stage.dto'
@@ -33,6 +12,7 @@ import { UpdateStageDto } from './dto/update-stage.dto'
 import { CreateBoardDto } from './dto/create-board.dto'
 import { UpdateBoardDto } from './dto/update-board.dto'
 import { ProjectsRepository } from './projects.repository'
+import { BoardDto } from './dto/board.dto'
 
 @Injectable()
 export class BoardsService {
