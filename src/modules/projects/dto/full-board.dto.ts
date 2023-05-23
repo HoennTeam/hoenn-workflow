@@ -1,5 +1,5 @@
 import { StageDto } from './stage.dto'
-import { TaskDto } from './task.dto'
+import { TaskDto } from '../../task/dto/task.dto'
 
 export interface FullBoardDto {
   readonly id: number

@@ -20,10 +20,16 @@ export class Task {
   id: number
 
   @Column()
+  number: number
+
+  @Column()
   title: string
 
   @Column()
   description: string
+
+  @Column()
+  index: number
 
   @ManyToOne(() => Stage, (stage) => stage.tasks)
   stage: Stage
