@@ -7,9 +7,12 @@ import {
   DeleteDateColumn,
   ManyToOne,
   OneToMany,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm'
 import { Board } from './board'
 import { Stage } from './stage'
+import { User } from './user'
 
 @Entity()
 export class Task {
@@ -36,6 +39,10 @@ export class Task {
 
   @ManyToOne(() => Board, (board) => board.tasks)
   board: Board
+
+  @ManyToMany(() => User, (assignee) => assignee.assignedTasks)
+  @JoinTable({ name: 'task_assignees' })
+  assignees: User[]
 
   @CreateDateColumn()
   createdAt: Date
