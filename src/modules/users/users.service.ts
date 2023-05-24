@@ -11,6 +11,7 @@ import { CreateUserDto, CreateUserOutDto } from './dto/create-user.dto'
 import { FullUserDto } from './dto/full-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserDto } from './dto/user.dto'
+import { UsersRepository } from './users.repository'
 
 @Injectable()
 export class UsersService {
@@ -18,7 +19,8 @@ export class UsersService {
     private readonly logger: Logger,
     private readonly config: Config,
     private readonly connection: DataSource,
-    private readonly passwordsService: PasswordsService
+    private readonly passwordsService: PasswordsService,
+    private readonly usersRepository: UsersRepository
   ) {}
 
   public createUser(dto: CreateUserDto): Promise<CreateUserOutDto> {
@@ -115,13 +117,13 @@ export class UsersService {
   }
 
   async removeUser(username: string): Promise<void> {
-    const user = await this.getUserIfExists(username)
+    const user = await this.usersRepository.getUserIfExists(username)
 
     await this.connection.getRepository(User).softRemove(user)
   }
 
   async getFullUser(username: string): Promise<FullUserDto> {
-    const user = await this.getUserIfExists(username)
+    const user = await this.usersRepository.getUserIfExists(username)
 
     return {
       username: user.username,
@@ -133,23 +135,8 @@ export class UsersService {
     }
   }
 
-  private async getUserIfExists(username: string): Promise<User> {
-    const user = await this.connection
-      .createQueryBuilder(User, 'user')
-      .where('user.username = :username', { username })
-      .getOne()
-
-    if (!user) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'User not found', {
-        username,
-      })
-    }
-
-    return user
-  }
-
   async updateUser(dto: UpdateUserDto): Promise<FullUserDto> {
-    const user = await this.getUserIfExists(dto.username)
+    const user = await this.usersRepository.getUserIfExists(dto.username)
 
     Object.assign(user, {
       bio: dto.bio ?? user.bio,

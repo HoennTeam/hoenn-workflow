@@ -7,9 +7,11 @@ import {
   DeleteDateColumn,
   ManyToOne,
   OneToMany,
+  ManyToMany,
 } from 'typeorm'
 import { ProjectsUsers } from './projects-users'
 import { Role } from './role'
+import { Task } from './task'
 
 @Entity()
 export class User {
@@ -48,6 +50,9 @@ export class User {
 
   @OneToMany(() => ProjectsUsers, (projectsUsers) => projectsUsers.user)
   projectsUsers: ProjectsUsers[]
+
+  @ManyToMany(() => Task, (assignedTask) => assignedTask.assignees)
+  assignedTasks: Task[]
 
   @CreateDateColumn()
   createdAt: Date

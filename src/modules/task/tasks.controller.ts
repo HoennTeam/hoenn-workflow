@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Put,
 } from '@nestjs/common'
 import {
   ApiConflictResponse,
@@ -22,6 +23,7 @@ import { FullTaskResponse } from './api/full-task.api'
 import { UpdateTaskRequest } from './api/update-task.api'
 import { TasksService } from './tasks.service'
 import { MoveTaskRequest } from './api/move-task.api'
+import { AddUserToTaskRequest } from './api/add-user-to-task.api'
 
 @ApiTags('Tasks')
 @Controller('tasks')
@@ -83,6 +85,34 @@ export class TasksController {
     return this.tasksService.moveTask({
       id,
       ...moveTaskRequest,
+    })
+  }
+
+  @ApiOperation({ description: 'Add user to task' })
+  @ApiOkResponse()
+  @ApiUnauthorizedResponse({ type: ExceptionResponse })
+  @Put('/:id/assignees')
+  public async addUserToTask(
+    @Param('id', new ParseIntPipe()) taskId: number,
+    @Body() addUserToTaskRequest: AddUserToTaskRequest
+  ): Promise<void> {
+    return this.tasksService.addUserToTask({
+      taskId,
+      ...addUserToTaskRequest,
+    })
+  }
+
+  @ApiOperation({ description: 'Remove user from task' })
+  @ApiOkResponse()
+  @ApiUnauthorizedResponse({ type: ExceptionResponse })
+  @Delete('/:id/assignees/:username')
+  public async removeUserFromTask(
+    @Param('id', new ParseIntPipe()) taskId: number,
+    @Param('username') username: string
+  ): Promise<void> {
+    return this.tasksService.removeUserFromTask({
+      taskId,
+      username,
     })
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { DataSource } from 'typeorm'
 import { Config } from '../../core/config'
 import { Logger } from '../../core/logger'
@@ -9,6 +9,9 @@ import { Task } from '../../entities/task'
 import { MoveTaskDto } from './dto/move-task.dto'
 import { ProjectsRepository } from '../projects/projects.repository'
 import { TasksRepository } from './tasks.repository'
+import { UserTaskDto } from './dto/add-user-task.dto'
+import { UsersRepository } from '../users/users.repository'
+import { AppException } from '../../common/exceptions/app.exception'
 
 @Injectable()
 export class TasksService {
@@ -17,7 +20,8 @@ export class TasksService {
     private readonly config: Config,
     private readonly connection: DataSource,
     private readonly projectsRepository: ProjectsRepository,
-    private readonly tasksRepository: TasksRepository
+    private readonly tasksRepository: TasksRepository,
+    private readonly usersRepository: UsersRepository
   ) {}
 
   public getFullTaskDto(task: Task): FullTaskDto {
@@ -28,6 +32,13 @@ export class TasksService {
       description: task.description,
       index: task.index,
       stageId: task.stage.id,
+      assignees: task.assignees.map((u) => ({
+        username: u.username,
+        email: u.email,
+        fullName: u.fullName,
+        createdAt: u.createdAt.toISOString(),
+        updatedAt: u.updatedAt.toISOString(),
+      })),
       createdAt: task.createdAt.toISOString(),
       updatedAt: task.updatedAt.toISOString(),
     }
@@ -151,5 +162,36 @@ export class TasksService {
     })
 
     return this.getFullTaskDto(task)
+  }
+
+  async addUserToTask(dto: UserTaskDto): Promise<void> {
+    const task = await this.tasksRepository.getFullTaskIfExists(dto.taskId)
+    const user = await this.usersRepository.getUserIfExists(dto.username)
+
+    if (task.assignees.find((u) => u.id === user.id)) {
+      throw new AppException(
+        HttpStatus.BAD_REQUEST,
+        'User is already assigned to this task'
+      )
+    }
+
+    task.assignees.push(user)
+
+    await this.connection.getRepository(Task).save(task)
+  }
+
+  async removeUserFromTask(dto: UserTaskDto): Promise<void> {
+    const task = await this.tasksRepository.getFullTaskIfExists(dto.taskId)
+
+    if (!task.assignees.find((u) => u.username === dto.username)) {
+      throw new AppException(
+        HttpStatus.BAD_REQUEST,
+        'User is not assigned to this task'
+      )
+    }
+
+    task.assignees = task.assignees.filter((u) => u.username !== dto.username)
+
+    await this.connection.getRepository(Task).save(task)
   }
 }
