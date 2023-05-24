@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { UserResponse } from '../../users/api/user.api'
+import { StageResponse } from '../../projects/api/stage.api'
 
 export class FullTaskResponse {
   @ApiProperty()
@@ -18,7 +19,7 @@ export class FullTaskResponse {
   public readonly index: number
 
   @ApiProperty()
-  public readonly stageId: number
+  public readonly stage: StageResponse
 
   @ApiProperty()
   public readonly assignees: UserResponse[]

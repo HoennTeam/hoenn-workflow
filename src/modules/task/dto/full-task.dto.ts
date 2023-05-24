@@ -1,3 +1,4 @@
+import { StageDto } from '../../projects/dto/stage.dto'
 import { UserDto } from '../../users/dto/user.dto'
 
 export interface FullTaskDto {
@@ -6,7 +7,7 @@ export interface FullTaskDto {
   readonly title: string
   readonly description: string
   readonly index: number
-  readonly stageId: number
+  readonly stage: StageDto
   readonly assignees: UserDto[]
   readonly createdAt: string
   readonly updatedAt: string

@@ -31,7 +31,12 @@ export class TasksService {
       title: task.title,
       description: task.description,
       index: task.index,
-      stageId: task.stage.id,
+      stage: {
+        id: task.stage.id,
+        name: task.stage.name,
+        createdAt: task.stage.createdAt.toISOString(),
+        updatedAt: task.stage.updatedAt.toISOString(),
+      },
       assignees: task.assignees.map((u) => ({
         username: u.username,
         email: u.email,
@@ -73,6 +78,7 @@ export class TasksService {
         number: taskNumber,
         index: taskIndex,
         title: dto.title,
+        assignees: [],
         description: '',
       })
 
@@ -95,7 +101,7 @@ export class TasksService {
   }
 
   async updateTask(dto: UpdateTaskDto): Promise<FullTaskDto> {
-    const task = await this.tasksRepository.getTaskIfExists(dto.id)
+    const task = await this.tasksRepository.getFullTaskIfExists(dto.id)
 
     if (dto.title) {
       task.title = dto.title
@@ -109,7 +115,7 @@ export class TasksService {
     return this.getFullTaskDto(updated)
   }
 
-  async moveTask(dto: MoveTaskDto): Promise<FullTaskDto> {
+  async moveTask(dto: MoveTaskDto): Promise<void> {
     const task = await this.tasksRepository.getTaskIfExists(dto.id)
 
     const fromStageId = task.stage.id
@@ -160,8 +166,6 @@ export class TasksService {
 
       await this.connection.getRepository(Task).save(task)
     })
-
-    return this.getFullTaskDto(task)
   }
 
   async addUserToTask(dto: UserTaskDto): Promise<void> {

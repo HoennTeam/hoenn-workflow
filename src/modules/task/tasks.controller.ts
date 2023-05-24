@@ -75,13 +75,13 @@ export class TasksController {
   }
 
   @ApiOperation({ description: 'Move task' })
-  @ApiOkResponse({ type: FullTaskResponse })
+  @ApiOkResponse()
   @ApiUnauthorizedResponse({ type: ExceptionResponse })
   @Patch('/:id/move')
   public async moveTask(
     @Param('id', new ParseIntPipe()) id: number,
     @Body() moveTaskRequest: MoveTaskRequest
-  ): Promise<FullTaskResponse> {
+  ): Promise<void> {
     return this.tasksService.moveTask({
       id,
       ...moveTaskRequest,
