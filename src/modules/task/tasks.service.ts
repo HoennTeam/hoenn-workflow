@@ -34,6 +34,7 @@ export class TasksService {
       stage: {
         id: task.stage.id,
         name: task.stage.name,
+        index: task.stage.index,
         createdAt: task.stage.createdAt.toISOString(),
         updatedAt: task.stage.updatedAt.toISOString(),
       },
@@ -134,7 +135,7 @@ export class TasksService {
       if (!dto.leadingTaskId) {
         task.index = 1
       } else {
-        const { leadingTaskIndex } = await this.connection
+        const { leadingTaskIndex } = await tx
           .getRepository(Task)
           .createQueryBuilder('task')
           .select('task.index', 'leadingTaskIndex')
@@ -146,7 +147,7 @@ export class TasksService {
 
       const newIndex = task.index
 
-      await this.connection
+      await tx
         .getRepository(Task)
         .createQueryBuilder('task')
         .update()
@@ -155,7 +156,7 @@ export class TasksService {
         .andWhere('task.index > :oldIndex', { oldIndex })
         .execute()
 
-      await this.connection
+      await tx
         .getRepository(Task)
         .createQueryBuilder('task')
         .update()
@@ -164,7 +165,7 @@ export class TasksService {
         .andWhere('task.index >= :newIndex', { newIndex })
         .execute()
 
-      await this.connection.getRepository(Task).save(task)
+      await tx.getRepository(Task).save(task)
     })
   }
 

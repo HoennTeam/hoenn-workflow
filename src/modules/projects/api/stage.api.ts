@@ -8,6 +8,9 @@ export class StageResponse {
   public readonly name: string
 
   @ApiProperty()
+  public readonly index: number
+
+  @ApiProperty()
   public readonly createdAt: string
 
   @ApiProperty()
