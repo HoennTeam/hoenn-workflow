@@ -1,31 +1,11 @@
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { AppException } from '../../common/exceptions/app.exception'
-import { dotenvConfig } from '../../core/config/dotenv-config'
 import { Logger } from '../../core/logger'
 import { Board } from '../../entities/board'
-import { Project } from '../../entities/project'
 import { DataSource } from 'typeorm'
-import {
-  UpdateProjectDto,
-  UpdateProjectRequestDto,
-} from './dto/update-project.dto'
-import {
-  CreateProjectDto,
-  CreateProjectRequestDto,
-} from './dto/create-project.dto'
-import { ProjectDto } from './dto/project.dto'
-import { FullProjectDto } from './dto/full-project.dto'
 import { BoardDto } from './dto/board.dto'
 import { FullBoardDto } from './dto/full-board.dto'
 import { StageDto } from './dto/stage.dto'
-import {
-  UserToProjectRequestDto,
-  UserToProjectResponseDto,
-} from './dto/user-to-project.dto'
-import { ProjectsUsers } from '../../entities/projects-users'
-import { User } from '../../entities/user'
-import { Role } from '../../entities/role'
-import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto'
 import { Stage } from '../../entities/stage'
 import { CreateStageDto } from './dto/create-stage.dto'
 import { RemoveStageDto } from './dto/delete-stage.dto'
@@ -33,6 +13,7 @@ import { UpdateStageDto } from './dto/update-stage.dto'
 import { CreateBoardDto } from './dto/create-board.dto'
 import { UpdateBoardDto } from './dto/update-board.dto'
 import { ProjectsRepository } from './projects.repository'
+import { MoveStageDto } from './dto/move-stage.dto'
 
 @Injectable()
 export class BoardsService {
@@ -77,6 +58,7 @@ export class BoardsService {
       stages: board.stages.map((stage) => ({
         id: stage.id,
         name: stage.name,
+        index: stage.index,
         createdAt: stage.createdAt.toISOString(),
         updatedAt: stage.updatedAt.toISOString(),
       })),
@@ -174,12 +156,14 @@ export class BoardsService {
 
     const stages = await this.connection
       .createQueryBuilder(Stage, 'stage')
-      .andWhere('stage.board = :boardId', { boardId })
+      .where('stage.board = :boardId', { boardId })
+      .orderBy('stage.index', 'ASC')
       .getMany()
 
     return stages.map((item) => ({
       id: item.id,
       name: item.name,
+      index: item.index,
       createdAt: item.createdAt.toISOString(),
       updatedAt: item.updatedAt.toISOString(),
     }))
@@ -191,19 +175,30 @@ export class BoardsService {
       dto.boardId
     )
 
-    const newStage = new Stage({
-      name: dto.name,
-      board: board,
+    return this.connection.transaction(async (tx) => {
+      const { stageIndex } = await tx
+        .getRepository(Stage)
+        .createQueryBuilder('stage')
+        .select('COALESCE(MAX(stage.index) + 1, 1)', 'stageIndex')
+        .where('stage.board = :boardId', { boardId: dto.boardId })
+        .getRawOne()
+
+      const newStage = new Stage({
+        name: dto.name,
+        board: board,
+        index: stageIndex,
+      })
+
+      const created = await this.connection.getRepository(Stage).save(newStage)
+
+      return {
+        id: created.id,
+        name: created.name,
+        index: created.index,
+        createdAt: created.createdAt.toISOString(),
+        updatedAt: created.updatedAt.toISOString(),
+      }
     })
-
-    const created = await this.connection.getRepository(Stage).save(newStage)
-
-    return {
-      id: created.id,
-      name: created.name,
-      createdAt: created.createdAt.toISOString(),
-      updatedAt: created.updatedAt.toISOString(),
-    }
   }
 
   public async removeStage(dto: RemoveStageDto): Promise<void> {
@@ -228,8 +223,54 @@ export class BoardsService {
     return {
       id: updated.id,
       name: updated.name,
+      index: updated.index,
       createdAt: updated.createdAt.toISOString(),
       updatedAt: new Date().toISOString(),
     }
+  }
+
+  public async moveStage(dto: MoveStageDto): Promise<void> {
+    await this.projectsRepository.getBoardIfExists(dto.projectId, dto.boardId)
+
+    const stage = await this.projectsRepository.getStageIfExists(dto.stageId)
+
+    const oldIndex = stage.index
+
+    return this.connection.transaction(async (tx) => {
+      if (!dto.leadingStageId) {
+        stage.index = 1
+      } else {
+        const { leadingStageIndex } = await tx
+          .getRepository(Stage)
+          .createQueryBuilder('stage')
+          .select('stage.index', 'leadingStageIndex')
+          .where('stage.id = :stageId', { stageId: dto.leadingStageId })
+          .getRawOne()
+
+        stage.index = leadingStageIndex + 1
+      }
+
+      const newIndex = stage.index
+
+      await tx
+        .getRepository(Stage)
+        .createQueryBuilder('stage')
+        .update()
+        .set({ index: () => 'index - 1' })
+        .where('stage.index > :oldIndex', { oldIndex })
+        .andWhere('stage.board_id = :boardId', { boardId: dto.boardId })
+        .execute()
+
+      await tx
+        .getRepository(Stage)
+        .createQueryBuilder('stage')
+        .update()
+        .set({ index: () => 'index + 1' })
+        .andWhere('stage.index >= :newIndex', { newIndex })
+        .andWhere('stage.board_id = :boardId', { boardId: dto.boardId })
+        .execute()
+
+      tx.getRepository(Stage).save(stage)
+    })
   }
 }

@@ -47,6 +47,7 @@ import { CreateBoardDto } from './dto/create-board.dto'
 import { UpdateBoardRequest } from './api/update-board.api'
 import { UpdateBoardDto } from './dto/update-board.dto'
 import { BoardsService } from './boards.service'
+import { MoveStageRequest } from './api/move-stage.api'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -281,5 +282,23 @@ export class ProjectsController {
       name: updateStage.name,
     }
     return this.boardsService.updateStage(dto)
+  }
+
+  @ApiOperation({ description: 'Move stage' })
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  @Patch(':projectId/boards/:boardId/stages/:stageId/move')
+  public async moveStage(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Param('stageId', ParseIntPipe) stageId: number,
+    @Body() moveStageRequest: MoveStageRequest
+  ): Promise<void> {
+    return this.boardsService.moveStage({
+      projectId,
+      boardId,
+      stageId,
+      ...moveStageRequest,
+    })
   }
 }

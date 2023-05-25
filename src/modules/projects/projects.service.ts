@@ -45,6 +45,7 @@ export class ProjectsService {
   async getProjects(): Promise<ProjectDto[]> {
     const projects = await this.connection
       .createQueryBuilder(Project, 'project')
+      .orderBy('project.createdAt', 'ASC')
       .getMany()
 
     return projects.map((project) => ({
