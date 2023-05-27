@@ -29,6 +29,7 @@ export class ProjectsRepository {
       .leftJoinAndSelect('project.projectsUsers', 'projectsUsers')
       .leftJoinAndSelect('projectsUsers.user', 'user')
       .leftJoinAndSelect('projectsUsers.role', 'role')
+      .leftJoinAndSelect('user.globalRole', 'globalRole')
       .leftJoinAndSelect('project.boards', 'boards')
       .where('project.id = :id', { id })
       .getOne()

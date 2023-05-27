@@ -12,6 +12,7 @@ import { FullUserDto } from './dto/full-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserDto } from './dto/user.dto'
 import { UsersRepository } from './users.repository'
+import { UpdateUserRoleDto } from './dto/update-user-role.dto'
 
 @Injectable()
 export class UsersService {
@@ -77,6 +78,7 @@ export class UsersService {
       email: user.email,
       fullName: user.fullName,
       password: plainPassword,
+      roleName: role!.name,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.createdAt.toISOString(),
     }
@@ -105,12 +107,14 @@ export class UsersService {
   async getUsers(): Promise<UserDto[]> {
     const users = await this.connection
       .createQueryBuilder(User, 'user')
+      .leftJoinAndSelect('user.globalRole', 'globalRole')
       .getMany()
 
     return users.map((user) => ({
       username: user.username,
       email: user.email,
       fullName: user.fullName,
+      roleName: user.globalRole.name,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
     }))
@@ -130,6 +134,7 @@ export class UsersService {
       fullName: user.fullName,
       email: user.email,
       bio: user.bio,
+      roleName: user.globalRole.name,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
     }
@@ -151,8 +156,28 @@ export class UsersService {
       fullName: user.fullName,
       email: user.email,
       bio: user.bio,
+      roleName: user.globalRole.name,
       createdAt: user.createdAt.toISOString(),
       updatedAt: new Date().toISOString(),
     }
+  }
+
+  async updateUserRole(dto: UpdateUserRoleDto): Promise<void> {
+    const user = await this.usersRepository.getUserIfExists(dto.username)
+
+    await this.connection.getRepository(User).save(user)
+
+    const role = await this.connection
+      .getRepository(Role)
+      .findOne({ where: { name: dto.roleName } })
+    if (!role) {
+      throw new AppException(HttpStatus.NOT_FOUND, 'Role not found', {
+        name: dto.roleName,
+      })
+    }
+
+    user.globalRole = role
+
+    await this.connection.getRepository(User).save(user)
   }
 }

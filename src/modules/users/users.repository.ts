@@ -10,6 +10,7 @@ export class UsersRepository {
   public async getUserIfExists(username: string): Promise<User> {
     const user = await this.connection
       .createQueryBuilder(User, 'user')
+      .leftJoinAndSelect('user.globalRole', 'globalRole')
       .where('user.username = :username', { username })
       .getOne()
 

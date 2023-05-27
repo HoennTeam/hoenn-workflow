@@ -44,6 +44,7 @@ function load(): Config {
       passwordMinLength: Number(process.env.USERS_PASSWORD_MIN_LENGTH) || 8,
       adminUsername: process.env.USERS_ADMIN_USERNAME ?? 'admin',
       defaultRole: 'Member',
+      defaultProjectRole: 'Viewer',
       adminRole: 'Administrator',
     },
     passwords: {

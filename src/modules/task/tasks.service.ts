@@ -42,6 +42,7 @@ export class TasksService {
         username: u.username,
         email: u.email,
         fullName: u.fullName,
+        roleName: u.globalRole.name,
         createdAt: u.createdAt.toISOString(),
         updatedAt: u.updatedAt.toISOString(),
       })),

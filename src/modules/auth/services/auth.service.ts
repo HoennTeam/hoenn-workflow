@@ -11,6 +11,7 @@ import { PasswordsService } from './passwords.service'
 import { SessionsService } from './sessions.service'
 import { AuthPayload } from '../../../common/interfaces/auth-payload.interface'
 import { MeDto } from '../dto/me.dto'
+import { Role } from '../../../entities/role'
 
 @Injectable()
 export class AuthService {
@@ -45,6 +46,8 @@ export class AuthService {
       username: user.username,
       email: user.email,
       fullName: user.fullName,
+      roleName: user.globalRole.name,
+      permissions: user.globalRole.permissions.map((p) => p.name),
     })
 
     return {
@@ -53,6 +56,8 @@ export class AuthService {
         username: user.username,
         email: user.email,
         fullName: user.fullName,
+        roleName: user.globalRole.name,
+        permissions: user.globalRole.permissions.map((p) => p.name),
       },
     }
   }
@@ -91,6 +96,11 @@ export class AuthService {
       where: {
         username,
       },
+      relations: {
+        globalRole: {
+          permissions: true,
+        },
+      },
     })
 
     if (!user) {
@@ -117,6 +127,8 @@ export class AuthService {
       username: payload.username,
       email: payload.email,
       fullName: payload.fullName,
+      roleName: payload.roleName,
+      permissions: payload.permissions,
     }
   }
 }
