@@ -116,7 +116,7 @@ export class ProjectsController {
     const addUserToProjectDto: UserToProjectRequestDto = {
       projectId: projectId,
       username: userToProjectRequest.username,
-      roleId: userToProjectRequest.roleId,
+      roleName: userToProjectRequest.roleName,
     }
     return this.projectsService.addUserToProject(addUserToProjectDto)
   }
@@ -143,12 +143,12 @@ export class ProjectsController {
   public async changeUserRoleInProject(
     @Param('projectId', ParseIntPipe) projectId: number,
     @Param('username') username: string,
-    @Body('roleId', ParseIntPipe) roleId: number
+    @Body('roleName') roleName: string
   ): Promise<UserToProjectResponse> {
     const changeUserRoleInProjectDto: UserToProjectRequestDto = {
       projectId: projectId,
       username: username,
-      roleId: roleId,
+      roleName: roleName,
     }
     return this.projectsService.changeUserRoleInProject(
       changeUserRoleInProjectDto

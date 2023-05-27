@@ -33,11 +33,13 @@ import { UpdateStageDto } from './dto/update-stage.dto'
 import { CreateBoardDto } from './dto/create-board.dto'
 import { UpdateBoardDto } from './dto/update-board.dto'
 import { ProjectsRepository } from './projects.repository'
+import { Config } from '../../core/config'
 
 @Injectable()
 export class ProjectsService {
   constructor(
     private readonly logger: Logger,
+    private readonly config: Config,
     private readonly connection: DataSource,
     private readonly projectsRepository: ProjectsRepository
   ) {}
@@ -169,7 +171,9 @@ export class ProjectsService {
 
     const role = await this.connection
       .createEntityManager()
-      .findOne(Role, { where: { id: dto.roleId } })
+      .findOne(Role, {
+        where: { name: dto.roleName ?? this.config.users.defaultProjectRole },
+      })
 
     if (!role) {
       throw new AppException(HttpStatus.NOT_FOUND, 'Role not found')
@@ -275,9 +279,9 @@ export class ProjectsService {
       )
     }
 
-    const role = await this.connection
-      .getRepository(Role)
-      .findOne({ where: { id: dto.roleId } })
+    const role = await this.connection.getRepository(Role).findOne({
+      where: { name: dto.roleName ?? this.config.users.defaultProjectRole },
+    })
 
     if (!role) {
       throw new AppException(HttpStatus.NOT_FOUND, 'Role not found')

@@ -4,7 +4,7 @@ import { ProjectDto } from './project.dto'
 export interface UserToProjectRequestDto {
   readonly projectId: number
   readonly username: string
-  readonly roleId: number
+  readonly roleName?: string
 }
 
 export interface UserToProjectResponseDto {
