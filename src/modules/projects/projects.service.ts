@@ -86,6 +86,7 @@ export class ProjectsService {
           id: item.user.id,
           fullName: item.user.fullName,
           email: item.user.email,
+          roleName: item.user.globalRole.name,
           createdAt: item.user.createdAt.toISOString(),
           updatedAt: item.user.updatedAt.toISOString(),
         },
@@ -157,9 +158,10 @@ export class ProjectsService {
       dto.projectId
     )
 
-    const user = await this.connection
-      .createEntityManager()
-      .findOne(User, { where: { username: dto.username } })
+    const user = await this.connection.createEntityManager().findOne(User, {
+      where: { username: dto.username },
+      relations: { globalRole: true },
+    })
 
     if (!user) {
       throw new AppException(HttpStatus.NOT_FOUND, 'User not found')
@@ -214,6 +216,7 @@ export class ProjectsService {
           username: user.username,
           fullName: user.fullName,
           email: user.email,
+          roleName: user.globalRole.name,
           createdAt: user.createdAt.toISOString(),
           updatedAt: user.updatedAt.toISOString(),
         },
@@ -257,6 +260,7 @@ export class ProjectsService {
       .leftJoinAndSelect('projectsUsers.project', 'project')
       .leftJoinAndSelect('projectsUsers.user', 'user')
       .leftJoinAndSelect('projectsUsers.role', 'role')
+      .leftJoinAndSelect('user.globalRole', 'globalRole')
       .where('user.username = :username', { username: dto.username })
       .andWhere('projectsUsers.project = :projectId', {
         projectId: dto.projectId,
@@ -300,6 +304,7 @@ export class ProjectsService {
           username: projectsUsers.user.username,
           fullName: projectsUsers.user.fullName,
           email: projectsUsers.user.email,
+          roleName: projectsUsers.user.globalRole.name,
           createdAt: projectsUsers.user.createdAt.toISOString(),
           updatedAt: projectsUsers.user.updatedAt.toISOString(),
         },

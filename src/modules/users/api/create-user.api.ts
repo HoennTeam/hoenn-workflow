@@ -30,6 +30,9 @@ export class CreateUserResponse {
   @ApiProperty()
   public readonly password: string
 
+  @ApiProperty()
+  public readonly roleName: string
+
   @ApiProperty({ example: new Date().toISOString() })
   public readonly createdAt: string
 

@@ -22,6 +22,7 @@ import { FullUserResponse } from './api/full-user.api'
 import { UpdateUserRequest } from './api/update-user.api'
 import { UserResponse } from './api/user.api'
 import { UsersService } from './users.service'
+import { UpdateUserRoleRequest } from './api/update-user-role.api'
 
 @ApiTags('Users')
 @Controller('users')
@@ -75,6 +76,20 @@ export class UsersController {
     return this.usersService.updateUser({
       username,
       ...dto,
+    })
+  }
+
+  @ApiOperation({ description: 'Update user role' })
+  @ApiOkResponse()
+  @ApiUnauthorizedResponse({ type: ExceptionResponse })
+  @Patch('/:username/role')
+  public async updateUserRole(
+    @Param('username') username: string,
+    @Body() request: UpdateUserRoleRequest
+  ): Promise<void> {
+    return this.usersService.updateUserRole({
+      username,
+      ...request,
     })
   }
 }
