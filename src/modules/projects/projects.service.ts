@@ -169,11 +169,9 @@ export class ProjectsService {
       throw new AppException(HttpStatus.NOT_FOUND, 'User not found')
     }
 
-    const role = await this.connection
-      .createEntityManager()
-      .findOne(Role, {
-        where: { name: dto.roleName ?? this.config.users.defaultProjectRole },
-      })
+    const role = await this.connection.createEntityManager().findOne(Role, {
+      where: { name: dto.roleName ?? this.config.users.defaultProjectRole },
+    })
 
     if (!role) {
       throw new AppException(HttpStatus.NOT_FOUND, 'Role not found')
