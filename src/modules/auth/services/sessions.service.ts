@@ -31,7 +31,9 @@ export class SessionsService {
 
     await this.redisClient.set(
       `${SESSIONS_NAMESPACE}:${sessionId}`,
-      JSON.stringify(payload)
+      JSON.stringify(payload),
+      'EX',
+      this.config.sessions.expiresSeconds
     )
 
     return sessionId
