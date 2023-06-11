@@ -14,6 +14,8 @@ import {
 import { InstanceResponse } from './api/instance.api'
 import { UpdateInstanceRequest } from './api/update-instance.api'
 import { InstanceService } from './instance.service'
+import { Authorize } from '../../common/decorators/authorize.decorator'
+import { PERMISSIONS } from '../../common/const/permissions.const'
 
 @ApiTags('Instance')
 @Controller('instance')
@@ -38,6 +40,7 @@ export class InstanceController {
     return this.instanceService.createInstance(createInstanceRequest)
   }
 
+  @Authorize({ permission: PERMISSIONS.INSTANCE.UPDATE })
   @ApiOperation({ description: 'Update instance' })
   @ApiOkResponse({ type: InstanceResponse })
   @ApiBadRequestResponse({ type: ExceptionResponse })

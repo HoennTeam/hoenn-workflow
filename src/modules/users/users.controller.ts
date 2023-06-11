@@ -23,12 +23,15 @@ import { UpdateUserRequest } from './api/update-user.api'
 import { UserResponse } from './api/user.api'
 import { UsersService } from './users.service'
 import { UpdateUserRoleRequest } from './api/update-user-role.api'
+import { Authorize } from '../../common/decorators/authorize.decorator'
+import { PERMISSIONS } from '../../common/const/permissions.const'
 
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Authorize({ permission: PERMISSIONS.USERS.CREATE })
   @ApiOperation({ description: 'Add new user to the instance' })
   @ApiOkResponse({ type: CreateUserResponse })
   @ApiConflictResponse({ type: ExceptionResponse })
@@ -57,6 +60,7 @@ export class UsersController {
     return this.usersService.getFullUser(username)
   }
 
+  @Authorize({ permission: PERMISSIONS.USERS.DELETE })
   @ApiOperation({ description: 'Remove user' })
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ExceptionResponse })
@@ -65,6 +69,7 @@ export class UsersController {
     return this.usersService.removeUser(username)
   }
 
+  @Authorize({ permission: PERMISSIONS.USERS.UPDATE })
   @ApiOperation({ description: 'Update user' })
   @ApiOkResponse({ type: FullUserResponse })
   @ApiUnauthorizedResponse({ type: ExceptionResponse })
@@ -79,6 +84,7 @@ export class UsersController {
     })
   }
 
+  @Authorize({ permission: PERMISSIONS.USERS.UPDATE_ROLE })
   @ApiOperation({ description: 'Update user role' })
   @ApiOkResponse()
   @ApiUnauthorizedResponse({ type: ExceptionResponse })

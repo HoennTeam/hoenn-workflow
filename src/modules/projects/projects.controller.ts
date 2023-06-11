@@ -48,6 +48,8 @@ import { UpdateBoardRequest } from './api/update-board.api'
 import { UpdateBoardDto } from './dto/update-board.dto'
 import { BoardsService } from './boards.service'
 import { MoveStageRequest } from './api/move-stage.api'
+import { Authorize } from '../../common/decorators/authorize.decorator'
+import { PERMISSIONS } from '../../common/const/permissions.const'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -56,6 +58,7 @@ export class ProjectsController {
     private readonly boardsService: BoardsService
   ) {}
 
+  @Authorize({ permission: PERMISSIONS.PROJECTS.READ })
   @ApiOperation({ description: 'Get all projects' })
   @ApiOkResponse({ type: ProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
@@ -64,6 +67,7 @@ export class ProjectsController {
     return this.projectsService.getProjects()
   }
 
+  @Authorize({ permission: PERMISSIONS.PROJECTS.READ })
   @ApiOperation({ description: 'Get one project' })
   @ApiOkResponse({ type: ProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
@@ -74,6 +78,7 @@ export class ProjectsController {
     return this.projectsService.getFullProject(id)
   }
 
+  @Authorize({ permission: PERMISSIONS.PROJECTS.CREATE })
   @ApiOperation({ description: 'Create project' })
   @ApiOkResponse({ type: CreateProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
@@ -84,6 +89,7 @@ export class ProjectsController {
     return this.projectsService.createProject(createProjectRequest)
   }
 
+  @Authorize({ permission: PERMISSIONS.PROJECTS.DELETE })
   @ApiOperation({ description: 'Delete project' })
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ExceptionResponse })
@@ -94,6 +100,7 @@ export class ProjectsController {
     return this.projectsService.removeProject(id)
   }
 
+  @Authorize({ permission: PERMISSIONS.PROJECTS.UPDATE })
   @ApiOperation({ description: 'Update project' })
   @ApiOkResponse({ type: UpdateProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })

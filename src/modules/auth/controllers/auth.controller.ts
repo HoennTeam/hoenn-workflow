@@ -27,6 +27,7 @@ import { AuthService } from '../services/auth.service'
 import { UsersService } from '../../users/users.service'
 import { FullUserResponse } from '../../users/api/full-user.api'
 import { UpdateUserRequest } from '../../users/api/update-user.api'
+import { PERMISSIONS } from '../../../common/const/permissions.const'
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -82,6 +83,7 @@ export class AuthController {
     return this.usersService.getFullUser(payload.username)
   }
 
+  @Authorize({ permission: PERMISSIONS.PROFILE.UPDATE })
   @ApiOperation({ description: 'Update profile' })
   @ApiOkResponse({ type: FullUserResponse })
   @ApiUnauthorizedResponse({ type: ExceptionResponse })
