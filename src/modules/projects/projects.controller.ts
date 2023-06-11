@@ -60,7 +60,7 @@ export class ProjectsController {
     private readonly boardsService: BoardsService
   ) {}
 
-  @Authorize({ permission: PERMISSIONS.PROJECTS.READ })
+  @Authorize({})
   @ApiOperation({ description: 'Get all projects' })
   @ApiOkResponse({ type: ProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
@@ -69,7 +69,7 @@ export class ProjectsController {
     return this.projectsService.getProjects()
   }
 
-  @Authorize({ permission: PERMISSIONS.PROJECTS.READ })
+  @Authorize({})
   @ApiOperation({ description: 'Get one project' })
   @ApiOkResponse({ type: ProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
