@@ -273,6 +273,29 @@ export class ProjectsService {
       )
     }
 
+    const roleOwner = await this.connection
+      .createEntityManager()
+      .findOne(Role, { where: { name: 'Project Owner' } })
+
+    if (!roleOwner) {
+      throw new AppException(
+        HttpStatus.NOT_FOUND,
+        'Role "Project Owner" not found'
+      )
+    }
+
+    const countOwners = await this.connection
+      .createQueryBuilder(ProjectsUsers, 'projectUsers')
+      .select('projectUsers.project', 'project')
+      .addSelect('projectUsers.role', 'role')
+      .addSelect('COUNT(*)', 'count')
+      .groupBy('projectUsers.project, projectUsers.role')
+      .getRawMany()
+
+    if (countOwners.length == 1) {
+      throw new AppException(HttpStatus.BAD_REQUEST, 'Owner cannot be deleted')
+    }
+
     await this.connection.createEntityManager().remove(projectsUsers)
   }
 
