@@ -50,6 +50,8 @@ import { BoardsService } from './boards.service'
 import { MoveStageRequest } from './api/move-stage.api'
 import { Authorize } from '../../common/decorators/authorize.decorator'
 import { PERMISSIONS } from '../../common/const/permissions.const'
+import { Payload } from '../../common/decorators/payload.decorator'
+import { AuthPayload } from '../../common/interfaces/auth-payload.interface'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -84,9 +86,10 @@ export class ProjectsController {
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Post()
   public async createProject(
+    @Payload() payload: AuthPayload,
     @Body() createProjectRequest: CreateProjectRequest
   ): Promise<CreateProjectResponse> {
-    return this.projectsService.createProject(createProjectRequest)
+    return this.projectsService.createProject(createProjectRequest, payload)
   }
 
   @Authorize({ permission: PERMISSIONS.PROJECTS.DELETE })

@@ -34,6 +34,7 @@ import { CreateBoardDto } from './dto/create-board.dto'
 import { UpdateBoardDto } from './dto/update-board.dto'
 import { ProjectsRepository } from './projects.repository'
 import { Config } from '../../core/config'
+import { AuthPayload } from '../../common/interfaces/auth-payload.interface'
 
 @Injectable()
 export class ProjectsService {
@@ -98,7 +99,10 @@ export class ProjectsService {
     }
   }
 
-  async createProject(dto: CreateProjectRequestDto): Promise<CreateProjectDto> {
+  async createProject(
+    dto: CreateProjectRequestDto,
+    payload: AuthPayload
+  ): Promise<CreateProjectDto> {
     const project = new Project({
       name: dto.name,
       description: dto.description ?? '',
@@ -111,6 +115,24 @@ export class ProjectsService {
     })
 
     const newProject = await this.connection.createEntityManager().save(project)
+    const roleOwner = await this.connection
+      .createEntityManager()
+      .findOne(Role, { where: { name: 'Project Owner' } })
+
+    if (!roleOwner) {
+      throw new AppException(
+        HttpStatus.NOT_FOUND,
+        'Role "Project Owner" not found'
+      )
+    }
+
+    const project_user = new ProjectsUsers({
+      project: newProject,
+      role: roleOwner,
+      user: new User({ id: payload.id }),
+    })
+
+    await this.connection.createEntityManager().save(project_user)
 
     return {
       id: newProject.id,
