@@ -80,9 +80,10 @@ export class ProjectsController {
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Get('/:id')
   public async getProject(
-    @Param('id', ParseIntPipe) id: number
+    @Param('id', ParseIntPipe) id: number,
+    @Payload() payload: AuthPayload
   ): Promise<FullProjectResponse> {
-    return this.projectsService.getFullProject(id)
+    return this.projectsService.getFullProject(id, payload)
   }
 
   @Authorize({ permission: PERMISSIONS.PROJECTS.CREATE })
@@ -97,7 +98,7 @@ export class ProjectsController {
     return this.projectsService.createProject(createProjectRequest, payload)
   }
 
-  @Authorize({ permission: PROJECT_PERMISSIONS.PROJECT.DELETE })
+  @Authorize({})
   @ApiOperation({ description: 'Delete project' })
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ExceptionResponse })

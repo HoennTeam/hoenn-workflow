@@ -79,7 +79,25 @@ export class ProjectsService {
     }))
   }
 
-  async getFullProject(id: number): Promise<FullProjectDto> {
+  async getFullProject(
+    id: number,
+    payload: AuthPayload
+  ): Promise<FullProjectDto> {
+    const isLocalPer = await this.permission.hasProjectPermission(
+      payload.username,
+      id,
+      PROJECT_PERMISSIONS.PROJECT.READ
+    )
+
+    const isGlobalPer = await this.permission.hasGlobalPermission(
+      payload.username,
+      PROJECT_PERMISSIONS.PROJECT.READ
+    )
+
+    if (!isGlobalPer && !isLocalPer) {
+      throw new AppException(HttpStatus.FORBIDDEN, 'No access')
+    }
+
     const project = await this.projectsRepository.getFullProjectIfExists(id)
 
     return {
