@@ -104,9 +104,10 @@ export class ProjectsController {
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Delete('/:id')
   public async removeProject(
-    @Param('id', ParseIntPipe) id: number
+    @Param('id', ParseIntPipe) id: number,
+    @Payload() payload: AuthPayload
   ): Promise<void> {
-    return this.projectsService.removeProject(id)
+    return this.projectsService.removeProject(id, payload)
   }
 
   @Authorize({ permission: PROJECT_PERMISSIONS.PROJECT.UPDATE })

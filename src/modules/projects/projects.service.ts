@@ -83,22 +83,13 @@ export class ProjectsService {
     id: number,
     payload: AuthPayload
   ): Promise<FullProjectDto> {
-    const isLocalPer = await this.permission.hasProjectPermission(
-      payload.username,
+    const project = await this.projectsRepository.getFullProjectIfExists(id)
+
+    const isAccess = await this.checkPermission(
+      payload,
       id,
       PROJECT_PERMISSIONS.PROJECT.READ
     )
-
-    const isGlobalPer = await this.permission.hasGlobalPermission(
-      payload.username,
-      PROJECT_PERMISSIONS.PROJECT.READ
-    )
-
-    if (!isGlobalPer && !isLocalPer) {
-      throw new AppException(HttpStatus.FORBIDDEN, 'No access')
-    }
-
-    const project = await this.projectsRepository.getFullProjectIfExists(id)
 
     return {
       id: project.id,
@@ -186,8 +177,14 @@ export class ProjectsService {
     }
   }
 
-  async removeProject(id: number): Promise<void> {
+  async removeProject(id: number, payload: AuthPayload): Promise<void> {
     const project = await this.projectsRepository.getProjectIfExists(id)
+
+    const isAccess = await this.checkPermission(
+      payload,
+      id,
+      PROJECT_PERMISSIONS.PROJECT.DELETE
+    )
 
     await this.connection.createEntityManager().softRemove(project)
   }
@@ -401,6 +398,29 @@ export class ProjectsService {
           updatedAt: projectsUsers.role.updatedAt.toISOString(),
         },
       },
+    }
+  }
+
+  async checkPermission(
+    payload: AuthPayload,
+    projectId: number,
+    permission: string
+  ): Promise<boolean> {
+    const isLocalPer = await this.permission.hasProjectPermission(
+      payload.username,
+      projectId,
+      permission
+    )
+
+    const isGlobalPer = await this.permission.hasGlobalPermission(
+      payload.username,
+      permission
+    )
+
+    if (!isGlobalPer && !isLocalPer) {
+      throw new AppException(HttpStatus.FORBIDDEN, 'No Access')
+    } else {
+      return true
     }
   }
 }
