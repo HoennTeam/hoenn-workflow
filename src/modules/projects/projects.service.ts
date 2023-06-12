@@ -327,8 +327,6 @@ export class ProjectsService {
       .groupBy('projectsUsers.project, projectsUsers.role')
       .getRawOne()
 
-    this.logger.debug('bitch', countOwners)
-
     if (countOwners.count == 1) {
       throw new AppException(HttpStatus.BAD_REQUEST, 'Owner cannot be deleted')
     }
@@ -372,6 +370,26 @@ export class ProjectsService {
     }
 
     projectsUsers.role = role
+
+    const countOwners = await this.connection
+      .createQueryBuilder(ProjectsUsers, 'projectsUsers')
+      .innerJoin('projectsUsers.role', 'roles')
+      .select('projectsUsers.project', 'project')
+      .addSelect('projectsUsers.role', 'role')
+      .addSelect('COUNT(*)', 'count')
+      .where('roles.name = :roleName', { roleName: 'Project Owner' })
+      .andWhere('projectsUsers.project = :projectId', {
+        projectId: dto.projectId,
+      })
+      .groupBy('projectsUsers.project, projectsUsers.role')
+      .getRawOne()
+
+    if (countOwners.count == 1) {
+      throw new AppException(
+        HttpStatus.BAD_REQUEST,
+        'The project must have at least one owner'
+      )
+    }
 
     await this.connection.getRepository(ProjectsUsers).save(projectsUsers)
 
