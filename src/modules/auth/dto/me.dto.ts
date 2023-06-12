@@ -4,4 +4,5 @@ export interface MeDto {
   readonly email: string
   readonly roleName: string
   readonly permissions: string[]
+  readonly projectsPermissions: Record<number, string[]>
 }
