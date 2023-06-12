@@ -398,20 +398,16 @@ export class ProjectsService {
     projectsUsers.role = role
 
     if (projectsUsers.role.name === 'Project Owner') {
-      const countOwners = await this.connection
+      const ownersCount = await this.connection
         .createQueryBuilder(ProjectsUsers, 'projectsUsers')
-        .innerJoin('projectsUsers.role', 'roles')
-        .select('projectsUsers.project', 'project')
-        .addSelect('projectsUsers.role', 'role')
-        .addSelect('COUNT(*)', 'count')
-        .where('roles.name = :roleName', { roleName: 'Project Owner' })
+        .innerJoin('projectsUsers.role', 'role')
+        .where('role.name = :roleName', { roleName: 'Project Owner' })
         .andWhere('projectsUsers.project = :projectId', {
           projectId: dto.projectId,
         })
-        .groupBy('projectsUsers.project, projectsUsers.role')
-        .getRawOne()
+        .getCount()
 
-      if (countOwners.count == 1) {
+      if (ownersCount <= 1) {
         throw new AppException(
           HttpStatus.BAD_REQUEST,
           'The project must have at least one owner'
