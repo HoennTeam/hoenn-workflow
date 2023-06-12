@@ -14,6 +14,7 @@ import { CreateBoardDto } from './dto/create-board.dto'
 import { UpdateBoardDto } from './dto/update-board.dto'
 import { ProjectsRepository } from './projects.repository'
 import { MoveStageDto } from './dto/move-stage.dto'
+import { Task } from '../../entities/task'
 
 @Injectable()
 export class BoardsService {
@@ -205,6 +206,20 @@ export class BoardsService {
     await this.projectsRepository.getBoardIfExists(dto.projectId, dto.boardId)
 
     const stage = await this.projectsRepository.getStageIfExists(dto.stageId)
+
+    const tasksExist = await this.connection
+      .getRepository(Task)
+      .createQueryBuilder('task')
+      .innerJoin('task.stage', 'stage')
+      .where('stage.id = :stageId', { stageId: stage.id })
+      .getExists()
+
+    if (tasksExist) {
+      throw new AppException(
+        HttpStatus.BAD_REQUEST,
+        'You cannot delete stage that has tasks in it'
+      )
+    }
 
     await this.connection.getRepository(Stage).softRemove(stage)
   }
