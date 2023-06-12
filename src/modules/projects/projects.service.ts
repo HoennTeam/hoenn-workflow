@@ -292,7 +292,6 @@ export class ProjectsService {
       .groupBy('projectUsers.project, projectUsers.role')
       .getRawOne()
 
-    this.logger.info('SHIT', countOwners.count)
     if (countOwners.count == 1) {
       throw new AppException(HttpStatus.BAD_REQUEST, 'Owner cannot be deleted')
     }

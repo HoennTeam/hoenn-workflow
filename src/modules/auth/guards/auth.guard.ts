@@ -57,7 +57,14 @@ export class AuthGuard implements CanActivate {
           options.permission
         )
 
-        if (!hasPermission) {
+        const hasProjectPermission =
+          await this.permissionsService.hasProjectPermission(
+            session.username,
+            request.params.id,
+            options.permission
+          )
+
+        if (!hasPermission && !hasProjectPermission) {
           return false
         }
       }

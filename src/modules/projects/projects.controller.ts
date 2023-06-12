@@ -49,7 +49,10 @@ import { UpdateBoardDto } from './dto/update-board.dto'
 import { BoardsService } from './boards.service'
 import { MoveStageRequest } from './api/move-stage.api'
 import { Authorize } from '../../common/decorators/authorize.decorator'
-import { PERMISSIONS } from '../../common/const/permissions.const'
+import {
+  PERMISSIONS,
+  PROJECT_PERMISSIONS,
+} from '../../common/const/permissions.const'
 import { Payload } from '../../common/decorators/payload.decorator'
 import { AuthPayload } from '../../common/interfaces/auth-payload.interface'
 @ApiTags('Projects')
@@ -69,7 +72,7 @@ export class ProjectsController {
     return this.projectsService.getProjects()
   }
 
-  @Authorize({})
+  @Authorize({ permission: PROJECT_PERMISSIONS.PROJECT.READ })
   @ApiOperation({ description: 'Get one project' })
   @ApiOkResponse({ type: ProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
@@ -92,7 +95,7 @@ export class ProjectsController {
     return this.projectsService.createProject(createProjectRequest, payload)
   }
 
-  @Authorize({ permission: PERMISSIONS.PROJECTS.DELETE })
+  @Authorize({ permission: PROJECT_PERMISSIONS.PROJECT.DELETE })
   @ApiOperation({ description: 'Delete project' })
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ExceptionResponse })
@@ -103,7 +106,7 @@ export class ProjectsController {
     return this.projectsService.removeProject(id)
   }
 
-  @Authorize({ permission: PERMISSIONS.PROJECTS.UPDATE })
+  @Authorize({ permission: PROJECT_PERMISSIONS.PROJECT.UPDATE })
   @ApiOperation({ description: 'Update project' })
   @ApiOkResponse({ type: UpdateProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
