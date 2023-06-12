@@ -35,6 +35,11 @@ import { UpdateBoardDto } from './dto/update-board.dto'
 import { ProjectsRepository } from './projects.repository'
 import { Config } from '../../core/config'
 import { AuthPayload } from '../../common/interfaces/auth-payload.interface'
+import { PermissionsService } from '../auth/services/permissions.service'
+import {
+  PERMISSIONS,
+  PROJECT_PERMISSIONS,
+} from '../../common/const/permissions.const'
 
 @Injectable()
 export class ProjectsService {
@@ -42,14 +47,28 @@ export class ProjectsService {
     private readonly logger: Logger,
     private readonly config: Config,
     private readonly connection: DataSource,
-    private readonly projectsRepository: ProjectsRepository
+    private readonly projectsRepository: ProjectsRepository,
+    private readonly permission: PermissionsService
   ) {}
 
-  async getProjects(): Promise<ProjectDto[]> {
-    const projects = await this.connection
-      .createQueryBuilder(Project, 'project')
-      .orderBy('project.createdAt', 'ASC')
-      .getMany()
+  async getProjects(payload: AuthPayload): Promise<ProjectDto[]> {
+    let projects
+    const isGlobal = await this.permission.hasGlobalPermission(
+      payload.username,
+      PERMISSIONS.PROJECTS.READ
+    )
+
+    if (isGlobal) {
+      projects = await this.connection
+        .createQueryBuilder(Project, 'project')
+        .getMany()
+    } else {
+      projects = await this.connection
+        .createQueryBuilder(Project, 'project')
+        .innerJoin('project.projectsUsers', 'projectsUsers')
+        .where('projectsUsers.user = :userId', { userId: payload.id })
+        .getMany()
+    }
 
     return projects.map((project) => ({
       id: project.id,

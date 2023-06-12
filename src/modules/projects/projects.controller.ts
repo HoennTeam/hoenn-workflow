@@ -68,11 +68,13 @@ export class ProjectsController {
   @ApiOkResponse({ type: ProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Get()
-  public async getProjects(): Promise<ProjectResponse[]> {
-    return this.projectsService.getProjects()
+  public async getProjects(
+    @Payload() payload: AuthPayload
+  ): Promise<ProjectResponse[]> {
+    return this.projectsService.getProjects(payload)
   }
 
-  @Authorize({ permission: PROJECT_PERMISSIONS.PROJECT.READ })
+  @Authorize({})
   @ApiOperation({ description: 'Get one project' })
   @ApiOkResponse({ type: ProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
