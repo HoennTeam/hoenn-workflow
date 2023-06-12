@@ -12,6 +12,12 @@ import { TasksRepository } from './tasks.repository'
 import { UserTaskDto } from './dto/add-user-task.dto'
 import { UsersRepository } from '../users/users.repository'
 import { AppException } from '../../common/exceptions/app.exception'
+import { PermissionsService } from '../auth/services/permissions.service'
+import { AuthPayload } from '../../common/interfaces/auth-payload.interface'
+import {
+  PERMISSIONS,
+  PROJECT_PERMISSIONS,
+} from '../../common/const/permissions.const'
 
 @Injectable()
 export class TasksService {
@@ -21,7 +27,8 @@ export class TasksService {
     private readonly connection: DataSource,
     private readonly projectsRepository: ProjectsRepository,
     private readonly tasksRepository: TasksRepository,
-    private readonly usersRepository: UsersRepository
+    private readonly usersRepository: UsersRepository,
+    private readonly permissionsService: PermissionsService
   ) {}
 
   public getFullTaskDto(task: Task): FullTaskDto {
@@ -51,12 +58,22 @@ export class TasksService {
     }
   }
 
-  public async createTask(dto: CreateTaskDto): Promise<FullTaskDto> {
+  public async createTask(
+    dto: CreateTaskDto,
+    payload: AuthPayload
+  ): Promise<FullTaskDto> {
     const board = await this.projectsRepository.getBoardIfExists(
       dto.projectId,
       dto.boardId
     )
     const stage = await this.projectsRepository.getStageIfExists(dto.stageId)
+
+    await this.checkLocalPermission(
+      payload,
+      dto.projectId,
+      PROJECT_PERMISSIONS.TASKS.CREATE,
+      PERMISSIONS.PROJECTS.UPDATE
+    )
 
     return await this.connection.transaction(async (tx) => {
       const { taskNumber } = await tx
@@ -90,8 +107,15 @@ export class TasksService {
     })
   }
 
-  async removeTask(id: number): Promise<void> {
-    const task = await this.tasksRepository.getTaskIfExists(id)
+  async removeTask(id: number, payload: AuthPayload): Promise<void> {
+    const task = await this.tasksRepository.getFullTaskIfExists(id)
+    const projectId = task.stage.board.project.id
+    await this.checkLocalPermission(
+      payload,
+      projectId,
+      PROJECT_PERMISSIONS.TASKS.DELETE,
+      PERMISSIONS.PROJECTS.UPDATE
+    )
 
     await this.connection.getRepository(Task).softRemove(task)
   }
@@ -102,7 +126,10 @@ export class TasksService {
     return this.getFullTaskDto(task)
   }
 
-  async updateTask(dto: UpdateTaskDto): Promise<FullTaskDto> {
+  async updateTask(
+    dto: UpdateTaskDto,
+    payload: AuthPayload
+  ): Promise<FullTaskDto> {
     const task = await this.tasksRepository.getFullTaskIfExists(dto.id)
 
     if (dto.title) {
@@ -112,13 +139,28 @@ export class TasksService {
       task.description = dto.description
     }
 
+    const projectId = task.stage.board.project.id
+    await this.checkLocalPermission(
+      payload,
+      projectId,
+      PROJECT_PERMISSIONS.TASKS.UPDATE,
+      PERMISSIONS.PROJECTS.UPDATE
+    )
+
     const updated = await this.connection.getRepository(Task).save(task)
 
     return this.getFullTaskDto(updated)
   }
 
-  async moveTask(dto: MoveTaskDto): Promise<void> {
-    const task = await this.tasksRepository.getTaskIfExists(dto.id)
+  async moveTask(dto: MoveTaskDto, payload: AuthPayload): Promise<void> {
+    const task = await this.tasksRepository.getFullTaskIfExists(dto.id)
+    const projectId = task.stage.board.project.id
+    await this.checkLocalPermission(
+      payload,
+      projectId,
+      PROJECT_PERMISSIONS.TASKS.MOVE,
+      PERMISSIONS.PROJECTS.UPDATE
+    )
 
     const fromStageId = task.stage.id
 
@@ -170,9 +212,17 @@ export class TasksService {
     })
   }
 
-  async addUserToTask(dto: UserTaskDto): Promise<void> {
+  async addUserToTask(dto: UserTaskDto, payload: AuthPayload): Promise<void> {
     const task = await this.tasksRepository.getFullTaskIfExists(dto.taskId)
     const user = await this.usersRepository.getUserIfExists(dto.username)
+    const projectId = task.stage.board.project.id
+
+    await this.checkLocalPermission(
+      payload,
+      projectId,
+      PROJECT_PERMISSIONS.ASSIGNEES.UPDATE,
+      PERMISSIONS.PROJECTS.UPDATE
+    )
 
     if (task.assignees.find((u) => u.id === user.id)) {
       throw new AppException(
@@ -186,8 +236,18 @@ export class TasksService {
     await this.connection.getRepository(Task).save(task)
   }
 
-  async removeUserFromTask(dto: UserTaskDto): Promise<void> {
+  async removeUserFromTask(
+    dto: UserTaskDto,
+    payload: AuthPayload
+  ): Promise<void> {
     const task = await this.tasksRepository.getFullTaskIfExists(dto.taskId)
+    const projectId = task.stage.board.project.id
+    await this.checkLocalPermission(
+      payload,
+      projectId,
+      PROJECT_PERMISSIONS.ASSIGNEES.UPDATE,
+      PERMISSIONS.PROJECTS.UPDATE
+    )
 
     if (!task.assignees.find((u) => u.username === dto.username)) {
       throw new AppException(
@@ -199,5 +259,26 @@ export class TasksService {
     task.assignees = task.assignees.filter((u) => u.username !== dto.username)
 
     await this.connection.getRepository(Task).save(task)
+  }
+
+  async checkLocalPermission(
+    payload: AuthPayload,
+    projectId: number,
+    permissionLocal: string,
+    permissionGlobal: string
+  ): Promise<void> {
+    const isLocalPer = await this.permissionsService.hasProjectPermission(
+      payload.username,
+      projectId,
+      permissionLocal
+    )
+
+    const isGlobalPer = await this.permissionsService.hasGlobalPermission(
+      payload.username,
+      permissionGlobal
+    )
+
+    if (!isGlobalPer && !isLocalPer)
+      throw new AppException(HttpStatus.FORBIDDEN, 'No Access')
   }
 }

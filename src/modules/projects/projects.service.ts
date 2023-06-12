@@ -206,10 +206,18 @@ export class ProjectsService {
   }
 
   async addUserToProject(
-    dto: UserToProjectRequestDto
+    dto: UserToProjectRequestDto,
+    payload: AuthPayload
   ): Promise<UserToProjectResponseDto> {
     const project = await this.projectsRepository.getProjectIfExists(
       dto.projectId
+    )
+
+    await this.checkLocalPermission(
+      payload,
+      project.id,
+      PROJECT_PERMISSIONS.TEAM.UPDATE,
+      PERMISSIONS.PROJECTS.UPDATE
     )
 
     const user = await this.connection.createEntityManager().findOne(User, {
@@ -286,7 +294,10 @@ export class ProjectsService {
     }
   }
 
-  async removeUserFromProject(dto: DeleteUserFromProjectDto): Promise<void> {
+  async removeUserFromProject(
+    dto: DeleteUserFromProjectDto,
+    payload: AuthPayload
+  ): Promise<void> {
     const projectsUsers = await this.connection
       .createQueryBuilder(ProjectsUsers, 'projectsUsers')
       .leftJoinAndSelect('projectsUsers.project', 'project')
@@ -303,6 +314,13 @@ export class ProjectsService {
       )
     }
 
+    await this.checkLocalPermission(
+      payload,
+      dto.projectId,
+      PROJECT_PERMISSIONS.TEAM.UPDATE,
+      PERMISSIONS.PROJECTS.UPDATE
+    )
+
     const roleOwner = await this.connection
       .createEntityManager()
       .findOne(Role, { where: { name: 'Project Owner' } })
@@ -315,14 +333,17 @@ export class ProjectsService {
     }
 
     const countOwners = await this.connection
-      .createQueryBuilder(ProjectsUsers, 'projectUsers')
-      .select('projectUsers.project', 'project')
-      .addSelect('projectUsers.role', 'role')
+      .createQueryBuilder(ProjectsUsers, 'projectsUsers')
+      .innerJoin('projectsUsers.role', 'roles')
+      .select('projectsUsers.project', 'project')
+      .addSelect('projectsUsers.role', 'role')
       .addSelect('COUNT(*)', 'count')
-      .groupBy('projectUsers.project, projectUsers.role')
+      .where('roles.name = :roleName', { roleName: 'Project Owner' })
+      .andWhere('projectsUsers.project = :projectId', {
+        projectId: dto.projectId,
+      })
+      .groupBy('projectsUsers.project, projectsUsers.role')
       .getRawOne()
-
-    this.logger.debug('bitch', countOwners)
 
     if (countOwners.count == 1) {
       throw new AppException(HttpStatus.BAD_REQUEST, 'Owner cannot be deleted')
@@ -332,7 +353,8 @@ export class ProjectsService {
   }
 
   async changeUserRoleInProject(
-    dto: UserToProjectRequestDto
+    dto: UserToProjectRequestDto,
+    payload: AuthPayload
   ): Promise<UserToProjectResponseDto> {
     const projectsUsers = await this.connection
       .createQueryBuilder(ProjectsUsers, 'projectsUsers')
@@ -354,6 +376,13 @@ export class ProjectsService {
       )
     }
 
+    await this.checkLocalPermission(
+      payload,
+      dto.projectId,
+      PROJECT_PERMISSIONS.TEAM.UPDATE,
+      PERMISSIONS.PROJECTS.UPDATE
+    )
+
     const role = await this.connection.getRepository(Role).findOne({
       where: { name: dto.roleName ?? this.config.users.defaultProjectRole },
     })
@@ -367,6 +396,26 @@ export class ProjectsService {
     }
 
     projectsUsers.role = role
+
+    const countOwners = await this.connection
+      .createQueryBuilder(ProjectsUsers, 'projectsUsers')
+      .innerJoin('projectsUsers.role', 'roles')
+      .select('projectsUsers.project', 'project')
+      .addSelect('projectsUsers.role', 'role')
+      .addSelect('COUNT(*)', 'count')
+      .where('roles.name = :roleName', { roleName: 'Project Owner' })
+      .andWhere('projectsUsers.project = :projectId', {
+        projectId: dto.projectId,
+      })
+      .groupBy('projectsUsers.project, projectsUsers.role')
+      .getRawOne()
+
+    if (countOwners.count == 1) {
+      throw new AppException(
+        HttpStatus.BAD_REQUEST,
+        'The project must have at least one owner'
+      )
+    }
 
     await this.connection.getRepository(ProjectsUsers).save(projectsUsers)
 
@@ -413,6 +462,27 @@ export class ProjectsService {
     const isGlobalPer = await this.permissionsService.hasGlobalPermission(
       payload.username,
       permission
+    )
+
+    if (!isGlobalPer && !isLocalPer)
+      throw new AppException(HttpStatus.FORBIDDEN, 'No Access')
+  }
+
+  async checkLocalPermission(
+    payload: AuthPayload,
+    projectId: number,
+    permissionLocal: string,
+    permissionGlobal: string
+  ): Promise<void> {
+    const isLocalPer = await this.permissionsService.hasProjectPermission(
+      payload.username,
+      projectId,
+      permissionLocal
+    )
+
+    const isGlobalPer = await this.permissionsService.hasGlobalPermission(
+      payload.username,
+      permissionGlobal
     )
 
     if (!isGlobalPer && !isLocalPer)
