@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common'
-import { DataSource } from 'typeorm'
+import { DataSource, IsNull, Not } from 'typeorm'
 import { AppException } from '../../../common/exceptions/app.exception'
 import { User } from '../../../entities/user'
 import { Config } from '../../../core/config'
@@ -48,6 +48,11 @@ export class AuthService {
       fullName: user.fullName,
       roleName: user.globalRole.name,
       permissions: user.globalRole.permissions.map((p) => p.name),
+      projectsPermissions: user.projectsUsers.reduce((acc, cur) => {
+        acc[cur.project.id] = cur.role.permissions.map((p) => p.name)
+
+        return acc
+      }, {} as Record<number, string[]>),
     })
 
     return {
@@ -58,6 +63,11 @@ export class AuthService {
         fullName: user.fullName,
         roleName: user.globalRole.name,
         permissions: user.globalRole.permissions.map((p) => p.name),
+        projectsPermissions: user.projectsUsers.reduce((acc, cur) => {
+          acc[cur.project.id] = cur.role.permissions.map((p) => p.name)
+
+          return acc
+        }, {} as Record<number, string[]>),
       },
     }
   }
@@ -95,10 +105,21 @@ export class AuthService {
     const user = await this.connection.getRepository(User).findOne({
       where: {
         username,
+        projectsUsers: {
+          project: {
+            id: Not(IsNull()),
+          },
+        },
       },
       relations: {
         globalRole: {
           permissions: true,
+        },
+        projectsUsers: {
+          project: true,
+          role: {
+            permissions: true,
+          },
         },
       },
     })
@@ -129,6 +150,7 @@ export class AuthService {
       fullName: payload.fullName,
       roleName: payload.roleName,
       permissions: payload.permissions,
+      projectsPermissions: payload.projectsPermissions,
     }
   }
 }
