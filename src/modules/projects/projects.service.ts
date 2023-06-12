@@ -48,12 +48,12 @@ export class ProjectsService {
     private readonly config: Config,
     private readonly connection: DataSource,
     private readonly projectsRepository: ProjectsRepository,
-    private readonly PermissionsService: PermissionsService
+    private readonly permissionsService: PermissionsService
   ) {}
 
   async getProjects(payload: AuthPayload): Promise<ProjectDto[]> {
     let projects
-    const isGlobal = await this.PermissionsService.hasGlobalPermission(
+    const isGlobal = await this.permissionsService.hasGlobalPermission(
       payload.username,
       PERMISSIONS.PROJECTS.READ
     )
@@ -322,6 +322,8 @@ export class ProjectsService {
       .groupBy('projectUsers.project, projectUsers.role')
       .getRawOne()
 
+    this.logger.debug('bitch', countOwners)
+
     if (countOwners.count == 1) {
       throw new AppException(HttpStatus.BAD_REQUEST, 'Owner cannot be deleted')
     }
@@ -402,13 +404,13 @@ export class ProjectsService {
     projectId: number,
     permission: string
   ): Promise<void> {
-    const isLocalPer = await this.PermissionsService.hasProjectPermission(
+    const isLocalPer = await this.permissionsService.hasProjectPermission(
       payload.username,
       projectId,
       permission
     )
 
-    const isGlobalPer = await this.PermissionsService.hasGlobalPermission(
+    const isGlobalPer = await this.permissionsService.hasGlobalPermission(
       payload.username,
       permission
     )
