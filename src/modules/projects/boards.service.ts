@@ -14,13 +14,20 @@ import { CreateBoardDto } from './dto/create-board.dto'
 import { UpdateBoardDto } from './dto/update-board.dto'
 import { ProjectsRepository } from './projects.repository'
 import { MoveStageDto } from './dto/move-stage.dto'
+import { AuthPayload } from '../../common/interfaces/auth-payload.interface'
+import { PermissionsService } from '../auth/services/permissions.service'
+import {
+  PERMISSIONS,
+  PROJECT_PERMISSIONS,
+} from '../../common/const/permissions.const'
 
 @Injectable()
 export class BoardsService {
   constructor(
     private readonly logger: Logger,
     private readonly connection: DataSource,
-    private readonly projectsRepository: ProjectsRepository
+    private readonly projectsRepository: ProjectsRepository,
+    private readonly permissionsService: PermissionsService
   ) {}
 
   async getBoards(projectId: number): Promise<BoardDto[]> {
@@ -75,9 +82,19 @@ export class BoardsService {
     }
   }
 
-  public async createBoard(dto: CreateBoardDto): Promise<BoardDto> {
+  public async createBoard(
+    dto: CreateBoardDto,
+    payload: AuthPayload
+  ): Promise<BoardDto> {
     const project = await this.projectsRepository.getProjectIfExists(
       dto.projectId
+    )
+
+    await this.checkLocalPermission(
+      payload,
+      dto.projectId,
+      PROJECT_PERMISSIONS.BOARDS.CREATE,
+      PERMISSIONS.PROJECTS.UPDATE
     )
 
     const newBoard = new Board({
@@ -97,10 +114,21 @@ export class BoardsService {
     }
   }
 
-  public async removeBoard(projectId: number, boardId: number): Promise<void> {
+  public async removeBoard(
+    projectId: number,
+    boardId: number,
+    payload: AuthPayload
+  ): Promise<void> {
     const board = await this.projectsRepository.getBoardIfExists(
       projectId,
       boardId
+    )
+
+    await this.checkLocalPermission(
+      payload,
+      projectId,
+      PROJECT_PERMISSIONS.BOARDS.DELETE,
+      PERMISSIONS.PROJECTS.DELETE
     )
 
     if (board.isDefault) {
@@ -113,10 +141,20 @@ export class BoardsService {
     await this.connection.getRepository(Board).softRemove(board)
   }
 
-  public async updateBoard(dto: UpdateBoardDto): Promise<BoardDto> {
+  public async updateBoard(
+    dto: UpdateBoardDto,
+    payload: AuthPayload
+  ): Promise<BoardDto> {
     const board = await this.projectsRepository.getBoardIfExists(
       dto.projectId,
       dto.boardId
+    )
+
+    await this.checkLocalPermission(
+      payload,
+      dto.projectId,
+      PROJECT_PERMISSIONS.BOARDS.UPDATE,
+      PERMISSIONS.PROJECTS.UPDATE
     )
 
     if (dto.isDefault) {
@@ -169,10 +207,20 @@ export class BoardsService {
     }))
   }
 
-  public async createStage(dto: CreateStageDto): Promise<StageDto> {
+  public async createStage(
+    dto: CreateStageDto,
+    payload: AuthPayload
+  ): Promise<StageDto> {
     const board = await this.projectsRepository.getBoardIfExists(
       dto.projectId,
       dto.boardId
+    )
+
+    await this.checkLocalPermission(
+      payload,
+      dto.projectId,
+      PROJECT_PERMISSIONS.STAGES.CREATE,
+      PERMISSIONS.PROJECTS.UPDATE
     )
 
     return this.connection.transaction(async (tx) => {
@@ -201,16 +249,36 @@ export class BoardsService {
     })
   }
 
-  public async removeStage(dto: RemoveStageDto): Promise<void> {
+  public async removeStage(
+    dto: RemoveStageDto,
+    payload: AuthPayload
+  ): Promise<void> {
     await this.projectsRepository.getBoardIfExists(dto.projectId, dto.boardId)
+
+    await this.checkLocalPermission(
+      payload,
+      dto.projectId,
+      PROJECT_PERMISSIONS.STAGES.DELETE,
+      PERMISSIONS.PROJECTS.UPDATE
+    )
 
     const stage = await this.projectsRepository.getStageIfExists(dto.stageId)
 
     await this.connection.getRepository(Stage).softRemove(stage)
   }
 
-  public async updateStage(dto: UpdateStageDto): Promise<StageDto> {
+  public async updateStage(
+    dto: UpdateStageDto,
+    payload: AuthPayload
+  ): Promise<StageDto> {
     await this.projectsRepository.getBoardIfExists(dto.projectId, dto.boardId)
+
+    await this.checkLocalPermission(
+      payload,
+      dto.projectId,
+      PROJECT_PERMISSIONS.STAGES.UPDATE,
+      PERMISSIONS.PROJECTS.UPDATE
+    )
 
     const stage = await this.projectsRepository.getStageIfExists(dto.stageId)
 
@@ -229,8 +297,18 @@ export class BoardsService {
     }
   }
 
-  public async moveStage(dto: MoveStageDto): Promise<void> {
+  public async moveStage(
+    dto: MoveStageDto,
+    payload: AuthPayload
+  ): Promise<void> {
     await this.projectsRepository.getBoardIfExists(dto.projectId, dto.boardId)
+
+    await this.checkLocalPermission(
+      payload,
+      dto.projectId,
+      PROJECT_PERMISSIONS.STAGES.UPDATE,
+      PERMISSIONS.PROJECTS.UPDATE
+    )
 
     const stage = await this.projectsRepository.getStageIfExists(dto.stageId)
 
@@ -272,5 +350,26 @@ export class BoardsService {
 
       tx.getRepository(Stage).save(stage)
     })
+  }
+
+  async checkLocalPermission(
+    payload: AuthPayload,
+    projectId: number,
+    permissionLocal: string,
+    permissionGlobal: string
+  ): Promise<void> {
+    const isLocalPer = await this.permissionsService.hasProjectPermission(
+      payload.username,
+      projectId,
+      permissionLocal
+    )
+
+    const isGlobalPer = await this.permissionsService.hasGlobalPermission(
+      payload.username,
+      permissionGlobal
+    )
+
+    if (!isGlobalPer && !isLocalPer)
+      throw new AppException(HttpStatus.FORBIDDEN, 'No Access')
   }
 }

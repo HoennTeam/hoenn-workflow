@@ -123,37 +123,45 @@ export class ProjectsController {
     return this.projectsService.updateProject(id, updateProject, payload)
   }
 
+  @Authorize({})
   @ApiOperation({ description: 'Add user to project' })
   @ApiOkResponse({ type: UserToProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Put('/:projectId/users')
   public async addUserToProject(
     @Param('projectId', ParseIntPipe) projectId: number,
-    @Body() userToProjectRequest: UserToProjectRequest
+    @Body() userToProjectRequest: UserToProjectRequest,
+    @Payload() payload: AuthPayload
   ): Promise<UserToProjectResponse> {
     const addUserToProjectDto: UserToProjectRequestDto = {
       projectId: projectId,
       username: userToProjectRequest.username,
       roleName: userToProjectRequest.roleName,
     }
-    return this.projectsService.addUserToProject(addUserToProjectDto)
+    return this.projectsService.addUserToProject(addUserToProjectDto, payload)
   }
 
+  @Authorize({})
   @ApiOperation({ description: 'Remove user from project' })
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Delete('/:projectId/users/:username')
   public async removeUserFromProject(
     @Param('projectId', ParseIntPipe) projectId: number,
-    @Param('username') username: string
+    @Param('username') username: string,
+    @Payload() payload: AuthPayload
   ): Promise<void> {
     const deleteUserFromProjectDto: DeleteUserFromProjectDto = {
       projectId: projectId,
       username: username,
     }
-    return this.projectsService.removeUserFromProject(deleteUserFromProjectDto)
+    return this.projectsService.removeUserFromProject(
+      deleteUserFromProjectDto,
+      payload
+    )
   }
 
+  @Authorize({})
   @ApiOperation({ description: 'Change user role in project' })
   @ApiOkResponse({ type: UserToProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
@@ -161,7 +169,8 @@ export class ProjectsController {
   public async changeUserRoleInProject(
     @Param('projectId', ParseIntPipe) projectId: number,
     @Param('username') username: string,
-    @Body('roleName') roleName: string
+    @Body('roleName') roleName: string,
+    @Payload() payload: AuthPayload
   ): Promise<UserToProjectResponse> {
     const changeUserRoleInProjectDto: UserToProjectRequestDto = {
       projectId: projectId,
@@ -169,7 +178,8 @@ export class ProjectsController {
       roleName: roleName,
     }
     return this.projectsService.changeUserRoleInProject(
-      changeUserRoleInProjectDto
+      changeUserRoleInProjectDto,
+      payload
     )
   }
 
@@ -194,32 +204,37 @@ export class ProjectsController {
     return this.boardsService.getFullBoard(projectId, boardId)
   }
 
+  @Authorize({})
   @ApiOperation({ description: 'Create board' })
   @ApiOkResponse({ type: BoardResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Post('/:projectId/boards')
   public async createBoardInProject(
     @Param('projectId', ParseIntPipe) projectId: number,
-    @Body() createBoardRequest: CreateBoardRequest
+    @Body() createBoardRequest: CreateBoardRequest,
+    @Payload() payload: AuthPayload
   ): Promise<BoardResponse> {
     const createBoardDto: CreateBoardDto = {
       projectId: projectId,
       name: createBoardRequest.name,
     }
-    return this.boardsService.createBoard(createBoardDto)
+    return this.boardsService.createBoard(createBoardDto, payload)
   }
 
+  @Authorize({})
   @ApiOperation({ description: 'Remove board' })
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Delete('/:projectId/boards/:boardId')
   public async removeBoard(
     @Param('projectId', ParseIntPipe) projectId: number,
-    @Param('boardId', ParseIntPipe) boardId: number
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Payload() payload: AuthPayload
   ): Promise<void> {
-    return this.boardsService.removeBoard(projectId, boardId)
+    return this.boardsService.removeBoard(projectId, boardId, payload)
   }
 
+  @Authorize({})
   @ApiOperation({ description: 'Update board' })
   @ApiOkResponse({ type: BoardResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
@@ -227,7 +242,8 @@ export class ProjectsController {
   public async updateBoard(
     @Param('projectId', ParseIntPipe) projectId: number,
     @Param('boardId', ParseIntPipe) boardId: number,
-    @Body() updateBoard: UpdateBoardRequest
+    @Body() updateBoard: UpdateBoardRequest,
+    @Payload() payload: AuthPayload
   ): Promise<BoardResponse> {
     const updateBoardDto: UpdateBoardDto = {
       boardId,
@@ -235,7 +251,7 @@ export class ProjectsController {
       isDefault: updateBoard.isDefault,
       name: updateBoard.name,
     }
-    return this.boardsService.updateBoard(updateBoardDto)
+    return this.boardsService.updateBoard(updateBoardDto, payload)
   }
 
   @ApiOperation({ description: 'Get stages' })
@@ -249,6 +265,7 @@ export class ProjectsController {
     return this.boardsService.getStages(projectId, boardId)
   }
 
+  @Authorize({})
   @ApiOperation({ description: 'Create stage' })
   @ApiOkResponse({ type: StageResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
@@ -256,16 +273,18 @@ export class ProjectsController {
   public async createStage(
     @Param('projectId', ParseIntPipe) projectId: number,
     @Param('boardId', ParseIntPipe) boardId: number,
-    @Body() createStage: CreateStageRequest
+    @Body() createStage: CreateStageRequest,
+    @Payload() payload: AuthPayload
   ): Promise<StageResponse> {
     const dto: CreateStageDto = {
       projectId,
       boardId,
       name: createStage.name,
     }
-    return this.boardsService.createStage(dto)
+    return this.boardsService.createStage(dto, payload)
   }
 
+  @Authorize({})
   @ApiOperation({ description: 'Remove stage' })
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ExceptionResponse })
@@ -273,16 +292,18 @@ export class ProjectsController {
   public async removeStage(
     @Param('projectId', ParseIntPipe) projectId: number,
     @Param('boardId', ParseIntPipe) boardId: number,
-    @Param('stageId', ParseIntPipe) stageId: number
+    @Param('stageId', ParseIntPipe) stageId: number,
+    @Payload() payload: AuthPayload
   ): Promise<void> {
     const dto: RemoveStageDto = {
       projectId,
       boardId,
       stageId,
     }
-    return this.boardsService.removeStage(dto)
+    return this.boardsService.removeStage(dto, payload)
   }
 
+  @Authorize({})
   @ApiOperation({ description: 'Update stage' })
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ExceptionResponse })
@@ -291,7 +312,8 @@ export class ProjectsController {
     @Param('projectId', ParseIntPipe) projectId: number,
     @Param('boardId', ParseIntPipe) boardId: number,
     @Param('stageId', ParseIntPipe) stageId: number,
-    @Body() updateStage: UpdateStageRequest
+    @Body() updateStage: UpdateStageRequest,
+    @Payload() payload: AuthPayload
   ): Promise<StageResponse> {
     const dto: UpdateStageDto = {
       projectId,
@@ -299,9 +321,10 @@ export class ProjectsController {
       stageId,
       name: updateStage.name,
     }
-    return this.boardsService.updateStage(dto)
+    return this.boardsService.updateStage(dto, payload)
   }
 
+  @Authorize({})
   @ApiOperation({ description: 'Move stage' })
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ExceptionResponse })
@@ -310,13 +333,17 @@ export class ProjectsController {
     @Param('projectId', ParseIntPipe) projectId: number,
     @Param('boardId', ParseIntPipe) boardId: number,
     @Param('stageId', ParseIntPipe) stageId: number,
-    @Body() moveStageRequest: MoveStageRequest
+    @Body() moveStageRequest: MoveStageRequest,
+    @Payload() payload: AuthPayload
   ): Promise<void> {
-    return this.boardsService.moveStage({
-      projectId,
-      boardId,
-      stageId,
-      ...moveStageRequest,
-    })
+    return this.boardsService.moveStage(
+      {
+        projectId,
+        boardId,
+        stageId,
+        ...moveStageRequest,
+      },
+      payload
+    )
   }
 }

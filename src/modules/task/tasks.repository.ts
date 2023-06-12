@@ -29,6 +29,8 @@ export class TasksRepository {
       .getRepository(Task)
       .createQueryBuilder('task')
       .leftJoinAndSelect('task.stage', 'stage')
+      .leftJoinAndSelect('stage.board', 'board')
+      .leftJoinAndSelect('board.project', 'project')
       .leftJoinAndSelect('task.assignees', 'assignees')
       .leftJoinAndSelect('assignees.globalRole', 'globalRole')
       .where('task.id = :id', { id })

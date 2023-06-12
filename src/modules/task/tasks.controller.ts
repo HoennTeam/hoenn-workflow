@@ -24,20 +24,25 @@ import { UpdateTaskRequest } from './api/update-task.api'
 import { TasksService } from './tasks.service'
 import { MoveTaskRequest } from './api/move-task.api'
 import { AddUserToTaskRequest } from './api/add-user-to-task.api'
+import { Authorize } from '../../common/decorators/authorize.decorator'
+import { AuthPayload } from '../../common/interfaces/auth-payload.interface'
+import { Payload } from '../../common/decorators/payload.decorator'
 
 @ApiTags('Tasks')
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
+  @Authorize({})
   @ApiOperation({ description: 'Create task' })
   @ApiOkResponse({ type: FullTaskResponse })
   @ApiConflictResponse({ type: ExceptionResponse })
   @Post()
   public async createTask(
-    @Body() createTaskRequest: CreateTaskRequest
+    @Body() createTaskRequest: CreateTaskRequest,
+    @Payload() payload: AuthPayload
   ): Promise<FullTaskResponse> {
-    return this.tasksService.createTask(createTaskRequest)
+    return this.tasksService.createTask(createTaskRequest, payload)
   }
 
   @ApiOperation({ description: 'Get full task' })
@@ -50,69 +55,91 @@ export class TasksController {
     return this.tasksService.getFullTask(id)
   }
 
+  @Authorize({})
   @ApiOperation({ description: 'Delete task' })
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Delete('/:id')
   public async removeTask(
-    @Param('id', new ParseIntPipe()) id: number
+    @Param('id', new ParseIntPipe()) id: number,
+    @Payload() payload: AuthPayload
   ): Promise<void> {
-    return this.tasksService.removeTask(id)
+    return this.tasksService.removeTask(id, payload)
   }
 
+  @Authorize({})
   @ApiOperation({ description: 'Update task' })
   @ApiOkResponse({ type: FullTaskResponse })
   @ApiUnauthorizedResponse({ type: ExceptionResponse })
   @Patch('/:id')
   public async updateTask(
     @Param('id', new ParseIntPipe()) id: number,
-    @Body() updateTaskRequest: UpdateTaskRequest
+    @Body() updateTaskRequest: UpdateTaskRequest,
+    @Payload() payload: AuthPayload
   ): Promise<FullTaskResponse> {
-    return this.tasksService.updateTask({
-      id,
-      ...updateTaskRequest,
-    })
+    return this.tasksService.updateTask(
+      {
+        id,
+        ...updateTaskRequest,
+      },
+      payload
+    )
   }
 
+  @Authorize({})
   @ApiOperation({ description: 'Move task' })
   @ApiOkResponse()
   @ApiUnauthorizedResponse({ type: ExceptionResponse })
   @Patch('/:id/move')
   public async moveTask(
     @Param('id', new ParseIntPipe()) id: number,
-    @Body() moveTaskRequest: MoveTaskRequest
+    @Body() moveTaskRequest: MoveTaskRequest,
+    @Payload() payload: AuthPayload
   ): Promise<void> {
-    return this.tasksService.moveTask({
-      id,
-      ...moveTaskRequest,
-    })
+    return this.tasksService.moveTask(
+      {
+        id,
+        ...moveTaskRequest,
+      },
+      payload
+    )
   }
 
+  @Authorize({})
   @ApiOperation({ description: 'Add user to task' })
   @ApiOkResponse()
   @ApiUnauthorizedResponse({ type: ExceptionResponse })
   @Put('/:id/assignees')
   public async addUserToTask(
     @Param('id', new ParseIntPipe()) taskId: number,
-    @Body() addUserToTaskRequest: AddUserToTaskRequest
+    @Body() addUserToTaskRequest: AddUserToTaskRequest,
+    @Payload() payload: AuthPayload
   ): Promise<void> {
-    return this.tasksService.addUserToTask({
-      taskId,
-      ...addUserToTaskRequest,
-    })
+    return this.tasksService.addUserToTask(
+      {
+        taskId,
+        ...addUserToTaskRequest,
+      },
+      payload
+    )
   }
 
+  @Authorize({})
   @ApiOperation({ description: 'Remove user from task' })
   @ApiOkResponse()
   @ApiUnauthorizedResponse({ type: ExceptionResponse })
   @Delete('/:id/assignees/:username')
   public async removeUserFromTask(
     @Param('id', new ParseIntPipe()) taskId: number,
-    @Param('username') username: string
+    @Param('username') username: string,
+    @Payload() payload: AuthPayload
   ): Promise<void> {
-    return this.tasksService.removeUserFromTask({
-      taskId,
-      username,
-    })
+    return this.tasksService.removeUserFromTask(
+      {
+        taskId,
+        username,
+      },
+      payload
+    )
   }
 }

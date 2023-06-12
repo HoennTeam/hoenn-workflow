@@ -34,4 +34,26 @@ export const PROJECT_PERMISSIONS = {
     UPDATE: 'project:update',
     DELETE: 'project:delete',
   },
+  TEAM: {
+    UPDATE: 'team:update',
+  },
+  BOARDS: {
+    CREATE: 'boards:create',
+    UPDATE: 'boards:update',
+    DELETE: 'boards:delete',
+  },
+  STAGES: {
+    CREATE: 'stages:create',
+    UPDATE: 'stages:update',
+    DELETE: 'stages:delete',
+  },
+  TASKS: {
+    CREATE: 'tasks:create',
+    UPDATE: 'tasks:update',
+    DELETE: 'tasks:delete',
+    MOVE: 'tasks:move',
+  },
+  ASSIGNEES: {
+    UPDATE: 'assignees:update',
+  },
 }

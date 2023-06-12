@@ -206,10 +206,18 @@ export class ProjectsService {
   }
 
   async addUserToProject(
-    dto: UserToProjectRequestDto
+    dto: UserToProjectRequestDto,
+    payload: AuthPayload
   ): Promise<UserToProjectResponseDto> {
     const project = await this.projectsRepository.getProjectIfExists(
       dto.projectId
+    )
+
+    await this.checkLocalPermission(
+      payload,
+      project.id,
+      PROJECT_PERMISSIONS.TEAM.UPDATE,
+      PERMISSIONS.PROJECTS.UPDATE
     )
 
     const user = await this.connection.createEntityManager().findOne(User, {
@@ -286,7 +294,10 @@ export class ProjectsService {
     }
   }
 
-  async removeUserFromProject(dto: DeleteUserFromProjectDto): Promise<void> {
+  async removeUserFromProject(
+    dto: DeleteUserFromProjectDto,
+    payload: AuthPayload
+  ): Promise<void> {
     const projectsUsers = await this.connection
       .createQueryBuilder(ProjectsUsers, 'projectsUsers')
       .leftJoinAndSelect('projectsUsers.project', 'project')
@@ -302,6 +313,13 @@ export class ProjectsService {
         { user: dto.username }
       )
     }
+
+    await this.checkLocalPermission(
+      payload,
+      dto.projectId,
+      PROJECT_PERMISSIONS.TEAM.UPDATE,
+      PERMISSIONS.PROJECTS.UPDATE
+    )
 
     const roleOwner = await this.connection
       .createEntityManager()
@@ -335,7 +353,8 @@ export class ProjectsService {
   }
 
   async changeUserRoleInProject(
-    dto: UserToProjectRequestDto
+    dto: UserToProjectRequestDto,
+    payload: AuthPayload
   ): Promise<UserToProjectResponseDto> {
     const projectsUsers = await this.connection
       .createQueryBuilder(ProjectsUsers, 'projectsUsers')
@@ -356,6 +375,13 @@ export class ProjectsService {
         { user: dto.username }
       )
     }
+
+    await this.checkLocalPermission(
+      payload,
+      dto.projectId,
+      PROJECT_PERMISSIONS.TEAM.UPDATE,
+      PERMISSIONS.PROJECTS.UPDATE
+    )
 
     const role = await this.connection.getRepository(Role).findOne({
       where: { name: dto.roleName ?? this.config.users.defaultProjectRole },
@@ -436,6 +462,27 @@ export class ProjectsService {
     const isGlobalPer = await this.permissionsService.hasGlobalPermission(
       payload.username,
       permission
+    )
+
+    if (!isGlobalPer && !isLocalPer)
+      throw new AppException(HttpStatus.FORBIDDEN, 'No Access')
+  }
+
+  async checkLocalPermission(
+    payload: AuthPayload,
+    projectId: number,
+    permissionLocal: string,
+    permissionGlobal: string
+  ): Promise<void> {
+    const isLocalPer = await this.permissionsService.hasProjectPermission(
+      payload.username,
+      projectId,
+      permissionLocal
+    )
+
+    const isGlobalPer = await this.permissionsService.hasGlobalPermission(
+      payload.username,
+      permissionGlobal
     )
 
     if (!isGlobalPer && !isLocalPer)
