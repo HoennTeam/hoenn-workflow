@@ -395,8 +395,6 @@ export class ProjectsService {
       throw new AppException(HttpStatus.BAD_REQUEST, 'Role is global')
     }
 
-    projectsUsers.role = role
-
     if (projectsUsers.role.name === 'Project Owner') {
       const ownersCount = await this.connection
         .createQueryBuilder(ProjectsUsers, 'projectsUsers')
@@ -414,6 +412,8 @@ export class ProjectsService {
         )
       }
     }
+
+    projectsUsers.role = role
 
     await this.connection.getRepository(ProjectsUsers).save(projectsUsers)
 
