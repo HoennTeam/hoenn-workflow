@@ -105,11 +105,6 @@ export class AuthService {
     const user = await this.connection.getRepository(User).findOne({
       where: {
         username,
-        projectsUsers: {
-          project: {
-            id: Not(IsNull()),
-          },
-        },
       },
       relations: {
         globalRole: {
