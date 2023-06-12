@@ -22,13 +22,13 @@ import { PERMISSIONS } from '../../../common/const/permissions.const'
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
-  @Authorize({ permission: PERMISSIONS.ROLES.READ })
+  @Authorize({})
   @Get()
   public async getRoles(): Promise<RoleResponse[]> {
     return this.rolesService.getRoles()
   }
 
-  @Authorize({ permission: PERMISSIONS.ROLES.READ })
+  @Authorize({})
   @Get(':name')
   public async getRole(@Param('name') name: string): Promise<RoleResponse> {
     return this.rolesService.getRole(name)
