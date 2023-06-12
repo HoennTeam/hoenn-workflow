@@ -315,11 +315,16 @@ export class ProjectsService {
     }
 
     const countOwners = await this.connection
-      .createQueryBuilder(ProjectsUsers, 'projectUsers')
-      .select('projectUsers.project', 'project')
-      .addSelect('projectUsers.role', 'role')
+      .createQueryBuilder(ProjectsUsers, 'projectsUsers')
+      .innerJoin('projectsUsers.role', 'roles')
+      .select('projectsUsers.project', 'project')
+      .addSelect('projectsUsers.role', 'role')
       .addSelect('COUNT(*)', 'count')
-      .groupBy('projectUsers.project, projectUsers.role')
+      .where('roles.name = :roleName', { roleName: 'Project Owner' })
+      .andWhere('projectsUsers.project = :projectId', {
+        projectId: dto.projectId,
+      })
+      .groupBy('projectsUsers.project, projectsUsers.role')
       .getRawOne()
 
     this.logger.debug('bitch', countOwners)
