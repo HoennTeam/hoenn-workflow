@@ -122,7 +122,15 @@ export class UsersService {
 
   async removeUser(username: string): Promise<void> {
     const user = await this.usersRepository.getUserIfExists(username)
-
+    if (user.globalRole.name == 'Administrator') {
+      throw new AppException(
+        HttpStatus.BAD_REQUEST,
+        'Administrator cannot be deleted',
+        {
+          roleName: user.globalRole.name,
+        }
+      )
+    }
     await this.connection.getRepository(User).softRemove(user)
   }
 
