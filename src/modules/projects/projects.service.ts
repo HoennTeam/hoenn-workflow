@@ -191,8 +191,10 @@ export class ProjectsService {
 
   async updateProject(
     id: number,
-    dto: UpdateProjectRequestDto
+    dto: UpdateProjectRequestDto,
+    payload: AuthPayload
   ): Promise<UpdateProjectDto> {
+    await this.checkPermission(payload, id, PROJECT_PERMISSIONS.PROJECT.UPDATE)
     const project = await this.projectsRepository.getProjectIfExists(id)
 
     project.name = dto.name ?? project.name

@@ -110,16 +110,17 @@ export class ProjectsController {
     return this.projectsService.removeProject(id, payload)
   }
 
-  @Authorize({ permission: PROJECT_PERMISSIONS.PROJECT.UPDATE })
+  @Authorize({})
   @ApiOperation({ description: 'Update project' })
   @ApiOkResponse({ type: UpdateProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Patch('/:id')
   public async updateProject(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateProject: UpdateProjectRequest
+    @Body() updateProject: UpdateProjectRequest,
+    @Payload() payload: AuthPayload
   ): Promise<UpdateProjectResponse> {
-    return this.projectsService.updateProject(id, updateProject)
+    return this.projectsService.updateProject(id, updateProject, payload)
   }
 
   @ApiOperation({ description: 'Add user to project' })
