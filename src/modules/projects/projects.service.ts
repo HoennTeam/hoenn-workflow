@@ -34,6 +34,12 @@ import { CreateBoardDto } from './dto/create-board.dto'
 import { UpdateBoardDto } from './dto/update-board.dto'
 import { ProjectsRepository } from './projects.repository'
 import { Config } from '../../core/config'
+import { AuthPayload } from '../../common/interfaces/auth-payload.interface'
+import { PermissionsService } from '../auth/services/permissions.service'
+import {
+  PERMISSIONS,
+  PROJECT_PERMISSIONS,
+} from '../../common/const/permissions.const'
 
 @Injectable()
 export class ProjectsService {
@@ -41,14 +47,30 @@ export class ProjectsService {
     private readonly logger: Logger,
     private readonly config: Config,
     private readonly connection: DataSource,
-    private readonly projectsRepository: ProjectsRepository
+    private readonly projectsRepository: ProjectsRepository,
+    private readonly permissionsService: PermissionsService
   ) {}
 
-  async getProjects(): Promise<ProjectDto[]> {
-    const projects = await this.connection
-      .createQueryBuilder(Project, 'project')
-      .orderBy('project.createdAt', 'ASC')
-      .getMany()
+  async getProjects(payload: AuthPayload): Promise<ProjectDto[]> {
+    let projects
+    const isGlobal = await this.permissionsService.hasGlobalPermission(
+      payload.username,
+      PERMISSIONS.PROJECTS.READ
+    )
+
+    if (isGlobal) {
+      projects = await this.connection
+        .createQueryBuilder(Project, 'project')
+        .orderBy('project.createdAt', 'ASC')
+        .getMany()
+    } else {
+      projects = await this.connection
+        .createQueryBuilder(Project, 'project')
+        .innerJoin('project.projectsUsers', 'projectsUsers')
+        .where('projectsUsers.user = :userId', { userId: payload.id })
+        .orderBy('project.createdAt', 'ASC')
+        .getMany()
+    }
 
     return projects.map((project) => ({
       id: project.id,
@@ -59,8 +81,13 @@ export class ProjectsService {
     }))
   }
 
-  async getFullProject(id: number): Promise<FullProjectDto> {
+  async getFullProject(
+    id: number,
+    payload: AuthPayload
+  ): Promise<FullProjectDto> {
     const project = await this.projectsRepository.getFullProjectIfExists(id)
+
+    await this.checkPermission(payload, id, PROJECT_PERMISSIONS.PROJECT.READ)
 
     return {
       id: project.id,
@@ -98,7 +125,10 @@ export class ProjectsService {
     }
   }
 
-  async createProject(dto: CreateProjectRequestDto): Promise<CreateProjectDto> {
+  async createProject(
+    dto: CreateProjectRequestDto,
+    payload: AuthPayload
+  ): Promise<CreateProjectDto> {
     const project = new Project({
       name: dto.name,
       description: dto.description ?? '',
@@ -111,6 +141,24 @@ export class ProjectsService {
     })
 
     const newProject = await this.connection.createEntityManager().save(project)
+    const roleOwner = await this.connection
+      .createEntityManager()
+      .findOne(Role, { where: { name: 'Project Owner' } })
+
+    if (!roleOwner) {
+      throw new AppException(
+        HttpStatus.NOT_FOUND,
+        'Role "Project Owner" not found'
+      )
+    }
+
+    const project_user = new ProjectsUsers({
+      project: newProject,
+      role: roleOwner,
+      user: new User({ id: payload.id }),
+    })
+
+    await this.connection.createEntityManager().save(project_user)
 
     return {
       id: newProject.id,
@@ -127,16 +175,20 @@ export class ProjectsService {
     }
   }
 
-  async removeProject(id: number): Promise<void> {
+  async removeProject(id: number, payload: AuthPayload): Promise<void> {
     const project = await this.projectsRepository.getProjectIfExists(id)
+
+    await this.checkPermission(payload, id, PROJECT_PERMISSIONS.PROJECT.DELETE)
 
     await this.connection.createEntityManager().softRemove(project)
   }
 
   async updateProject(
     id: number,
-    dto: UpdateProjectRequestDto
+    dto: UpdateProjectRequestDto,
+    payload: AuthPayload
   ): Promise<UpdateProjectDto> {
+    await this.checkPermission(payload, id, PROJECT_PERMISSIONS.PROJECT.UPDATE)
     const project = await this.projectsRepository.getProjectIfExists(id)
 
     project.name = dto.name ?? project.name
@@ -251,6 +303,31 @@ export class ProjectsService {
       )
     }
 
+    const roleOwner = await this.connection
+      .createEntityManager()
+      .findOne(Role, { where: { name: 'Project Owner' } })
+
+    if (!roleOwner) {
+      throw new AppException(
+        HttpStatus.NOT_FOUND,
+        'Role "Project Owner" not found'
+      )
+    }
+
+    const countOwners = await this.connection
+      .createQueryBuilder(ProjectsUsers, 'projectUsers')
+      .select('projectUsers.project', 'project')
+      .addSelect('projectUsers.role', 'role')
+      .addSelect('COUNT(*)', 'count')
+      .groupBy('projectUsers.project, projectUsers.role')
+      .getRawOne()
+
+    this.logger.debug('bitch', countOwners)
+
+    if (countOwners.count == 1) {
+      throw new AppException(HttpStatus.BAD_REQUEST, 'Owner cannot be deleted')
+    }
+
     await this.connection.createEntityManager().remove(projectsUsers)
   }
 
@@ -320,5 +397,25 @@ export class ProjectsService {
         },
       },
     }
+  }
+
+  async checkPermission(
+    payload: AuthPayload,
+    projectId: number,
+    permission: string
+  ): Promise<void> {
+    const isLocalPer = await this.permissionsService.hasProjectPermission(
+      payload.username,
+      projectId,
+      permission
+    )
+
+    const isGlobalPer = await this.permissionsService.hasGlobalPermission(
+      payload.username,
+      permission
+    )
+
+    if (!isGlobalPer && !isLocalPer)
+      throw new AppException(HttpStatus.FORBIDDEN, 'No Access')
   }
 }

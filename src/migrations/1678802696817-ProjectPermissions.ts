@@ -2,10 +2,10 @@ import { MigrationInterface, QueryRunner } from 'typeorm'
 
 export class ProjectPermissions1678802696817 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`DELETE FROM "roles_permissions"`)
-    queryRunner.query(`DELETE FROM "permission"`)
+    await queryRunner.query(`DELETE FROM "roles_permissions"`)
+    await queryRunner.query(`DELETE FROM "permission"`)
 
-    queryRunner.query(`INSERT INTO "permission"
+    await queryRunner.query(`INSERT INTO "permission"
       (name, is_global, description, "group", operation) values
       ('profile:read', true, 'Read personal profile', 'profile', 'read'),
       ('profile:update', true, 'Modify personal profile', 'profile', 'update'),
@@ -26,14 +26,14 @@ export class ProjectPermissions1678802696817 implements MigrationInterface {
       ('projects:delete', true, 'Delete any project', 'projects', 'delete')
     `)
 
-    queryRunner.query(`INSERT INTO "permission"
+    await queryRunner.query(`INSERT INTO "permission"
       (name, is_global, description, "group", operation) values
       ('project:read', false, 'Read project', 'project', 'read'),
       ('project:update', false, 'Update project info', 'project', 'update'),
       ('project:delete', false, 'Delete project', 'project', 'delete')
     `)
 
-    queryRunner.query(`INSERT INTO "roles_permissions"
+    await queryRunner.query(`INSERT INTO "roles_permissions"
       (role_id, permission_id)
       select 1, id from "permission"`)
   }

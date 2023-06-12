@@ -2,7 +2,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm'
 
 export class DefaultPermissions1677593876243 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`INSERT INTO "permission"
+    await queryRunner.query(`INSERT INTO "permission"
       (name, is_global, description, "group", operation) values
       ('users:create', true, 'Create user accounts', 'users', 'create'),
       ('users:read', true, 'View basic users information', 'users', 'read'),
@@ -17,19 +17,19 @@ export class DefaultPermissions1677593876243 implements MigrationInterface {
       ('roles:delete', true, 'Delete roles', 'roles', 'delete')
         `)
 
-    queryRunner.query(`INSERT INTO "role"
+    await queryRunner.query(`INSERT INTO "role"
       (name, is_global, description) values
       ('Administrator', true, 'System administrator'),
       ('Member', true, 'User without permissions')`)
 
-    queryRunner.query(`INSERT INTO "roles_permissions"
+    await queryRunner.query(`INSERT INTO "roles_permissions"
       (role_id, permission_id)
       select 1, id from "permission"`)
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`DELETE FROM "roles_permissions"`)
-    queryRunner.query(`DELETE FROM "role"`)
-    queryRunner.query(`DELETE FROM "permission"`)
+    await queryRunner.query(`DELETE FROM "roles_permissions"`)
+    await queryRunner.query(`DELETE FROM "role"`)
+    await queryRunner.query(`DELETE FROM "permission"`)
   }
 }

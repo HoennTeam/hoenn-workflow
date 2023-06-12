@@ -49,7 +49,12 @@ import { UpdateBoardDto } from './dto/update-board.dto'
 import { BoardsService } from './boards.service'
 import { MoveStageRequest } from './api/move-stage.api'
 import { Authorize } from '../../common/decorators/authorize.decorator'
-import { PERMISSIONS } from '../../common/const/permissions.const'
+import {
+  PERMISSIONS,
+  PROJECT_PERMISSIONS,
+} from '../../common/const/permissions.const'
+import { Payload } from '../../common/decorators/payload.decorator'
+import { AuthPayload } from '../../common/interfaces/auth-payload.interface'
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -58,24 +63,27 @@ export class ProjectsController {
     private readonly boardsService: BoardsService
   ) {}
 
-  @Authorize({ permission: PERMISSIONS.PROJECTS.READ })
+  @Authorize({})
   @ApiOperation({ description: 'Get all projects' })
   @ApiOkResponse({ type: ProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Get()
-  public async getProjects(): Promise<ProjectResponse[]> {
-    return this.projectsService.getProjects()
+  public async getProjects(
+    @Payload() payload: AuthPayload
+  ): Promise<ProjectResponse[]> {
+    return this.projectsService.getProjects(payload)
   }
 
-  @Authorize({ permission: PERMISSIONS.PROJECTS.READ })
+  @Authorize({})
   @ApiOperation({ description: 'Get one project' })
   @ApiOkResponse({ type: ProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Get('/:id')
   public async getProject(
-    @Param('id', ParseIntPipe) id: number
+    @Param('id', ParseIntPipe) id: number,
+    @Payload() payload: AuthPayload
   ): Promise<FullProjectResponse> {
-    return this.projectsService.getFullProject(id)
+    return this.projectsService.getFullProject(id, payload)
   }
 
   @Authorize({ permission: PERMISSIONS.PROJECTS.CREATE })
@@ -84,32 +92,35 @@ export class ProjectsController {
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Post()
   public async createProject(
+    @Payload() payload: AuthPayload,
     @Body() createProjectRequest: CreateProjectRequest
   ): Promise<CreateProjectResponse> {
-    return this.projectsService.createProject(createProjectRequest)
+    return this.projectsService.createProject(createProjectRequest, payload)
   }
 
-  @Authorize({ permission: PERMISSIONS.PROJECTS.DELETE })
+  @Authorize({})
   @ApiOperation({ description: 'Delete project' })
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Delete('/:id')
   public async removeProject(
-    @Param('id', ParseIntPipe) id: number
+    @Param('id', ParseIntPipe) id: number,
+    @Payload() payload: AuthPayload
   ): Promise<void> {
-    return this.projectsService.removeProject(id)
+    return this.projectsService.removeProject(id, payload)
   }
 
-  @Authorize({ permission: PERMISSIONS.PROJECTS.UPDATE })
+  @Authorize({})
   @ApiOperation({ description: 'Update project' })
   @ApiOkResponse({ type: UpdateProjectResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
   @Patch('/:id')
   public async updateProject(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateProject: UpdateProjectRequest
+    @Body() updateProject: UpdateProjectRequest,
+    @Payload() payload: AuthPayload
   ): Promise<UpdateProjectResponse> {
-    return this.projectsService.updateProject(id, updateProject)
+    return this.projectsService.updateProject(id, updateProject, payload)
   }
 
   @ApiOperation({ description: 'Add user to project' })

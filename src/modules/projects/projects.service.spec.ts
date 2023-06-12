@@ -4,6 +4,7 @@ import { ConfigModule } from '../../core/config/config.module'
 import { LoggerModule } from '../../core/logger/logger.module'
 import { ProjectsService } from './projects.service'
 import { ProjectsRepository } from './projects.repository'
+import { PermissionsService } from '../auth/services/permissions.service'
 
 describe('ProjectsService', () => {
   let service: ProjectsService
@@ -15,6 +16,7 @@ describe('ProjectsService', () => {
         ProjectsService,
         { provide: DataSource, useValue: {} },
         { provide: ProjectsRepository, useValue: {} },
+        { provide: PermissionsService, useValue: {} },
       ],
     }).compile()
 
