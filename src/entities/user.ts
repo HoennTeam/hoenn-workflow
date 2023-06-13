@@ -44,7 +44,7 @@ export class User {
 
   @ManyToOne(() => Role, (role) => role.users, {
     nullable: false,
-    cascade: true,
+    cascade: ['insert', 'update'],
   })
   globalRole: Role
 
